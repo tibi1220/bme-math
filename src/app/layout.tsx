@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Geist, STIX_Two_Text } from 'next/font/google';
 import Link from 'next/link';
+import { Footer } from '@/components/footer';
 import { Logo } from '@/components/logo';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { absoluteUrl, siteDescription, siteName } from '@/lib/site';
@@ -69,6 +70,7 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
         <main className='mx-auto w-full max-w-3xl flex-1 px-4 py-8'>
           {children}
         </main>
+        <Footer />
       </body>
     </html>
   );

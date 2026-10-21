@@ -16,3 +16,14 @@ export const siteDescription =
 export function absoluteUrl(path: string) {
   return `${siteOrigin}${basePath}${path.endsWith('/') ? path : `${path}/`}`;
 }
+
+// Who runs the site, named in the privacy policy and the footer.
+export const operator = {
+  name: 'tibi1220',
+  url: 'https://github.com/tibi1220',
+};
+
+export const repositoryUrl = 'https://github.com/tibi1220/bme-math';
+
+// The date the privacy and cookie policies were last changed.
+export const policyDate = '2026. október 21.';

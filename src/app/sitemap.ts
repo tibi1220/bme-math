@@ -29,6 +29,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
             .map(topic => topicHref(subject, exam, topic)),
         ]),
     ]),
+    '/privacy',
+    '/cookies',
   ];
   return paths.map(path => ({ url: absoluteUrl(path) }));
 }

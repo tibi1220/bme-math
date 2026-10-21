@@ -1,0 +1,26 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+\[
+	a_n
+	= \left(
+	\frac{\left(1 - \frac{9}{n}\right)^n}{\left(1 + \frac{4}{n}\right)^n}
+	\right)^3
+	\to e^{-39}
+\]
+Mivel
+\(
+\left( \frac{n - 9}{4 + n} \right)^n \to e^{-13}
+\),
+ezért elég nagy $n$ esetén
+\[
+	0 < b_n
+	= \left( \left( \frac{n - 9}{4 + n} \right)^n \right)^{n^2}
+	< \left( e^{-13} + \varepsilon \right)^{n^2}
+	\to 0,
+\]
+ha $0 < \varepsilon < 1 - e^{-13}$. Így $\lim b_n = 0$.
+\end{document}

@@ -1,0 +1,41 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+$x^2 - 9 = (x - 3)(x + 3)$ és $x^2 - x - 6 = (x - 3)(x + 2)$, így
+$x \ne 3, -2$ esetén \(f(x) = \frac{x + 3}{x + 2}\).
+\begin{enumerate}
+	\item Igazolni kell, hogy minden $\varepsilon > 0$ számhoz létezik
+	      $\delta(\varepsilon) > 0$, hogy $0 < |x + 1| < \delta(\varepsilon)$
+	      esetén $|f(x) - 2| < \varepsilon$. Legyen $\varepsilon > 0$.
+	      \[
+		      \left| \frac{x + 3}{x + 2} - 2 \right|
+		      = \frac{|x + 3 - 2x - 4|}{|x + 2|}
+		      = \frac{|x + 1|}{|x + 2|}
+	      \]
+	      Ha $|x + 1| < \frac{1}{2}$, akkor $-\frac{3}{2} < x < -\frac{1}{2}$, így
+	      $|x + 2| > \frac{1}{2}$, tehát
+	      \[
+		      \frac{|x + 1|}{|x + 2|} < 2 |x + 1| < \varepsilon,
+	      \]
+	      ha $|x + 1| < \frac{\varepsilon}{2}$. Így
+	      \(
+	      \delta(\varepsilon) = \min\left( \frac{1}{2}, \frac{\varepsilon}{2} \right)
+	      \).
+
+	\item \[
+		      \lim_{x \to -3} f(x)
+		      = \lim_{x \to -3} \frac{x + 3}{x + 2}
+		      = \frac{0}{-1}
+		      = 0
+	      \]
+
+	\item \[
+		      \lim_{x \to +\infty} f(x)
+		      = \lim_{x \to +\infty} \frac{1 + \frac{3}{x}}{1 + \frac{2}{x}}
+		      = 1
+	      \]
+\end{enumerate}
+\end{document}

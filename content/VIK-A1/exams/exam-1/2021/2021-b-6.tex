@@ -1,0 +1,19 @@
+% ---
+% topic: 02
+% points: [8]
+% imsc: true
+% ---
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+Bizonyítsa be, hogy $z = r e^{i \vartheta}$, $w = R e^{i \varphi}$,
+$0 \le r < R$ esetén
+\[
+	\operatorname{Re} \left( \frac{w + z}{w - z} \right)
+	= \frac{|w|^2 - |z|^2}{|w - z|^2}
+	= \frac{R^2 - r^2}{R^2 - 2Rr \cos(\vartheta - \varphi) + r^2}!
+\]
+\end{document}

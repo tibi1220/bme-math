@@ -1,0 +1,41 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+\begin{enumerate}
+	\item Például legyen a sorozat
+	      \[
+		      1;\ 1, 2;\ 1, 2, 3;\ 1, 2, 3, 4;\ \ldots
+		      \text,
+	      \]
+	      vagyis az $m$-edik blokk az $1, 2, \ldots, m$ számokból áll.
+
+	      Minden $k$ pozitív egész szám minden $m \ge k$ indexű blokkban
+	      szerepel, tehát végtelen sokszor fordul elő a sorozatban, így
+	      torlódási pont.
+
+	      Más valós szám nem lehet torlódási pont, hiszen a sorozat elemei
+	      pozitív egészek: ha $c$ nem pozitív egész, akkor $c$-nek van olyan
+	      környezete, amely egyetlen sorozatelemet sem tartalmaz.
+
+	\item \textbf{Bizonyítás}
+
+	      A $+\infty$ akkor torlódási pont, ha minden $K$ valós számhoz
+	      végtelen sok olyan $n$ index létezik, amelyre $a_n > K$.
+
+	      Legyen $K$ tetszőleges, és válasszunk egy $k > K + 1$ pozitív egész
+	      számot. Mivel $k$ torlódási pontja a sorozatnak, ezért végtelen sok
+	      $n$-re
+	      \[
+		      |a_n - k| < 1
+		      \quad \Longrightarrow \quad
+		      a_n > k - 1 > K
+		      \text.
+	      \]
+
+	      Következésképpen: a sorozatnak bármely $K$ felett végtelen sok eleme
+	      van, vagyis a $+\infty$ is torlódási pontja.
+\end{enumerate}
+\end{document}

@@ -1,0 +1,25 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+\[
+	c_n = \frac{-0{,}1 \cdot (-10)^n + 9n^2 9^n}{0{,}4 \cdot 10^n + 1}
+\]
+\[
+	c_{2n}
+	= \frac{-0{,}1 \cdot 100^n + 36n^2 81^n}{0{,}4 \cdot 100^n + 1}
+	= \frac{-0{,}1 + 36n^2 (0{,}81)^n}{0{,}4 + 0{,}01^n}
+	\to -0{,}25
+\]
+\[
+	c_{2n - 1}
+	= \frac{0{,}01 \cdot 100^n + (2n - 1)^2 81^n}{0{,}04 \cdot 100^n + 1}
+	= \frac{0{,}01 + (2n - 1)^2 (0{,}81)^n}{0{,}04 + 0{,}01^n}
+	\to 0{,}25
+\]
+Minden elem szerepel valamelyik részsorozatban, így 2 torlódási pont van:
+$\pm 0{,}25$. $\limsup c_n = 0{,}25$, $\liminf c_n = -0{,}25$, a határérték
+nem létezik.
+\end{document}

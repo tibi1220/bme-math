@@ -1,0 +1,27 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+\begin{enumerate}
+	\item $\lim_{n \to \infty} a_n = +\infty$, ha minden $P > 0$ számhoz
+	      létezik $N(P) \in \mathbb{N}$, melyre $n \ge N(P)$ esetén $a_n > P$.
+
+	\item $n \ne 3$ esetén (az $n = 3$ helyen a tört nincs értelmezve)
+	      \[
+		      \frac{n^3 - 9n}{n - 3}
+		      = \frac{n (n - 3)(n + 3)}{n - 3}
+		      = n (n + 3)
+		      \text.
+	      \]
+	      Legyen $P > 0$. Ekkor
+	      \[
+		      n (n + 3) > n^2 > P,
+	      \]
+	      ha $n > \sqrt{P}$, így
+	      \(
+	      N(P) = \max\left( 4, \left[ \sqrt{P} \right] + 1 \right)
+	      \).
+\end{enumerate}
+\end{document}

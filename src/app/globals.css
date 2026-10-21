@@ -1,0 +1,27 @@
+@import 'tailwindcss';
+
+/* Dark mode follows the data-theme attribute on <html> (see src/lib/theme.ts). */
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+[data-theme='dark'] {
+  color-scheme: dark;
+}
+
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+}
+
+/*
+ * Formulas: letters, digits and text in STIX Two, like the PDFs. KaTeX keeps
+ * its own fonts for delimiters, radicals and big operators, which depend on
+ * KaTeX's metrics. This rule overrides katex.min.css, so it must stay outside
+ * Tailwind's layers: unlayered CSS always wins over layered utilities.
+ */
+.katex {
+  font-family: var(--font-stix-two), KaTeX_Main, serif;
+  font-size: 1.15em;
+}
+
+.katex :is(.mathnormal, .mathit, .mathrm, .textrm, .mathbf, .boldsymbol) {
+  font-family: var(--font-stix-two), KaTeX_Main, serif;
+}

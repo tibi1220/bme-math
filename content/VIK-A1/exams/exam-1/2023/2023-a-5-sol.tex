@@ -1,0 +1,31 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+$x^2 - x - 6 = (x - 3)(x + 2)$, tehát
+$D_f = \mathbb{R} \setminus \{-2, 3\}$. A függvény folytonos az
+értelmezési tartományának minden pontjában, mert folytonos
+függvények hányadosa, és a nevező nem nulla.
+\[
+	\lim_{x \to -2 \pm 0} f(x)
+	= \lim_{x \to -2 \pm 0} \frac{\sin(x + 2)}{|x + 2|} \cdot \frac{1}{|x - 3|}
+	=
+	\lim_{x \to -2 \pm 0}
+	\underbrace{\frac{\sin(x + 2)}{\pm (x + 2)}}_{\to \pm 1} \cdot
+	\underbrace{\frac{1}{|x - 3|}}_{\to \frac{1}{5}}
+	=
+	\pm \frac{1}{5},
+\]
+tehát a függvénynek a $-2$ pontban véges ugrás típusú szakadása van.
+\[
+	\lim_{x \to 3} f(x)
+	= \lim_{x \to 3}
+	\underbrace{\frac{\sin(x + 2)}{|x + 2|}}_{\to \frac{\sin(5)}{5} < 0} \cdot
+	\underbrace{\frac{1}{|x - 3|}}_{\to +\infty}
+	= -\infty,
+\]
+azaz a $3$ pontban a bal és a jobb oldali határérték is $-\infty$, így itt a
+függvénynek másodfajú szakadása van.
+\end{document}

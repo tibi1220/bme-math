@@ -1,0 +1,27 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+\begin{enumerate}
+	\item $n \ge 8$ esetén $n^4 \le 3^n$ és $6 \le 3^n$, így
+	      \[
+		      3
+		      = \sqrt[n]{3^n}
+		      \le a_n
+		      \le \sqrt[n]{3 \cdot 3^n}
+		      = \sqrt[n]{3} \cdot 3
+		      \to 3,
+	      \]
+	      tehát a rendőrelv miatt $a_n \to 3$.
+
+	\item \[
+		      b_n
+		      = \frac{\left(1 - \frac{4/3}{n}\right)^n}{\left(1 + \frac{5/3}{n}\right)^n}
+		      \cdot \left( \frac{3n - 4}{3n + 5} \right)^{-1}
+		      \to \frac{e^{-\frac{4}{3}}}{e^{\frac{5}{3}}} \cdot 1
+		      = e^{-3}
+	      \]
+\end{enumerate}
+\end{document}

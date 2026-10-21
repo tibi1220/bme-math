@@ -1,0 +1,25 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+\begin{enumerate}
+	\item $\lim_{n \to \infty} a_n = A$, ha minden $\varepsilon > 0$ számhoz
+	      létezik $N(\varepsilon) \in \mathbb{N}$, melyre $n \ge N(\varepsilon)$
+	      esetén $|a_n - A| < \varepsilon$.
+
+	\item Legyen $\varepsilon > 0$. Ekkor
+	      \[
+		      \left| \frac{3n^3 - 2n}{n^3 + 2n + 1} - 3 \right|
+		      = \frac{8n + 3}{n^3 + 2n + 1}
+		      \le \frac{11n}{n^3}
+		      = \frac{11}{n^2}
+		      < \varepsilon,
+	      \]
+	      ha \(n > \sqrt{\frac{11}{\varepsilon}}\), így
+	      \(
+	      N(\varepsilon) = \left[ \sqrt{\frac{11}{\varepsilon}} \right] + 1
+	      \).
+\end{enumerate}
+\end{document}

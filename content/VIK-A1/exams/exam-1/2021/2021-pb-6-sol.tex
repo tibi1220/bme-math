@@ -1,0 +1,51 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+\begin{enumerate}
+	\item Rendőrelvvel dolgozunk. Minden pozitív $\varepsilon$ esetén
+	      elegendően nagy $n$-ekre teljesül, hogy
+	      $A - \varepsilon < a_n < A + \varepsilon$, így
+	      \[
+		      \left(1 + \frac{A - \varepsilon}{n}\right)^n
+		      < \left(1 + \frac{a_n}{n}\right)^n
+		      < \left(1 + \frac{A + \varepsilon}{n}\right)^n,
+	      \]
+	      és limeszt véve
+	      \[
+		      e^{A - \varepsilon}
+		      \le \liminf \left(1 + \frac{a_n}{n}\right)^n
+		      \le \limsup \left(1 + \frac{a_n}{n}\right)^n
+		      \le e^{A + \varepsilon}.
+	      \]
+	      Az $\varepsilon \to 0$ határátmenetet véve megkapjuk a bizonyítandó
+	      állítást.
+
+	\item Írjuk fel az alapot exponenciális alakban:
+	      \[
+		      1 + \frac{i\alpha}{n} = \rho e^{i\phi}, \quad \text{ahol} \quad
+		      \rho = \sqrt{1 + \left(\frac{\alpha}{n}\right)^2}, \quad
+		      \phi = \arctan\left(\frac{\alpha}{n}\right).
+	      \]
+	      Ezen az alakon elvégezzük a hatványozást:
+	      \[
+		      \left(1 + \frac{i\alpha}{n}\right)^n
+		      = \rho^n e^{in\phi}
+		      = \left(1 + \frac{\alpha^2 / n}{n}\right)^{\frac{n}{2}}
+		      e^{in \arctan\left(\frac{\alpha}{n}\right)}
+		      \xrightarrow{n \to \infty} e^{i\alpha},
+	      \]
+	      hiszen
+	      \(
+	      \left(1 + \frac{\alpha^2 / n}{n}\right)^{\frac{n}{2}} \to 1
+	      \)
+	      az a) állítás miatt, és
+	      \(
+	      e^{in \arctan\left(\frac{\alpha}{n}\right)} \to e^{i\alpha}
+	      \)
+	      az exponenciális függvény folytonossága és a megadott összefüggés
+	      miatt.
+\end{enumerate}
+\end{document}

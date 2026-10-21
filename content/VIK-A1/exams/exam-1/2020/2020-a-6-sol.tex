@@ -1,0 +1,27 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+\begin{enumerate}
+	\item $\varphi(n) = 10^n - 1$ esetén
+	      \(
+	      a_{\varphi(n)} = \frac{10^n - 1}{10^n} = 1 - 10^{-n} \to 1
+	      \).
+
+	\item Ilyen nincs, mert $a_n \ge 0.1$ minden $n$-re.
+
+	\item $\varphi(n) = 5 \cdot 10^{n - 1}$ esetén
+	      $a_{\varphi(n)} = 0.5 \to 0.5$.
+
+	\item Jelölje $TP$ a torlódási pontok halmazát. Mivel
+	      $0.1 \le a_n \le 1$ minden $n$-re, ezért $TP \subset [0.1, 1]$.
+
+	      $A \in [0.1, 1[$ esetén legyen
+	      $\varphi(n) = \lfloor A \cdot 10^n \rfloor$. Ekkor
+	      $a_{\varphi(n)} \to A$.
+
+	      Az a) rész miatt $TP = [0.1, 1]$.
+\end{enumerate}
+\end{document}

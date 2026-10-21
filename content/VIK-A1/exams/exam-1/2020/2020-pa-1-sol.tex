@@ -1,0 +1,34 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+\usepackage{tikz}
+
+\begin{document}
+\[
+	\frac{3 - 3i}{2 + i}
+	= \frac{(3 - 3i)(2 - i)}{(2 + i)(2 - i)}
+	= \frac{6 + 3i^2 - 3i - 6i}{4 - i^2},
+\]
+ezért
+\(
+\operatorname{Re}\left(\frac{3 - 3i}{2 + i}\right) = \frac{3}{5}
+\) és
+\(
+\operatorname{Im}\left(\frac{3 - 3i}{2 + i}\right) = -\frac{9}{5}
+\).
+\[
+	\operatorname{Re}\left(3 - 3i + \overline{2 + i}\right) = 5, \quad
+	\operatorname{Im}\left(3 - 3i + \overline{2 + i}\right) = -4.
+\]
+
+A kapott számok a komplex számsíkon:
+\begin{center}
+	\begin{tikzpicture}[scale=0.6, >=stealth]
+		\draw[->] (-1.5, 0) -- (6.2, 0) node[right] {$\operatorname{Re}$};
+		\draw[->] (0, -4.8) -- (0, 1) node[above] {$\operatorname{Im}$};
+		\fill (0.6, -1.8) circle (2pt) node[right] {$\frac{3}{5} - \frac{9}{5} i$};
+		\fill (5, -4) circle (2pt) node[below] {$5 - 4i$};
+	\end{tikzpicture}
+\end{center}
+\end{document}

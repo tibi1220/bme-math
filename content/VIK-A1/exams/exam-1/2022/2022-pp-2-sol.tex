@@ -1,0 +1,31 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+\begin{itemize}
+	\item \[
+		      a_n
+		      = \frac{
+			      \left( \sqrt{n^2 + n} - \sqrt{n^2 - n} \right)
+			      \left( \sqrt{n^2 + n} + \sqrt{n^2 - n} \right)
+		      }{
+			      \sqrt{n^2 + n} + \sqrt{n^2 - n}
+		      }
+		      = \frac{2n}{\sqrt{n^2 + n} + \sqrt{n^2 - n}}
+		      = \frac{2}{\sqrt{1 + \frac{1}{n}} + \sqrt{1 - \frac{1}{n}}}
+		      \to 1
+	      \]
+
+	\item Ha $n \ge 2$, akkor $n^2 - n \ge 1$ és $n^2 + n \le 2n^2$, így
+	      \[
+		      0
+		      \le b_n
+		      \le \sqrt[n]{2n^2} - 1
+		      = \sqrt[n]{2} \left( \sqrt[n]{n} \right)^2 - 1
+		      \to 1 - 1 = 0,
+	      \]
+	      tehát a rendőrelv miatt $b_n \to 0$.
+\end{itemize}
+\end{document}

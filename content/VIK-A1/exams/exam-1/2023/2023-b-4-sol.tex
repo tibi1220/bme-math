@@ -1,0 +1,27 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+\[
+	a_n = \begin{cases}
+		\dfrac{n^n}{n!} \cdot \dfrac{1 + \left(\frac{7}{n}\right)^n}{1 + \frac{n^7}{n!}} \to \infty,
+		 & \text{ha } n \text{ páros}     \\[3ex]
+		\dfrac{n^n}{n!} \cdot \dfrac{-1 + \left(\frac{7}{n}\right)^n}{1 + \frac{n^7}{n!}} \to -\infty,
+		 & \text{ha } n \text{ páratlan}
+	\end{cases}
+\]
+A sorozat torlódási pontjainak halmaza $\{-\infty, \infty\}$,
+vagyis $\limsup a_n = \infty$, $\liminf a_n = -\infty$, így a sorozat nem konvergens.
+\[
+	b_n = \begin{cases}
+		\dfrac{n!}{n^n} \cdot \dfrac{1 + \frac{n^7}{n!}}{1 + \left(\frac{7}{n}\right)^n} \to 0,
+		 & \text{ha } n \text{ páros}     \\[3ex]
+		\dfrac{n!}{n^n} \cdot \dfrac{1 + \frac{n^7}{n!}}{-1 + \left(\frac{7}{n}\right)^n} \to 0,
+		 & \text{ha } n \text{ páratlan}
+	\end{cases}
+\]
+A sorozat egyetlen torlódási pontja a $0$, vagyis
+$\limsup b_n = \liminf b_n = 0 = \lim b_n$.
+\end{document}

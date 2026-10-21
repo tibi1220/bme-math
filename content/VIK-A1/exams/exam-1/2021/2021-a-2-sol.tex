@@ -1,0 +1,25 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+\begin{enumerate}
+	\item $\lim_{n \to \infty} a_n = A$, ha minden $\varepsilon > 0$ számhoz
+	      létezik $N(\varepsilon) \in \mathbb{N}$, melyre $n \ge N(\varepsilon)$
+	      esetén $|a_n - A| < \varepsilon$.
+
+	\item Legyen $\varepsilon > 0$. Ekkor
+	      \[
+		      \left| \frac{2n^3 - 3n}{n^3 + n + 2} - 2 \right|
+		      = \frac{5n + 4}{n^3 + n + 2}
+		      \le \frac{9n}{n^3}
+		      = \frac{9}{n^2}
+		      < \varepsilon,
+	      \]
+	      ha \(n > \sqrt{\frac{9}{\varepsilon}}\), így
+	      \(
+	      N(\varepsilon) = \left[ \sqrt{\frac{9}{\varepsilon}} \right] + 1
+	      \).
+\end{enumerate}
+\end{document}

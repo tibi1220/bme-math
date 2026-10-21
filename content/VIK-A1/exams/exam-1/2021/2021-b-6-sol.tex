@@ -1,0 +1,37 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+\usepackage{tikz}
+
+\begin{document}
+\[
+	\frac{w + z}{w - z}
+	= \frac{(w + z)(\overline{w} - \overline{z})}{|w - z|^2}
+	= \frac{|w|^2 - |z|^2 + z\overline{w} - \overline{z}w}{|w - z|^2}.
+\]
+Itt $\operatorname{Re}(z\overline{w} - \overline{z}w) = 0$, és
+$|w - z|^2 = |w|^2 + |z|^2 - (z\overline{w} + \overline{z}w)$, ahol
+$|z|^2 = r^2$, $|w|^2 = R^2$ és
+$z\overline{w} + \overline{z}w = 2 \operatorname{Re}(z\overline{w})
+	= 2Rr \cos(\vartheta - \varphi)$.
+
+Szemléltetés: $z$ az $r$, $w$ az $R$ sugarú körön van
+($0 \le r < R$), a két szám szöge $\vartheta$, illetve $\varphi$:
+\begin{center}
+	\begin{tikzpicture}[scale=0.8, >=stealth]
+		\draw[->] (-2.8, 0) -- (3.0, 0) node[right] {$\operatorname{Re}$};
+		\draw[->] (0, -2.8) -- (0, 2.9) node[above] {$\operatorname{Im}$};
+		\draw[dashed] (0, 0) circle (1.2);
+		\draw[dashed] (0, 0) circle (2.4);
+		\draw (0, 0) -- (70:1.2);
+		\draw (0, 0) -- (25:2.4);
+		\draw (0.5, 0) arc[start angle=0, end angle=70, radius=0.5];
+		\node at (40:0.75) {$\vartheta$};
+		\draw (1.6, 0) arc[start angle=0, end angle=25, radius=1.6];
+		\node at (12:1.85) {$\varphi$};
+		\fill (70:1.2) circle (2pt) node[above left] {$z$};
+		\fill (25:2.4) circle (2pt) node[above right] {$w$};
+	\end{tikzpicture}
+\end{center}
+\end{document}

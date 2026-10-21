@@ -1,0 +1,71 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+\usepackage{xfrac}
+
+\begin{document}
+\begin{enumerate}
+	\item Behelyettesítéssel $\left(\frac{0}{0}\right)$ típusú határozatlan
+	      alakot kapunk.
+
+	      \textbf{Bővítés a konjugálttal}
+
+	      Bővítsük a törtet $(1 + \cos x)$-szel, és használjuk fel, hogy
+	      $1 - \cos^2 x = \sin^2 x$:
+	      \[
+		      \frac{x^2}{1 - \cos x}
+		      = \frac{x^2 (1 + \cos x)}{1 - \cos^2 x}
+		      = \left( \frac{x}{\sin x} \right)^2 (1 + \cos x)
+		      \to 1^2 \cdot 2 = 2
+		      \text,
+	      \]
+	      hiszen $\displaystyle\lim_{x \to 0} \frac{\sin x}{x} = 1$.
+
+	      \textbf{Másik megoldás}
+
+	      Az $1 - \cos x = 2 \sin^2 \frac{x}{2}$ azonosság alapján:
+	      \[
+		      \frac{x^2}{1 - \cos x}
+		      = \frac{x^2}{2 \sin^2 \frac{x}{2}}
+		      = 2 \left( \frac{\sfrac{x}{2}}{\sin \frac{x}{2}} \right)^2
+		      \to 2 \cdot 1^2 = 2
+		      \text.
+	      \]
+
+	\item Írjuk fel a $\cosh$ függvényt a definíciója szerint,
+	      $\cosh t = \frac{e^t + e^{-t}}{2}$:
+	      \[
+		      \frac{\cosh(3 - 2x)}{e^{2x - 1}}
+		      = \frac{e^{3 - 2x} + e^{2x - 3}}{2 e^{2x - 1}}
+		      = \frac{1}{2} \left( e^{4 - 4x} + e^{-2} \right)
+		      \text.
+	      \]
+	      Ha $x \to -\infty$, akkor $4 - 4x \to \infty$, így
+	      $e^{4 - 4x} \to \infty$. A határérték tehát:
+	      \[
+		      \lim_{x \to -\infty} \frac{\cosh(3 - 2x)}{e^{2x - 1}}
+		      = \infty
+		      \text.
+	      \]
+
+	\item Behelyettesítéssel a zárójelben $(\infty - \infty)$ típusú
+	      határozatlan alakot kapunk. Alkalmazzuk a gyökös kifejezések
+	      racionalizálását, vagyis szorozzunk és osszunk a konjugált
+	      kifejezéssel:
+	      \[
+		      x \cdot \left( \sqrt{x^2 - 1} - \sqrt{x^2 + 3} \right)
+		      = x \cdot \frac{(x^2 - 1) - (x^2 + 3)}{\sqrt{x^2 - 1} + \sqrt{x^2 + 3}}
+		      = \frac{-4x}{\sqrt{x^2 - 1} + \sqrt{x^2 + 3}}
+		      \text.
+	      \]
+	      Mivel $x \to -\infty$, ezért $x < 0$, így $\sqrt{x^2} = |x| = -x$.
+	      Emeljünk ki a nevezőből:
+	      \[
+		      \frac{-4x}{-x \left( \sqrt{1 - \sfrac{1}{x^2}} + \sqrt{1 + \sfrac{3}{x^2}} \right)}
+		      = \frac{4}{\sqrt{1 - \sfrac{1}{x^2}} + \sqrt{1 + \sfrac{3}{x^2}}}
+		      \to \frac{4}{1 + 1} = 2
+		      \text.
+	      \]
+\end{enumerate}
+\end{document}

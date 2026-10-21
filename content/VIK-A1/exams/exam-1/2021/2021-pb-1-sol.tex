@@ -1,0 +1,43 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+\usepackage{tikz}
+
+\begin{document}
+$i z^6 + 27z^3 = z^3 (i z^3 + 27)$, így $z_1 = 0$ megoldás.
+
+$i z^3 = -27$, ha
+\(
+z^3 = 27i = 27\left(\cos \frac{\pi}{2} + i \sin \frac{\pi}{2}\right)
+\),
+tehát a gyökvonás képletével
+\[
+	z_{k + 2} = \sqrt[3]{27} \left(
+	\cos \frac{\frac{\pi}{2} + 2k\pi}{3} + i \sin \frac{\frac{\pi}{2} + 2k\pi}{3}
+	\right),
+	\quad k \in \{0; 1; 2\},
+\]
+vagyis a további megoldások
+\[
+	\begin{aligned}
+		z_2 & = 3\left(\cos \frac{\pi}{6} + i \sin \frac{\pi}{6}\right) = \frac{3\sqrt{3}}{2} + \frac{3}{2} i,    \\
+		z_3 & = 3\left(\cos \frac{5\pi}{6} + i \sin \frac{5\pi}{6}\right) = -\frac{3\sqrt{3}}{2} + \frac{3}{2} i, \\
+		z_4 & = 3\left(\cos \frac{3\pi}{2} + i \sin \frac{3\pi}{2}\right) = -3i.
+	\end{aligned}
+\]
+
+A gyökök a komplex számsíkon:
+\begin{center}
+	\begin{tikzpicture}[scale=0.5333333333333333, >=stealth]
+		\draw[->] (-3.8, 0) -- (3.8, 0) node[right] {$\operatorname{Re}$};
+		\draw[->] (0, -3.8) -- (0, 3.8) node[above] {$\operatorname{Im}$};
+		\draw[dashed] (0, 0) circle (3);
+		\draw[thin] (30:3) -- (150:3) -- (270:3) -- cycle;
+		\fill (30:3) circle (2pt) node[above right] {$z_2$};
+		\fill (150:3) circle (2pt) node[above left] {$z_3$};
+		\fill (270:3) circle (2pt) node[below right] {$z_4$};
+		\fill (0, 0) circle (2pt) node[below left] {$z_1$};
+	\end{tikzpicture}
+\end{center}
+\end{document}

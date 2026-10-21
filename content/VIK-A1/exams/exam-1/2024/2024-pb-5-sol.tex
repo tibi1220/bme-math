@@ -1,0 +1,24 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+Mivel $\sin\left(x - \frac{\pi}{2}\right) = -\cos x$, ezért
+\(
+a_n = -\cos \frac{2n\pi}{3}
+\),
+ami $3$-as periódussal ismétlődik:
+\[
+	a_n = \begin{cases}
+		-1,            & \text{ha } 3 \mid n,    \\
+		\frac{1}{2}, & \text{ha } 3 \nmid n.
+	\end{cases}
+\]
+Mindkét érték végtelen sokszor fordul elő, így a torlódási pontok halmaza
+$\left\{ -1, \frac{1}{2} \right\}$, $\liminf a_n = -1$ és
+$\limsup a_n = \frac{1}{2}$.
+
+A sorozatnak nincs határértéke, mert két torlódási pontja van
+($\liminf a_n \ne \limsup a_n$).
+\end{document}

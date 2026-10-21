@@ -1,0 +1,36 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+\[
+	a_n = \begin{cases}
+		\left(
+		\dfrac{\left(1 - \frac{3}{n}\right)^n}{\left(1 + \frac{7}{n}\right)^n}
+		\right)^5 \to e^{-50},
+		 & \text{ha } n \text{ páros}     \\[3ex]
+		-\left(
+		\dfrac{\left(1 - \frac{3}{n}\right)^n}{\left(1 + \frac{7}{n}\right)^n}
+		\right)^5 \to -e^{-50},
+		 & \text{ha } n \text{ páratlan}
+	\end{cases}
+\]
+A sorozat torlódási pontjai a $\pm e^{-50}$, vagyis
+$\limsup a_n = e^{-50} \ne -e^{-50} = \liminf a_n$, és a sorozat nem
+konvergens.
+
+Mivel
+\(
+\left| \frac{3 - n}{7 + n} \right|^n \to e^{-10}
+\),
+ezért elég nagy $n$ esetén
+\[
+	|b_n|
+	= \left( \left| \frac{3 - n}{7 + n} \right|^n \right)^{n^4}
+	< \left( e^{-10} + \varepsilon \right)^{n^4}
+	\to 0,
+\]
+ha $0 < \varepsilon < 1 - e^{-10}$. Így a sorozat egyetlen torlódási pontja
+a $0$, és $\limsup b_n = \liminf b_n = 0 = \lim b_n$.
+\end{document}

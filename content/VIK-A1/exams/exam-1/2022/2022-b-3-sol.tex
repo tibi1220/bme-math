@@ -1,0 +1,26 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+\begin{itemize}
+	\item \[
+		      c_n
+		      = \frac{\left(\sqrt{n + \sqrt{n}} - \sqrt{n}\right)\left(\sqrt{n + \sqrt{n}} + \sqrt{n}\right)}{\sqrt{n + \sqrt{n}} + \sqrt{n}}
+		      = \frac{\sqrt{n}}{\sqrt{n + \sqrt{n}} + \sqrt{n}}
+		      = \frac{1}{\sqrt{1 + \frac{1}{\sqrt{n}}} + 1}
+		      \to \frac{1}{2}
+	      \]
+
+	\item \[
+		      d_n
+		      = \frac{-2 \cdot (-32)^n - \frac{1}{3} (-27)^n}{16^n}
+		      = (-1)^{n + 1} \left( 2 \cdot 2^n + \frac{1}{3} \left(\frac{27}{16}\right)^n \right)
+	      \]
+	      A zárójelben álló kifejezés $\infty$-hez tart, az előjel pedig
+	      váltakozik: páros $n$-re $d_n \to -\infty$, páratlan $n$-re
+	      $d_n \to \infty$. A sorozatnak tehát két torlódási pontja van
+	      ($\pm \infty$), így nincs határértéke.
+\end{itemize}
+\end{document}

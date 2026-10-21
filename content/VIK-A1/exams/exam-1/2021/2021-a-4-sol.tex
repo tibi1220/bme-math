@@ -1,0 +1,23 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+$a_2 = \sqrt{5} > a_1$, és ha $a_n < a_{n + 1}$, akkor
+$4a_n - 3 < 4a_{n + 1} - 3$, tehát
+\(
+a_{n + 1} = \sqrt{4a_n - 3} < \sqrt{4a_{n + 1} - 3} = a_{n + 2}
+\),
+vagyis a sorozat monoton nő.
+
+Ha a sorozat korlátos, akkor konvergens, és határértéke a sorozat legkisebb
+felső korlátja. A lehetséges $A$ határérték kielégíti az
+$A = \sqrt{4A - 3}$ egyenletet, vagyis $A = 1$ vagy $A = 3$. Mivel
+$a_n \ge 2$, így a határérték csak $3$ lehet.
+
+Belátjuk, hogy $a_n < 3$: $a_1 < 3$, és ha $a_n < 3$, akkor $4a_n - 3 < 9$,
+így $a_{n + 1} = \sqrt{4a_n - 3} < 3$.
+
+A sorozat tehát monoton és korlátos, így konvergens, a határértéke $3$.
+\end{document}

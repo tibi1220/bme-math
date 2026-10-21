@@ -1,0 +1,43 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+\usepackage{tikz}
+
+\begin{document}
+$i z^5 - 8z^2 = z^2 (i z^3 - 8)$, így $z_1 = 0$ megoldás.
+
+$i z^3 = 8$, ha
+\(
+z^3 = -8i = 8\left(\cos \frac{3\pi}{2} + i \sin \frac{3\pi}{2}\right)
+\),
+tehát a gyökvonás képletével
+\[
+	z_{k + 2} = \sqrt[3]{8} \left(
+	\cos \frac{\frac{3\pi}{2} + 2k\pi}{3} + i \sin \frac{\frac{3\pi}{2} + 2k\pi}{3}
+	\right),
+	\quad k \in \{0; 1; 2\},
+\]
+vagyis a további megoldások
+\[
+	\begin{aligned}
+		z_2 & = 2\left(\cos \frac{\pi}{2} + i \sin \frac{\pi}{2}\right) = 2i,                    \\
+		z_3 & = 2\left(\cos \frac{7\pi}{6} + i \sin \frac{7\pi}{6}\right) = -\sqrt{3} - i,       \\
+		z_4 & = 2\left(\cos \frac{11\pi}{6} + i \sin \frac{11\pi}{6}\right) = \sqrt{3} - i.
+	\end{aligned}
+\]
+
+A gyökök a komplex számsíkon:
+\begin{center}
+	\begin{tikzpicture}[scale=0.8, >=stealth]
+		\draw[->] (-2.8, 0) -- (2.8, 0) node[right] {$\operatorname{Re}$};
+		\draw[->] (0, -2.8) -- (0, 2.8) node[above] {$\operatorname{Im}$};
+		\draw[dashed] (0, 0) circle (2);
+		\draw[thin] (90:2) -- (210:2) -- (330:2) -- cycle;
+		\fill (90:2) circle (2pt) node[above right] {$z_2$};
+		\fill (210:2) circle (2pt) node[below left] {$z_3$};
+		\fill (330:2) circle (2pt) node[below right] {$z_4$};
+		\fill (0, 0) circle (2pt) node[below left] {$z_1$};
+	\end{tikzpicture}
+\end{center}
+\end{document}

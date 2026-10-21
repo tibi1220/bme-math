@@ -1,0 +1,28 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+\begin{itemize}
+	\item \[
+		      1 \leftarrow \sqrt[n]{\frac{4}{n}}
+		      = \sqrt[n]{\frac{4n^2}{n^3}}
+		      \ge \sqrt[n]{\frac{n^2 + 3n}{2n^3 - n + 1}}
+		      \ge \sqrt[n]{\frac{n^2}{2n^3}}
+		      = \sqrt[n]{\frac{1}{2n}} \to 1,
+	      \]
+	      így a rendőrelv miatt $a_n \to 1$.
+
+	\item \[
+		      b_n
+		      = \left( \frac{1 + 2/n^2}{1 - 5/n^2} \right)^{2n^2 + 3}
+		      =
+		      \frac{\left( \left(1 + 2/n^2\right)^{n^2} \right)^2}{\left( \left(1 - 5/n^2\right)^{n^2} \right)^2}
+		      \cdot \frac{\left(1 + 2/n^2\right)^3}{\left(1 - 5/n^2\right)^3}
+		      \longrightarrow
+		      \frac{\left(e^2\right)^2}{\left(e^{-5}\right)^2} \cdot \frac{1}{1}
+		      = e^{14}
+	      \]
+\end{itemize}
+\end{document}

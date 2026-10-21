@@ -1,0 +1,41 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+\usepackage{tikz}
+
+\begin{document}
+\begin{enumerate}
+	\item \[
+		      \frac{2 + 3i}{i + 4}
+		      = \frac{(2 + 3i)(4 - i)}{(4 + i)(4 - i)}
+		      = \frac{8 - 2i + 12i - 3i^2}{17}
+		      = \frac{11}{17} + \frac{10}{17} i
+	      \]
+
+	\item $8i = 8\left(\cos \frac{\pi}{2} + i \sin \frac{\pi}{2}\right)$, így
+	      \[
+		      z_k
+		      = 2\left(
+		      \cos\left(\frac{\pi}{6} + \frac{2k\pi}{3}\right)
+		      + i \sin\left(\frac{\pi}{6} + \frac{2k\pi}{3}\right)
+		      \right),
+		      \quad k = 0, 1, 2,
+	      \]
+	      azaz $z_0 = 2e^{i \frac{\pi}{6}}$, $z_1 = 2e^{i \frac{5\pi}{6}}$ és
+	      $z_2 = 2e^{i \frac{3\pi}{2}} = -2i$. A gyökök egy origó középpontú,
+	      $2$ sugarú körbe írt szabályos háromszög csúcsai:
+	      \begin{center}
+		      \begin{tikzpicture}[scale=0.8, >=stealth]
+			      \draw[->] (-2.8, 0) -- (2.8, 0) node[right] {$\operatorname{Re}$};
+			      \draw[->] (0, -2.8) -- (0, 2.8) node[above] {$\operatorname{Im}$};
+			      \draw[dashed] (0, 0) circle (2);
+			      \node[below right] at (2, 0) {$2$};
+			      \draw[thin] (30:2) -- (150:2) -- (270:2) -- cycle;
+			      \fill (30:2) circle (2pt) node at (42:2.5) {$z_0$};
+			      \fill (150:2) circle (2pt) node at (162:2.5) {$z_1$};
+			      \fill (270:2) circle (2pt) node at (282:2.5) {$z_2$};
+		      \end{tikzpicture}
+	      \end{center}
+\end{enumerate}
+\end{document}

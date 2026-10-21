@@ -1,0 +1,71 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+\begin{enumerate}
+	\item \textbf{Szöveges gondolatmenet}
+
+	      A gyökjel alatt a számlálóban a leggyorsabban növekvő tag a
+	      $3^{n + 2} = 9 \cdot 3^n$, hiszen $n^3 \ll 3^n$, a nevezőben pedig a
+	      $7n$. Mivel $\sqrt[n]{c} \to 1$ és $\sqrt[n]{n} \to 1$, a határérték a
+	      domináns exponenciális tag alapja, vagyis $3$ lesz.
+
+	      \textbf{Becslés a rendőrelvvel}
+
+	      $n \ge 1$ esetén $2n^3 \le 3^{n + 2}$, továbbá
+	      $7n \le 2 + 7n \le 9n$. Becsüljük alulról és felülről a gyökjel
+	      alatti törtet:
+	      \[
+		      \frac{3^{n + 2}}{9n}
+		      \le \frac{3^{n + 2} + 2n^3}{2 + 7n}
+		      \le \frac{2 \cdot 3^{n + 2}}{7n}
+		      \text.
+	      \]
+	      Mindhárom kifejezésből $n$-edik gyököt vonva:
+	      \[
+		      3
+		      \leftarrow \frac{3}{\sqrt[n]{n}}
+		      \le \sqrt[n]{\frac{3^{n + 2} + 2n^3}{2 + 7n}}
+		      \le \frac{3 \cdot \sqrt[n]{\frac{18}{7}}}{\sqrt[n]{n}}
+		      \to 3
+		      \text.
+	      \]
+	      A rendőrelv alapján tehát a határérték $3$.
+
+	\item \textbf{Szöveges gondolatmenet}
+
+	      A számlálóban a leggyorsabban növekvő tag az $n^n$, a nevezőben pedig
+	      az $n!$, hiszen
+	      \[
+		      n^3 \ll 5^n \ll n! \ll n^n
+		      \text,
+	      \]
+	      és $\cos^2(n)$ korlátos. Mivel a számláló domináns tagja
+	      nagyságrendileg gyorsabban nő, a határérték $\infty$ lesz.
+
+	      \textbf{Másik megoldás}
+
+	      Osszuk el a számlálót és a nevezőt is $n!$-sal:
+	      \[
+		      \frac{5^n + n^n}{n^3 \cos^2(n) + n!}
+		      = \frac{
+			      \frac{5^n}{n!} + \frac{n^n}{n!}
+		      }{
+			      \frac{n^3 \cos^2(n)}{n!} + 1
+		      }
+		      \to \infty
+		      \text,
+	      \]
+	      hiszen
+	      \[
+		      \frac{n^n}{n!} \ge n \to \infty,
+		      \qquad
+		      \frac{5^n}{n!} \to 0,
+		      \qquad
+		      0 \le \frac{n^3 \cos^2(n)}{n!} \le \frac{n^3}{n!} \to 0
+		      \text.
+	      \]
+\end{enumerate}
+\end{document}

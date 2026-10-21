@@ -1,0 +1,67 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+\usepackage{xfrac}
+
+\begin{document}
+A számláló és a nevező gyöktényezős alakban:
+\[
+	x^2 - 9 = (x - 3)(x + 3),
+	\qquad
+	x^2 - x - 6 = (x - 3)(x + 2),
+\]
+így $x \notin \{-2; 3\}$ esetén
+\[
+	f(x) = \frac{x + 3}{x + 2}
+	\text.
+\]
+\begin{enumerate}
+	\item $\displaystyle\lim_{x \to x_0} f(x) = A$, ha
+	      $\forall \varepsilon > 0$ esetén $\exists \delta(\varepsilon) > 0$,
+	      hogy $|f(x) - A| < \varepsilon$, ha $x \in D_f$ és
+	      $0 < |x - x_0| < \delta(\varepsilon)$.
+
+	      Helyettesítsünk be a definícióban szereplő egyenlőtlenségbe:
+	      \[
+		      \left| \frac{x + 3}{x + 2} - \frac{3}{2} \right|
+		      = \left| \frac{2x + 6 - 3x - 6}{2 (x + 2)} \right|
+		      = \frac{|x|}{2 |x + 2|}
+		      \text.
+	      \]
+	      Becsüljük felül a törtünket. Ehhez a nevezőt kell alulról becsülni,
+	      ezért szorítkozzunk a $0$ egy környezetére: ha $|x| < 1$, akkor
+	      $1 < x + 2 < 3$, így $|x + 2| > 1$. Ekkor:
+	      \[
+		      \frac{|x|}{2 |x + 2|}
+		      < \frac{|x|}{2}
+		      < \varepsilon
+		      \qquad \Rightarrow \qquad
+		      |x| < 2 \varepsilon
+		      \text.
+	      \]
+	      A megoldás tehát:
+	      \[
+		      \delta(\varepsilon) = \min \left\{ 1; 2 \varepsilon \right\}
+		      \text.
+	      \]
+
+	\item Az egyszerűsített alak az $x = -3$ pontban folytonos, így
+	      behelyettesíthetünk:
+	      \[
+		      \lim_{x \to -3} f(x)
+		      = \lim_{x \to -3} \frac{x + 3}{x + 2}
+		      = \frac{0}{-1}
+		      = 0
+		      \text.
+	      \]
+
+	\item Osszuk el a számlálót és a nevezőt is $x$-szel:
+	      \[
+		      \lim_{x \to +\infty} f(x)
+		      = \lim_{x \to +\infty} \frac{1 + \sfrac{3}{x}}{1 + \sfrac{2}{x}}
+		      = 1
+		      \text.
+	      \]
+\end{enumerate}
+\end{document}

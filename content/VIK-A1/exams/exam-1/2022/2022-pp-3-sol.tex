@@ -1,0 +1,31 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+\begin{itemize}
+	\item Mivel $(-1)^n (-n)^5 = -(-1)^n n^5$, a számlálót és a nevezőt $n^6$-nal
+	      osztva:
+	      \[
+		      c_n
+		      = \frac{
+			      -\frac{(-1)^n}{n} + \frac{7}{n^2} + \frac{10}{n^4} + \frac{6}{n^6}
+		      }{
+			      3 + \frac{9}{n^3} - \frac{8}{n^5}
+		      }
+		      \to 0
+	      \]
+
+	\item \[
+		      d_n
+		      = \left( \frac{n - 3}{n + 3} \right)^{2n + 1}
+		      = \left(
+		      \frac{\left(1 - \frac{3}{n}\right)^n}{\left(1 + \frac{3}{n}\right)^n}
+		      \right)^2
+		      \cdot \frac{1 - \frac{3}{n}}{1 + \frac{3}{n}}
+		      \to \left( \frac{e^{-3}}{e^3} \right)^2 \cdot 1
+		      = \frac{1}{e^{12}}
+	      \]
+\end{itemize}
+\end{document}

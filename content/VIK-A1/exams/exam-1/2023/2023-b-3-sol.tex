@@ -1,0 +1,47 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+\begin{enumerate}
+	\item \(\displaystyle
+	      a_n
+	      =
+	      \left(
+	      \frac{\left(1 - \frac{5}{2n}\right)^{2n}}{\left(1 + \frac{3}{2n}\right)^{2n}}
+	      \right)^{\frac{3}{2}}
+	      \to
+	      \left( \frac{e^{-5}}{e^3} \right)^{\frac{3}{2}}
+	      =
+	      e^{-12}.
+	      \)
+
+	\item \(\displaystyle
+	      b_n
+	      =
+	      \frac{9n^2 + 2n - 6 - 9n^2}{\sqrt{9n^2 + 2n - 6} + 3n}
+	      =
+	      \frac{2 - \frac{6}{n}}{\sqrt{9 + \frac{2}{n} - \frac{6}{n^2}} + 3}
+	      \to
+	      \frac{2}{3 + 3}
+	      =
+	      \frac{1}{3}.
+	      \)
+
+	\item Becsüljük a gyökjel alatti kifejezést:
+	      \[
+		      \frac{n}{6}
+		      = \frac{n^3}{2n^2 + 4n^2}
+		      \le \frac{n^3 + 2n}{2n^2 + 4}
+		      \le \frac{n^3 + 2n^3}{2n^2}
+		      = \frac{3n}{2}.
+	      \]
+	      \[
+		      1 \leftarrow \sqrt[n]{n} \sqrt[n]{\frac{1}{6}}
+		      \le c_n
+		      \le \sqrt[n]{n} \sqrt[n]{\frac{3}{2}} \to 1.
+	      \]
+	      Így a rendőrelv miatt $c_n \to 1$.
+\end{enumerate}
+\end{document}

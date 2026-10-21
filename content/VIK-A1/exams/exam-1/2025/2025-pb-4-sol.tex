@@ -1,0 +1,71 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+\usepackage{xfrac}
+
+\begin{document}
+\begin{enumerate}
+	\item Behelyettesítéssel $\left(\frac{0}{0}\right)$ típusú határozatlan
+	      alakot kapunk.
+
+	      \textbf{Bővítés a konjugálttal}
+
+	      Bővítsük a törtet $(1 + \cos x)$-szel, és használjuk fel, hogy
+	      $1 - \cos^2 x = \sin^2 x$:
+	      \[
+		      \frac{x^2}{\cos x - 1}
+		      = -\frac{x^2 (1 + \cos x)}{1 - \cos^2 x}
+		      = -\left( \frac{x}{\sin x} \right)^2 (1 + \cos x)
+		      \to -\left(1^2 \cdot 2\right) = -2
+		      \text,
+	      \]
+	      hiszen $\displaystyle\lim_{x \to 0} \frac{\sin x}{x} = 1$.
+
+	      \textbf{Másik megoldás}
+
+	      Az $1 - \cos x = 2 \sin^2 \frac{x}{2}$ azonosság alapján:
+	      \[
+		      \frac{x^2}{\cos x - 1}
+		      = -\frac{x^2}{2 \sin^2 \frac{x}{2}}
+		      = -2 \left( \frac{\sfrac{x}{2}}{\sin \frac{x}{2}} \right)^2
+		      \to -2 \cdot 1^2 = -2
+		      \text.
+	      \]
+
+	\item Írjuk fel a $\sinh$ függvényt a definíciója szerint,
+	      $\sinh t = \frac{e^t - e^{-t}}{2}$:
+	      \[
+		      \frac{\sinh(2 + 3x)}{e^{3x - 1}}
+		      = \frac{e^{2 + 3x} - e^{-2 - 3x}}{2 e^{3x - 1}}
+		      = \frac{1}{2} \left( e^{3} - e^{-1 - 6x} \right)
+		      \text.
+	      \]
+	      Ha $x \to -\infty$, akkor $-1 - 6x \to \infty$, így
+	      $e^{-1 - 6x} \to \infty$. A határérték tehát:
+	      \[
+		      \lim_{x \to -\infty} \frac{\sinh(2 + 3x)}{e^{3x - 1}}
+		      = -\infty
+		      \text.
+	      \]
+
+	\item Behelyettesítéssel a zárójelben $(\infty - \infty)$ típusú
+	      határozatlan alakot kapunk. Alkalmazzuk a gyökös kifejezések
+	      racionalizálását, vagyis szorozzunk és osszunk a konjugált
+	      kifejezéssel:
+	      \[
+		      x \cdot \left( \sqrt{x^2 + 1} - \sqrt{x^2 - 2} \right)
+		      = x \cdot \frac{(x^2 + 1) - (x^2 - 2)}{\sqrt{x^2 + 1} + \sqrt{x^2 - 2}}
+		      = \frac{3x}{\sqrt{x^2 + 1} + \sqrt{x^2 - 2}}
+		      \text.
+	      \]
+	      Mivel $x \to -\infty$, ezért $x < 0$, így $\sqrt{x^2} = |x| = -x$.
+	      Emeljünk ki a nevezőből:
+	      \[
+		      \frac{3x}{-x \left( \sqrt{1 + \sfrac{1}{x^2}} + \sqrt{1 - \sfrac{2}{x^2}} \right)}
+		      = \frac{-3}{\sqrt{1 + \sfrac{1}{x^2}} + \sqrt{1 - \sfrac{2}{x^2}}}
+		      \to \frac{-3}{1 + 1} = -\frac{3}{2}
+		      \text.
+	      \]
+\end{enumerate}
+\end{document}

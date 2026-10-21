@@ -1,0 +1,34 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+$x^2 - x - 2 = (x - 2)(x + 1)$ és $x^2 - 1 = (x - 1)(x + 1)$.
+\begin{enumerate}
+	\item $x > 2$ esetén $|x^2 - x - 2| = x^2 - x - 2$, így
+	      \[
+		      \lim_{x \to +\infty} f(x)
+		      = \lim_{x \to +\infty}
+		      \frac{1 - \frac{1}{x} - \frac{2}{x^2}}{1 - \frac{1}{x^2}}
+		      = 1
+	      \]
+
+	\item Ha $-1 < x < 1$, akkor $x - 2 < 0$ és $x + 1 > 0$, így
+	      $|x^2 - x - 2| = (2 - x)(x + 1)$, tehát
+	      \[
+		      \lim_{x \to -1 + 0} f(x)
+		      = \lim_{x \to -1 + 0} \frac{(2 - x)(x + 1)}{(x - 1)(x + 1)}
+		      = \lim_{x \to -1 + 0} \frac{2 - x}{x - 1}
+		      = \frac{3}{-2}
+		      = -\frac{3}{2}
+	      \]
+
+	\item \[
+		      \lim_{x \to 1 - 0} f(x)
+		      = \lim_{x \to 1 - 0}
+		      \frac{\overbrace{|x^2 - x - 2|}^{\to 2}}{\underbrace{x^2 - 1}_{\to 0 - 0}}
+		      = -\infty
+	      \]
+\end{enumerate}
+\end{document}

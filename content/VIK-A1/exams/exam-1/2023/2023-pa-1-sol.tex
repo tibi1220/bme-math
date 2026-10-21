@@ -1,0 +1,30 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+\usepackage{tikz}
+
+\begin{document}
+\[
+	z^4 - (2 - 3i) z^3 - 6i z^2 = z^2 \left( z^2 - (2 - 3i) z - 6i \right) = 0,
+\]
+ha $z = 0$, vagy
+\[
+	z
+	= \frac{2 - 3i \pm \sqrt{(2 - 3i)^2 + 24i}}{2}
+	= \frac{2 - 3i \pm \sqrt{(2 + 3i)^2}}{2}
+	= \frac{2 - 3i \pm (2 + 3i)}{2},
+\]
+tehát ha $z = 2$ vagy $z = -3i$.
+
+A gyökök a komplex számsíkon ($0$ kétszeres gyök):
+\begin{center}
+	\begin{tikzpicture}[scale=0.6, >=stealth]
+		\draw[->] (-1.2, 0) -- (3.8, 0) node[right] {$\operatorname{Re}$};
+		\draw[->] (0, -3.6) -- (0, 1) node[above] {$\operatorname{Im}$};
+		\fill (0, 0) circle (2pt) node[below left] {$0$};
+		\fill (2, 0) circle (2pt) node[above] {$2$};
+		\fill (0, -3) circle (2pt) node[right] {$-3i$};
+	\end{tikzpicture}
+\end{center}
+\end{document}

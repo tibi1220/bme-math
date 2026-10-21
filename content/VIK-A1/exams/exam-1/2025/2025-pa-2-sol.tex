@@ -1,0 +1,71 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+\begin{enumerate}
+	\item \textbf{Szöveges gondolatmenet}
+
+	      A gyökjel alatt a számlálóban a leggyorsabban növekvő tag a
+	      $2^{n + 1} = 2 \cdot 2^n$, hiszen $n^2 \ll 2^n$, a nevezőben pedig a
+	      $6n$. Mivel $\sqrt[n]{c} \to 1$ és $\sqrt[n]{n} \to 1$, a határérték a
+	      domináns exponenciális tag alapja, vagyis $2$ lesz.
+
+	      \textbf{Becslés a rendőrelvvel}
+
+	      $n \ge 6$ esetén $3n^2 \le 2^{n + 1}$, továbbá
+	      $6n \le 5 + 6n \le 11n$. Becsüljük alulról és felülről a gyökjel
+	      alatti törtet:
+	      \[
+		      \frac{2^{n + 1}}{11n}
+		      \le \frac{2^{n + 1} + 3n^2}{5 + 6n}
+		      \le \frac{2 \cdot 2^{n + 1}}{6n}
+		      \text.
+	      \]
+	      Mindhárom kifejezésből $n$-edik gyököt vonva:
+	      \[
+		      2
+		      \leftarrow \frac{2 \cdot \sqrt[n]{2}}{\sqrt[n]{11} \cdot \sqrt[n]{n}}
+		      \le \sqrt[n]{\frac{2^{n + 1} + 3n^2}{5 + 6n}}
+		      \le \frac{2 \cdot \sqrt[n]{\frac{2}{3}}}{\sqrt[n]{n}}
+		      \to 2
+		      \text.
+	      \]
+	      A rendőrelv alapján tehát a határérték $2$.
+
+	\item \textbf{Szöveges gondolatmenet}
+
+	      A számlálóban a leggyorsabban növekvő tag az $n!$, a nevezőben pedig
+	      az $n^n$, hiszen
+	      \[
+		      n^2 \ll 3^n \ll n! \ll n^n
+		      \text,
+	      \]
+	      és $\sin^5(n)$ korlátos. Mivel a nevező domináns tagja nagyságrendileg
+	      gyorsabban nő, a határérték $0$ lesz.
+
+	      \textbf{Másik megoldás}
+
+	      Osszuk el a számlálót és a nevezőt is $n^n$-nel:
+	      \[
+		      \frac{n! + 3^n}{n^2 \sin^5(n) + n^n}
+		      = \frac{
+			      \frac{n!}{n^n} + \frac{3^n}{n^n}
+		      }{
+			      \frac{n^2 \sin^5(n)}{n^n} + 1
+		      }
+		      \to \frac{0 + 0}{0 + 1} = 0
+		      \text,
+	      \]
+	      hiszen
+	      \[
+		      0 < \frac{n!}{n^n} \le \frac{1}{n} \to 0,
+		      \qquad
+		      \frac{3^n}{n^n} = \left( \frac{3}{n} \right)^n \to 0,
+		      \qquad
+		      \left| \frac{n^2 \sin^5(n)}{n^n} \right| \le \frac{n^2}{n^n} \to 0
+		      \text.
+	      \]
+\end{enumerate}
+\end{document}

@@ -1,0 +1,35 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+\begin{itemize}
+	\item A számláló és a nevező legmagasabb fokú tagjával
+	      ($n^{11/2}$, illetve $n^{13/3}$) egyszerűsítve:
+	      \[
+		      a_n
+		      = n^{7/6} \cdot
+		      \frac{1 + \frac{3}{n^{5/2}} - \frac{100}{n^{11/2}}}{3 + \frac{100}{n^{7/3}}}
+		      \to \infty,
+	      \]
+	      mert $n^{7/6} \to \infty$, a második tényező pedig $\frac{1}{3}$-hoz
+	      tart.
+
+	\item $n \ge 3$ esetén $n^{11/2} \ge 200$, így
+	      \[
+		      \frac{n^{11/2}}{2 \cdot 103 n^{13/3}}
+		      \le \frac{n^5 \cdot \sqrt{n} + 3n^3 - 100}{3n^4 \cdot \sqrt[3]{n} + 100n^2}
+		      \le \frac{4 n^{11/2}}{3 n^{13/3}},
+	      \]
+	      tehát
+	      \[
+		      1
+		      \leftarrow \frac{\left(\sqrt[n]{n}\right)^{7/6}}{\sqrt[n]{206}}
+		      \le b_n
+		      \le \sqrt[n]{\frac{4}{3}} \left(\sqrt[n]{n}\right)^{7/6}
+		      \to 1,
+	      \]
+	      így a rendőrelv miatt $b_n \to 1$.
+\end{itemize}
+\end{document}

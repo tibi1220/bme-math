@@ -1,0 +1,42 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+Ha $n$ páros:
+\[
+	1
+	\leftarrow \sqrt[n]{\frac{5}{8}} \cdot \frac{1}{\left(\sqrt[n]{n}\right)^2}
+	= \sqrt[n]{\frac{5}{8n^2}}
+	\le a_n
+	= \sqrt[n]{\frac{5}{2n^2 + 6}}
+	\le \sqrt[n]{\frac{5}{n^2}}
+	= \frac{\sqrt[n]{5}}{\left(\sqrt[n]{n}\right)^2}
+	\to 1,
+\]
+ha pedig $n$ páratlan, akkor
+\[
+	1
+	\leftarrow \sqrt[n]{\frac{2}{6}} \left(\sqrt[n]{n}\right)^3
+	= \sqrt[n]{\frac{2n^3}{6}}
+	\le a_n
+	= \sqrt[n]{\frac{2n^3 + 5}{6}}
+	\le \sqrt[n]{\frac{7n^3}{6}}
+	= \sqrt[n]{\frac{7}{6}} \left(\sqrt[n]{n}\right)^3
+	\to 1,
+\]
+így a sorozat egyetlen torlódási pontja $1$, tehát
+$\limsup a_n = 1 = \liminf a_n = \lim a_n$.
+
+Páros $n$ esetén
+\[
+	0 \le b_n = \sqrt{\frac{5}{2n^2 + 6}} \le \sqrt{\frac{5}{2}} \cdot \frac{1}{n} \to 0,
+\]
+páratlan $n$ esetén
+\[
+	b_n = \sqrt{\frac{2n^3 + 5}{6}} \ge \sqrt{\frac{1}{3}} \cdot n^{\frac{3}{2}} \to \infty,
+\]
+tehát a két torlódási pont $0$ és $\infty$, így $\limsup b_n = \infty$,
+$\liminf b_n = 0$, és a sorozat divergens.
+\end{document}

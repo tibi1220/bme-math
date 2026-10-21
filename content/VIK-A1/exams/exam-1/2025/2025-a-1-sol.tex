@@ -1,0 +1,47 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+\begin{enumerate}
+	\item $\displaystyle\lim_{n \to \infty} a_n = A$, ha $\forall\varepsilon > 0$
+	      esetén $\exists N(\varepsilon) \in \mathbb{N}$, hogy
+	      $|a_n - A| < \varepsilon$, ha $n > N(\varepsilon)$.
+
+
+	\item Helyettesítsünk be a definícióban szereplő egyenlőtlenségbe:
+	      \[
+		      \left| \frac{6n^2 + n + 1}{2n^2 + 20} - 3 \right|
+		      = \left| \frac{6n^2 + n + 1 - 6n^2 - 60}{2n^2 + 20} \right|
+		      = \frac{|n - 59|}{2n^2 + 20}
+		      \text.
+	      \]
+	      $|n - 59| = n - 59$, ha $n \ge 59$, ekkor:
+	      \[
+		      \frac{|n - 59|}{2n^2 + 20}
+		      = \frac{n - 59}{2n^2 + 20}
+		      \text.
+	      \]
+	      Becsüljük felül a törtünket. Ezt a számláló növelésével, illetve a
+	      nevező csökkentésével tudjuk elérni:
+	      \[
+		      \frac{n - 59}{2n^2 + 20}
+		      \le \frac{n}{2n^2}
+		      = \frac{1}{2n}
+		      < \varepsilon
+		      \qquad \Rightarrow \qquad
+		      n > \frac{1}{2 \varepsilon}
+		      \text.
+	      \]
+	      A megoldás tehát:
+	      \[
+		      N(\varepsilon) > \max \left\{ \frac{1}{2\varepsilon}; 59 \right\}
+		      \text, \qquad \text{vagy} \qquad
+		      N(\varepsilon) = \left[
+			      \max \left\{ \frac{1}{2\varepsilon}; 59 \right\}
+			      \right] + 1
+		      \text.
+	      \]
+\end{enumerate}
+\end{document}

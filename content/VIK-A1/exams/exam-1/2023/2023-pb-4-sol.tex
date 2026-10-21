@@ -1,0 +1,31 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+\begin{enumerate}
+	\item $\lim_{x \to x_0} f(x) = A$, ha minden $\varepsilon > 0$ számhoz
+	      létezik $\delta(\varepsilon) > 0$, melyre
+	      $0 < |x - x_0| < \delta(\varepsilon)$ esetén
+	      $|f(x) - A| < \varepsilon$.
+
+	\item Legyen $\varepsilon > 0$.
+	      \[
+		      \left| \frac{7x - 2}{4x + 7} + 3 \right|
+		      = \frac{|7x - 2 + 12x + 21|}{|4x + 7|}
+		      = 19 \frac{|x + 1|}{|4x + 7|}
+	      \]
+	      A további becsléshez felhasználjuk, hogy $x$ a $-1$ közelében van. Ha
+	      például $|x + 1| < \frac{1}{2}$, akkor $-\frac{3}{2} < x < -\frac{1}{2}$,
+	      és $1 < 4x + 7 < 5$. Tehát
+	      \[
+		      19 \frac{|x + 1|}{|4x + 7|} < 19 |x + 1| < \varepsilon,
+	      \]
+	      ha $|x + 1| < \frac{1}{19} \varepsilon$, így
+	      \(
+	      \delta(\varepsilon)
+	      = \min\left(\frac{1}{2}, \frac{1}{19} \varepsilon\right)
+	      \).
+\end{enumerate}
+\end{document}

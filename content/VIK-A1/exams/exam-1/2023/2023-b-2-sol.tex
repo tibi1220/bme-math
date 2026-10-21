@@ -1,0 +1,50 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+\usepackage{tikz}
+
+\begin{document}
+Az egyenlet $z^2$-ben másodfokú:
+\[
+	z^2
+	= \frac{1 - 2i \pm \sqrt{(1 - 2i)^2 + 4i + 4}}{2}
+	= \frac{1 - 2i \pm \sqrt{1}}{2},
+\]
+vagyis
+$z^2 = -i = e^{-i \frac{\pi}{2}}$
+vagy
+$z^2 = 1 - i
+	= \sqrt{2} e^{-i \frac{\pi}{4}}$.
+A gyökvonás képletével ($k \in \{0; 1\}$):
+\[
+	\sqrt{e^{-i \frac{\pi}{2}}}
+	= e^{i \frac{-\frac{\pi}{2} + 2k\pi}{2}}
+	= e^{i \left(-\frac{\pi}{4} + k\pi\right)},
+	\qquad
+	\sqrt{\sqrt{2} e^{-i \frac{\pi}{4}}}
+	= \sqrt[4]{2} e^{i \frac{-\frac{\pi}{4} + 2k\pi}{2}}
+	= \sqrt[4]{2} e^{i \left(-\frac{\pi}{8} + k\pi\right)},
+\]
+vagyis
+\[
+	z_1 = e^{-i \frac{\pi}{4}}, \quad
+	z_2 = e^{i \frac{3\pi}{4}}, \quad
+	z_3 = \sqrt[4]{2} e^{-i \frac{\pi}{8}}, \quad
+	z_4 = \sqrt[4]{2} e^{i \frac{7\pi}{8}}.
+\]
+
+A gyökök a komplex számsíkon:
+\begin{center}
+	\begin{tikzpicture}[scale=1.4, >=stealth]
+		\draw[->] (-1.9, 0) -- (1.9, 0) node[right] {$\operatorname{Re}$};
+		\draw[->] (0, -1.6) -- (0, 1.6) node[above] {$\operatorname{Im}$};
+		\draw[dashed] (0, 0) circle (1);
+		\draw[dashed] (0, 0) circle (1.189);
+		\fill (-45:1) circle (2pt) node[below] {$z_1$};
+		\fill (135:1) circle (2pt) node[above] {$z_2$};
+		\fill (-22.5:1.189) circle (2pt) node[right] {$z_3$};
+		\fill (157.5:1.189) circle (2pt) node[left] {$z_4$};
+	\end{tikzpicture}
+\end{center}
+\end{document}

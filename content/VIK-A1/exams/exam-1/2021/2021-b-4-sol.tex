@@ -1,0 +1,23 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+$a_2 = \sqrt{10} > a_1$, és ha $a_n < a_{n + 1}$, akkor
+$6a_n - 8 < 6a_{n + 1} - 8$, tehát
+\(
+a_{n + 1} = \sqrt{6a_n - 8} < \sqrt{6a_{n + 1} - 8} = a_{n + 2}
+\),
+vagyis a sorozat monoton nő.
+
+Ha a sorozat korlátos, akkor konvergens, és határértéke a sorozat legkisebb
+felső korlátja. A lehetséges $A$ határérték kielégíti az
+$A = \sqrt{6A - 8}$ egyenletet, vagyis $A = 2$ vagy $A = 4$. Mivel
+$a_n \ge 3$, így a határérték csak $4$ lehet.
+
+Belátjuk, hogy $a_n < 4$: $a_1 < 4$, és ha $a_n < 4$, akkor $6a_n - 8 < 16$,
+így $a_{n + 1} = \sqrt{6a_n - 8} < 4$.
+
+A sorozat tehát monoton és korlátos, így konvergens, a határértéke $4$.
+\end{document}

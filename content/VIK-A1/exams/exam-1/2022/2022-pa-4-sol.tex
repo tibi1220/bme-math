@@ -1,0 +1,36 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+\begin{itemize}
+	\item \[
+		      \lim_{x \to -\infty} f(x)
+		      = \lim_{x \to -\infty}
+		      \underbrace{\sin\left(4 - x^2\right)}_{\text{korlátos}} \cdot
+		      \underbrace{\frac{1}{x^2 + 2x}}_{\to 0}
+		      = 0
+	      \]
+
+	\item \[
+		      \lim_{x \to -2} f(x)
+		      = \lim_{x \to -2}
+		      \underbrace{\frac{\sin\left(4 - x^2\right)}{4 - x^2}}_{\to 1} \cdot
+		      \underbrace{\frac{(2 + x)(2 - x)}{(x + 2) x}}_{\to \frac{4}{-2}}
+		      = -2
+	      \]
+
+	\item \[
+		      \lim_{x \to 0 \pm 0} f(x)
+		      = \lim_{x \to 0 \pm 0}
+		      \frac{\sin \overbrace{\left(4 - x^2\right)}^{\to 4}}{\underbrace{x^2 + 2x}_{\to 0 \pm 0}}
+		      = \mp \infty,
+	      \]
+	      mivel $\sin 4 < 0$; így $\lim_{x \to 0} f(x)$ nem létezik.
+
+	\item \[
+		      \lim_{x \to 2} f(x) = \frac{\sin(0)}{8} = 0
+	      \]
+\end{itemize}
+\end{document}

@@ -1,0 +1,37 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+\begin{enumerate}
+	\item $\displaystyle\lim_{x \to x_0} f(x) = A$, ha
+	      $\forall \varepsilon > 0$ esetén $\exists \delta(\varepsilon) > 0$,
+	      hogy $|f(x) - A| < \varepsilon$, ha $x \in D_f$ és
+	      $0 < |x - x_0| < \delta(\varepsilon)$.
+
+	\item Helyettesítsünk be a definícióban szereplő egyenlőtlenségbe:
+	      \[
+		      \left| \frac{15}{3x - 1} - 3 \right|
+		      = \left| \frac{15 - 9x + 3}{3x - 1} \right|
+		      = \frac{9 |x - 2|}{|3x - 1|}
+		      \text.
+	      \]
+	      Becsüljük felül a törtünket. Ehhez a nevezőt kell alulról becsülni,
+	      ezért szorítkozzunk a $2$ egy környezetére: ha $|x - 2| < 1$, akkor
+	      $1 < x < 3$, így $|3x - 1| > 2$. Ekkor:
+	      \[
+		      \frac{9 |x - 2|}{|3x - 1|}
+		      < \frac{9 |x - 2|}{2}
+		      < \varepsilon
+		      \qquad \Rightarrow \qquad
+		      |x - 2| < \frac{2 \varepsilon}{9}
+		      \text.
+	      \]
+	      A megoldás tehát:
+	      \[
+		      \delta(\varepsilon) = \min \left\{ 1; \frac{2 \varepsilon}{9} \right\}
+		      \text.
+	      \]
+\end{enumerate}
+\end{document}

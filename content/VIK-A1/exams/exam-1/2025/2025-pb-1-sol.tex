@@ -1,0 +1,99 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+\usepackage{tikz}
+
+\begin{document}
+\begin{enumerate}
+	\item A $w = 1 - \sqrt{3} i$ egy olyan komplex szám, amelynek valós része
+	      $\operatorname{Re} \{w\} = 1 > 0$, képzetes része pedig
+	      $\operatorname{Im} \{w\} = -\sqrt{3} < 0$, tehát a negyedik
+	      síknegyedben van.
+
+	      A hossza
+	      \[
+		      r = |w| = \sqrt{1^2 + \left(-\sqrt{3}\right)^2} = 2
+		      \text,
+	      \]
+	      az argumentumára pedig $\tan \varphi = -\sqrt{3}$, ami a
+	      negyedik síknegyedben $\varphi = -60^\circ = -\pi / 3$. Tehát
+	      \[
+		      w = 2 \cdot e^{-i \cdot \frac{\pi}{3}}
+		      \text.
+	      \]
+
+	\item A Moivre-képlet alapján a hosszat a hatványra emeljük, az
+	      argumentumot pedig megszorozzuk a kitevővel:
+	      \[
+		      w^{19}
+		      = 2^{19} \cdot e^{-i \cdot \frac{19\pi}{3}}
+		      = 2^{19} \cdot e^{-i \cdot \left(6\pi + \frac{\pi}{3}\right)}
+		      = 2^{19} \cdot e^{-i \cdot \frac{\pi}{3}}
+		      \text,
+	      \]
+	      hiszen az argumentumból a $2\pi$ egész számú többszörösei
+	      elhagyhatók. Algebrai alakban:
+	      \[
+		      w^{19}
+		      = 2^{19} \left( \cos \frac{\pi}{3} - i \sin \frac{\pi}{3} \right)
+		      = 2^{19} \left( \frac{1}{2} - \frac{\sqrt{3}}{2} i \right)
+		      = 262144 - 262144\sqrt{3} i
+		      \text.
+	      \]
+
+	\item \textbf{Szöveges gondolatmenet}
+
+	      Rendezzük az egyenletet:
+	      \[
+		      z^2 = w - 1 = -\sqrt{3} i
+		      \text.
+	      \]
+	      A $-\sqrt{3} i$ hossza $\sqrt{3}$, argumentuma pedig
+	      $270^\circ = 3\pi / 2$. A négyzetgyökök hossza $\sqrt[4]{3}$ lesz, az
+	      egyik gyök argumentuma pedig az eredeti szám argumentumának fele,
+	      vagyis $135^\circ = 3\pi / 4$. A másik gyököt ennek
+	      $180^\circ = \pi$-vel való elforgatásával kapjuk meg.
+
+	      \textbf{Másik megoldás}
+
+	      $-\sqrt{3} i = \sqrt{3} \left( \cos \frac{3\pi}{2} + i \sin \frac{3\pi}{2} \right)$,
+	      így a gyökvonás képletével
+	      \[
+		      z_k
+		      = \sqrt[4]{3} \left(
+		      \cos \left( \frac{\frac{3\pi}{2} + 2k\pi}{2} \right)
+		      + i \sin \left( \frac{\frac{3\pi}{2} + 2k\pi}{2} \right)
+		      \right),
+		      \quad k \in \{0; 1\}
+		      \text.
+	      \]
+	      A megoldások tehát:
+	      \[
+		      \begin{aligned}
+			      z_0 & = \sqrt[4]{3} \left(
+			      \cos \frac{3\pi}{4} + i \sin \frac{3\pi}{4}
+			      \right)
+			      \text,
+			      \\
+			      z_1 & = \sqrt[4]{3} \left(
+			      \cos \frac{7\pi}{4} + i \sin \frac{7\pi}{4}
+			      \right)
+			      \text.
+		      \end{aligned}
+	      \]
+	      A számok a komplex számsíkon:
+	      \begin{center}
+	      	\begin{tikzpicture}[scale=0.9, >=stealth]
+	      		\draw[->] (-2.4, 0) -- (2.4, 0) node[right] {$\operatorname{Re}$};
+	      		\draw[->] (0, -2.4) -- (0, 2.4) node[above] {$\operatorname{Im}$};
+	      		\draw[dashed] (0, 0) circle (1.316);
+	      		\draw[dashed] (0, 0) circle (2);
+	      		\fill (-60:2) circle (2pt) node[below right] {$w$};
+	      		\fill (0, -1.732) circle (2pt) node[left] {$-\sqrt{3} i$};
+	      		\fill (135:1.316) circle (2pt) node[above left] {$z_0$};
+	      		\fill (315:1.316) circle (2pt) node[below right] {$z_1$};
+	      	\end{tikzpicture}
+	      \end{center}
+\end{enumerate}
+\end{document}

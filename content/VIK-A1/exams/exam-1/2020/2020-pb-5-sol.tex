@@ -1,0 +1,33 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+Az $A = \sqrt[3]{6A^2 - 5A}$ egyenlet megoldásai $A_1 = 0$, $A_2 = 1$ és
+$A_3 = 5$.
+
+Teljes indukcióval belátjuk, hogy $1 \le a_n \le 5$ minden $n$-re.
+
+$n = 1$ esetén $1 \le a_1 = 2 \le 5$ teljesül.
+
+Ha $1 \le a_n \le 5$, akkor $1 \le 6a_n - 5 \le 25$, ezért
+$1 \le a_n (6a_n - 5) = 6a_n^2 - 5a_n \le 125$, tehát
+$1 \le \sqrt[3]{6a_n^2 - 5a_n} = a_{n + 1} \le 5$.
+
+Megmutatjuk, hogy $a_n \le a_{n + 1}$ minden $n$-re.
+
+Köbre emelés után $a_n^3 \le 6a_n^2 - 5a_n$, azaz
+$a_n (a_n^2 - 6a_n + 5) = a_n^3 - 6a_n^2 + 5a_n \le 0$, ami teljesül, mivel
+$a_n > 0$ és $a_n^2 - 6a_n + 5 \le 0$ az előbbi korlátok között.
+
+Megmutattuk, hogy $a_n$ monoton és korlátos, így a konvergencia elégséges
+feltétele miatt konvergens.
+
+Legyen $A = \lim a_n \in \mathbb{R}$! Felhasználva a részsorozat
+határértékére és a határérték és a műveletek kapcsolatára vonatkozó
+tételeket, kapjuk az $A = \sqrt[3]{6A^2 - 5A}$ egyenletet.
+
+Mivel $a_n$ monoton növő, ezért $A \ge a_1 = 2$, így a fenti gyökök közül
+csak az $A_3 = 5$ lehet a határérték.
+\end{document}

@@ -1,0 +1,27 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+\begin{enumerate}
+	\item Teljes indukcióval: $2 < a_1 = 3 < 6$. Ha $2 < a_n < 6$, akkor
+	      $4 < 8a_n - 12 < 36$, így
+	      $2 < a_{n + 1} = \sqrt{8a_n - 12} < 6$.
+
+	\item Mivel $a_n > 0$, ezért
+	      \[
+		      a_{n + 1} > a_n
+		      \iff 8a_n - 12 > a_n^2
+		      \iff (a_n - 2)(a_n - 6) < 0,
+	      \]
+	      ami az a) rész miatt teljesül. A sorozat tehát (szigorúan) monoton
+	      növő.
+
+	\item A sorozat monoton és korlátos, így konvergens; legyen
+	      $A = \lim a_n$. A rekurzióban határértéket véve (a gyökfüggvény
+	      folytonos) $A = \sqrt{8A - 12}$, azaz $A^2 - 8A + 12 = 0$, így $A = 2$
+	      vagy $A = 6$. Mivel a sorozat növő, $A \ge a_1 = 3$, tehát
+	      $\lim a_n = 6$.
+\end{enumerate}
+\end{document}

@@ -1,0 +1,34 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+Teljes indukcióval belátjuk, hogy $2 \le a_n$ minden $n$-re.
+
+$n = 1$ esetén $2 \le a_1 = 13$ teljesül.
+
+Ha $2 \le a_n$, akkor $4 \le a_n^2$, $12 \le a_n^2 + 8$ és
+$4 \le \frac{a_n^2 + 8}{3}$, tehát
+\(
+2 \le \sqrt{\frac{a_n^2 + 8}{3}} = a_{n + 1}
+\).
+
+Megmutatjuk, hogy $a_n \ge a_{n + 1}$ minden $n$-re.
+
+Már beláttuk, hogy $a_n \ge 2$. Innen $2a_n^2 \ge 8$, $3a_n^2 \ge a_n^2 + 8$,
+$a_n^2 \ge \frac{a_n^2 + 8}{3}$. Mivel $a_n$ pozitív, ezért gyökvonás után
+kapjuk az állítást.
+
+Mivel $a_n$ monoton csökkenő, így felülről korlátos, és
+$\sup a_n = a_1 = 13$.
+
+Megmutattuk, hogy $a_n$ monoton és korlátos, így a konvergencia elégséges
+feltétele miatt konvergens.
+
+Legyen $A = \lim a_n \in \mathbb{R}$! Felhasználva a részsorozat
+határértékére és a határérték és a műveletek kapcsolatára vonatkozó
+tételeket, kapjuk az \(A = \sqrt{\frac{A^2 + 8}{3}}\) egyenletet.
+
+Mivel $a_n$ monoton csökken, ezért $\inf a_n = \lim a_n = 2$.
+\end{document}

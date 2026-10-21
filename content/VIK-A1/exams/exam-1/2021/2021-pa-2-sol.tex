@@ -1,0 +1,21 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+\begin{enumerate}
+	\item $\lim_{n \to \infty} a_n = \infty$, ha minden $P > 0$ számhoz
+	      létezik $N(P) \in \mathbb{N}$, melyre $n \ge N(P)$ esetén $a_n > P$.
+
+	\item Legyen $P > 0$. Ekkor $n \ge 3$ esetén $n^2 - n - 1 > \frac{n^2}{2}$,
+	      így
+	      \[
+		      \sqrt[3]{n^2 - n - 1} > \sqrt[3]{\frac{n^2}{2}} > P,
+	      \]
+	      ha $n^2 > 2P^3$, így
+	      \(
+	      N(P) = \max\left(3, \left[\sqrt{2P^3}\right] + 1\right)
+	      \).
+\end{enumerate}
+\end{document}

@@ -1,0 +1,55 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+\begin{enumerate}
+	\item \[
+		      \begin{aligned}
+			      a_n
+			       & =
+			      \frac{n^3 - 4n - 2 - (n^3 - 3n + 5)}{\sqrt{n^3 - 4n - 2} + \sqrt{n^3 - 3n + 5}}
+			      =
+			      \frac{-n - 7}{\sqrt{n^3 - 4n - 2} + \sqrt{n^3 - 3n + 5}} \\
+			       & =
+			      \frac{n}{n^{3/2}} \cdot
+			      \frac{-1 - \frac{7}{n}}{
+				      \sqrt{1 - \frac{4}{n^2} - \frac{2}{n^3}} + \sqrt{1 - \frac{3}{n^2} + \frac{5}{n^3}}
+			      }
+			      \to 0.
+		      \end{aligned}
+	      \]
+
+	\item A rendőrelv miatt
+	      \(\displaystyle
+	      \lim_{n \to \infty} \sqrt[n]{\frac{3^n + 2^n}{n^2 + 3}} = 3
+	      \), mert
+	      \[
+		      3
+		      \leftarrow
+		      \frac{3}{\sqrt[n]{4} \left(\sqrt[n]{n}\right)^2}
+		      =
+		      \sqrt[n]{\frac{3^n}{4n^2}}
+		      \le
+		      \sqrt[n]{\frac{3^n + 2^n}{n^2 + 3}}
+		      \le
+		      \sqrt[n]{\frac{2 \cdot 3^n}{n^2}}
+		      =
+		      \frac{3 \sqrt[n]{2}}{\left(\sqrt[n]{n}\right)^2}
+		      \to
+		      3.
+	      \]
+
+	\item \(\displaystyle
+	      c_n
+	      = \left(
+	      \frac{\left(1 - \frac{5/3}{n^3}\right)^{n^3}}{\left(1 + \frac{6/3}{n^3}\right)^{n^3}}
+	      \right)^2
+	      \to
+	      \left( \frac{e^{-\frac{5}{3}}}{e^2} \right)^2
+	      = e^{-\frac{22}{3}}
+	      \)
+
+\end{enumerate}
+\end{document}

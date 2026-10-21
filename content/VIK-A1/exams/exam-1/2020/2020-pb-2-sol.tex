@@ -1,0 +1,58 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+\usepackage{tikz}
+
+\begin{document}
+A $0 = z^6 - 16z^2 = z^2 (z^4 - 16)$ egyenlet megoldásai a kétszeres
+$0$ gyök, valamint a $z^4 = 16 = 16 (\cos 0^\circ + i \sin 0^\circ)$
+egyenlet gyökei, a gyökvonás képletével
+\[
+	z_k
+	= \sqrt[4]{16} \left(
+	\cos \frac{0^\circ + k \cdot 360^\circ}{4} + i \sin \frac{0^\circ + k \cdot 360^\circ}{4}
+	\right)
+	= 2 \left( \cos(k \cdot 90^\circ) + i \sin(k \cdot 90^\circ) \right)
+	\quad (k = 0, 1, 2, 3),
+\]
+azaz $\pm 2$ és $\pm 2i$:
+\begin{center}
+	\begin{tikzpicture}[scale=0.6, >=stealth]
+		\draw[->] (-2.8, 0) -- (2.8, 0) node[right] {$\operatorname{Re}$};
+		\draw[->] (0, -2.8) -- (0, 2.8) node[above] {$\operatorname{Im}$};
+		\draw[dashed] (0, 0) circle (2);
+		\fill (0:2) circle (2pt) node[below right] {$2$};
+		\fill (90:2) circle (2pt) node[above right] {$2i$};
+		\fill (180:2) circle (2pt) node[below left] {$-2$};
+		\fill (270:2) circle (2pt) node[below right] {$-2i$};
+		\fill (0, 0) circle (2pt) node[below left] {$0$};
+	\end{tikzpicture}
+\end{center}
+
+A $0 = z^3 - 27i$ egyenlet megoldásai
+\[
+	z_k
+	= \sqrt[3]{27i}
+	= 3 \sqrt[3]{\cos 90^\circ + i \sin 90^\circ}
+	= 3\left(\cos(30^\circ + k \cdot 120^\circ) + i \sin(30^\circ + k \cdot 120^\circ)\right)
+	\quad (k = 0, 1, 2),
+\]
+azaz
+\(
+z_{0, 1} = \pm \frac{3\sqrt{3}}{2} + \frac{3}{2} i
+\) és $z_2 = -3i$.
+
+A gyökök a komplex számsíkon:
+\begin{center}
+	\begin{tikzpicture}[scale=0.55, >=stealth]
+		\draw[->] (-3.8, 0) -- (3.8, 0) node[right] {$\operatorname{Re}$};
+		\draw[->] (0, -3.8) -- (0, 3.8) node[above] {$\operatorname{Im}$};
+		\draw[dashed] (0, 0) circle (3);
+		\draw[thin] (30:3) -- (150:3) -- (270:3) -- cycle;
+		\fill (30:3) circle (2pt) node[above right] {$z_0$};
+		\fill (150:3) circle (2pt) node[above left] {$z_1$};
+		\fill (270:3) circle (2pt) node[below right] {$z_2$};
+	\end{tikzpicture}
+\end{center}
+\end{document}

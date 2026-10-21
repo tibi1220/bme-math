@@ -1,0 +1,27 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+Teljes indukcióval megmutatjuk, hogy $1 \le d_n \le 6$ minden
+$n \in \mathbb{N}^+$ esetén. Mivel $d_1 = 2$, ezért $n = 1$-re az állítás
+teljesül. Ha valamilyen $n$-re teljesül, azaz $1 \le d_n \le 6$, akkor
+$\frac{1}{6} \le \frac{1}{d_n} \le 1$, így $1 \le \frac{6}{d_n} \le 6$, és
+ezért $1 \le 7 - \frac{6}{d_n} = d_{n + 1} \le 6$.
+
+Teljes indukcióval megmutatjuk, hogy $d_n$ monoton növő, azaz
+$d_n \le d_{n + 1}$ minden $n \in \mathbb{N}^+$ esetén. Mivel $d_2 = 4$,
+ezért $n = 1$-re az állítás teljesül. Ha valamilyen $n$-re teljesül, azaz
+$d_n \le d_{n + 1}$, akkor mivel $d_n$ pozitív, ezért
+$\frac{1}{d_n} \ge \frac{1}{d_{n + 1}}$, és így
+\[
+	d_{n + 1} = 7 - \frac{6}{d_n} \le 7 - \frac{6}{d_{n + 1}} = d_{n + 2},
+\]
+vagyis $n + 1$-re is teljesül az egyenlőtlenség.
+
+Mivel a sorozat korlátos és monoton, ezért konvergens, határértéke a
+rekurzió valamelyik fixpontja. Az $A = 7 - \frac{6}{A}$ egyenlet megoldásai
+$A = 1$ és $A = 6$. Mivel $d_n$ monoton növő és $d_2 = 4$, a határérték nem
+lehet $1$. Tehát $\lim d_n = 6$.
+\end{document}

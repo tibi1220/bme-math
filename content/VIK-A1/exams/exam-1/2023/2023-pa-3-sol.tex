@@ -1,0 +1,28 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+Páros $n$ esetén
+\[
+	a_n
+	= \left( \frac{n + 1}{n + 2} \right)^{n + 3}
+	= \frac{\left(1 + \frac{1}{n}\right)^n}{\left(1 + \frac{2}{n}\right)^n}
+	\cdot \left( \frac{n + 1}{n + 2} \right)^3
+	\to \frac{1}{e},
+\]
+páratlan $n$ esetén
+\[
+	a_n
+	= \left( \frac{n - 1}{n + 2} \right)^{n + 3}
+	= \frac{\left(1 - \frac{1}{n}\right)^n}{\left(1 + \frac{2}{n}\right)^n}
+	\cdot \left( \frac{n - 1}{n + 2} \right)^3
+	\to \frac{1}{e^3},
+\]
+így a sorozat torlódási pontjainak halmaza
+$\left\{ \frac{1}{e}, \frac{1}{e^3} \right\}$,
+$\limsup a_n = \frac{1}{e}$,
+$\liminf a_n = \frac{1}{e^3}$, és mivel
+$\liminf a_n \ne \limsup a_n$, így a sorozat divergens.
+\end{document}

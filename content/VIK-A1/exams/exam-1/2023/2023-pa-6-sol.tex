@@ -1,0 +1,20 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+\[
+	a_{n + 2}
+	= -\frac{1}{2} \sqrt[3]{-\frac{1}{2} \sqrt[3]{a_n}}
+	= 2^{-\frac{4}{3}} \sqrt[9]{a_n}
+\]
+Az $A = 2^{-\frac{4}{3}} \sqrt[9]{A}$ egyenlet megoldásai: $A_0 = 0$,
+$A_\pm = \pm 2^{-\frac{3}{2}} = \pm \frac{1}{2\sqrt{2}}$.
+
+Az $(a_{2n})$ részsorozat monoton csökkenően tart $A_+$-hoz.
+
+Az $(a_{2n + 1})$ részsorozat monoton növően tart $A_-$-hoz.
+
+Így a torlódási pontok halmaza: $S = \{A_+, A_-\}$.
+\end{document}

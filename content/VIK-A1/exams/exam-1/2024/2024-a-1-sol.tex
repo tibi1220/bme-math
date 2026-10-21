@@ -1,0 +1,27 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+\begin{enumerate}
+	\item $n \ge 4$ esetén $n^2 \le 2^n$ és $5 \le 2^n$, így
+	      \[
+		      2
+		      = \sqrt[n]{2^n}
+		      \le a_n
+		      \le \sqrt[n]{3 \cdot 2^n}
+		      = \sqrt[n]{3} \cdot 2
+		      \to 2,
+	      \]
+	      tehát a rendőrelv miatt $a_n \to 2$.
+
+	\item \[
+		      b_n
+		      = \frac{\left(1 - \frac{3/2}{n}\right)^n}{\left(1 + \frac{5/2}{n}\right)^n}
+		      \cdot \left( \frac{2n - 3}{2n + 5} \right)^2
+		      \to \frac{e^{-\frac{3}{2}}}{e^{\frac{5}{2}}} \cdot 1
+		      = e^{-4}
+	      \]
+\end{enumerate}
+\end{document}

@@ -1,0 +1,36 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+\[
+	a_n = \begin{cases}
+		\left(
+		\dfrac{\left(1 - \frac{9}{n}\right)^n}{\left(1 + \frac{4}{n}\right)^n}
+		\right)^3 \to e^{-39},
+		 & \text{ha } n \text{ páros}     \\[3ex]
+		-\left(
+		\dfrac{\left(1 - \frac{9}{n}\right)^n}{\left(1 + \frac{4}{n}\right)^n}
+		\right)^3 \to -e^{-39},
+		 & \text{ha } n \text{ páratlan}
+	\end{cases}
+\]
+A sorozat torlódási pontjai a $\pm e^{-39}$, vagyis
+$\limsup a_n = e^{-39} \ne -e^{-39} = \liminf a_n$, és a sorozat nem
+konvergens.
+
+Mivel
+\(
+\left| \frac{9 - n}{4 + n} \right|^n \to e^{-13}
+\),
+ezért elég nagy $n$ esetén
+\[
+	|b_n|
+	= \left( \left| \frac{9 - n}{4 + n} \right|^n \right)^{n^2}
+	< \left( e^{-13} + \varepsilon \right)^{n^2}
+	\to 0,
+\]
+ha $0 < \varepsilon < 1 - e^{-13}$. Így a sorozat egyetlen torlódási pontja
+a $0$, és $\limsup b_n = \liminf b_n = 0 = \lim b_n$.
+\end{document}

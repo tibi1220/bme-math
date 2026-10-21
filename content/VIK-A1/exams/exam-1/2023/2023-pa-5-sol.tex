@@ -1,0 +1,33 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+A függvény folytonos függvények kompozíciója, így a nevező zérushelyeiben,
+tehát az $x = -2$ és az $x = 5$ pontban van, valamint az $x = 0$ pontban lehet
+szakadása, máshol mindenütt folytonos. ($x = 4$ esetén nincs
+baj, hiszen ott máshogy van értelmezve a függvény.)
+\[
+	\lim_{x \to -2 \pm 0} f(x)
+	= \lim_{x \to -2 \pm 0} \frac{\sin(x + 2)}{x + 2} \cdot \frac{1}{x - 4}
+	= 1 \cdot \left( -\frac{1}{6} \right),
+\]
+vagyis ebben a pontban a függvénynek megszüntethető szakadása van.
+
+\[
+	\lim_{x \to 5 \pm 0} f(x)
+	= \lim_{x \to 5 \pm 0} \frac{3x^2}{x - 5}
+	= \pm \infty,
+\]
+vagyis ebben a pontban a függvénynek másodfajú szakadása van.
+\[
+	\lim_{x \to 0 - 0} f(x)
+	= f(0)
+	= \frac{-\sin 2}{8}
+	\ne 0
+	= \frac{3 \cdot 0^2}{0 - 5}
+	= \lim_{x \to 0 + 0} \frac{3x^2}{x - 5},
+\]
+így az $x = 0$ pontban véges ugrása van a függvénynek.
+\end{document}

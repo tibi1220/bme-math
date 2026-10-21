@@ -1,0 +1,19 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+Legyen $\varepsilon > 0$. Ekkor
+\[
+	\left| \frac{3n - 1}{n + 5} - 3 \right|
+	= \frac{|3n - 1 - 3n - 15|}{n + 5}
+	= \frac{16}{n + 5}
+	< \frac{16}{n}
+	< \varepsilon,
+\]
+ha \(n > \frac{16}{\varepsilon}\), így
+\(
+N(\varepsilon) = \left[ \frac{16}{\varepsilon} \right] + 1
+\).
+\end{document}

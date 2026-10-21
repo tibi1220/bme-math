@@ -1,0 +1,54 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+\begin{enumerate}
+	\item A rendőrelv miatt
+	      \(\displaystyle
+	      \lim_{n \to \infty} \sqrt[n]{\frac{7^n + 5^n}{n^3 + 2}} = 7
+	      \), mert
+	      \[
+		      7
+		      \leftarrow
+		      \frac{7}{\sqrt[n]{3} \left(\sqrt[n]{n}\right)^3}
+		      =
+		      \sqrt[n]{\frac{7^n}{3n^3}}
+		      \le
+		      \sqrt[n]{\frac{7^n + 5^n}{n^3 + 2}}
+		      \le
+		      \sqrt[n]{\frac{2 \cdot 7^n}{n^3}}
+		      =
+		      \frac{7 \sqrt[n]{2}}{\left(\sqrt[n]{n}\right)^3}
+		      \to
+		      7.
+	      \]
+
+	\item \(\displaystyle
+	      b_n
+	      = \left(
+	      \frac{\left(1 - \frac{3}{2n^2}\right)^{n^2}}{\left(1 + \frac{4}{2n^2}\right)^{n^2}}
+	      \right)^3
+	      \to
+	      \left( \frac{e^{-\frac{3}{2}}}{e^{\frac{4}{2}}} \right)^3
+	      = e^{-\frac{21}{2}}
+	      \)
+
+	\item \[
+		      \begin{aligned}
+			      c_n
+			       & =
+			      \frac{n^3 - 5n - 3 - (n^3 - 2n + 6)}{\sqrt{n^3 - 5n - 3} + \sqrt{n^3 - 2n + 6}}
+			      =
+			      \frac{-3n - 9}{\sqrt{n^3 - 5n - 3} + \sqrt{n^3 - 2n + 6}} \\
+			       & =
+			      \frac{n}{n^{3/2}} \cdot
+			      \frac{-3 - \frac{9}{n}}{
+				      \sqrt{1 - \frac{5}{n^2} - \frac{3}{n^3}} + \sqrt{1 - \frac{2}{n^2} + \frac{6}{n^3}}
+			      }
+			      \to 0.
+		      \end{aligned}
+	      \]
+\end{enumerate}
+\end{document}

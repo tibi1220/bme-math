@@ -1,0 +1,38 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+$x^2 - x - 6 = (x - 3)(x + 2)$ és $x^2 - 9 = (x - 3)(x + 3)$, így
+$x \ne \pm 3$ esetén \(f(x) = \frac{x + 2}{x + 3}\).
+\begin{enumerate}
+	\item Igazolni kell, hogy minden $\varepsilon > 0$ számhoz létezik
+	      $\delta(\varepsilon) > 0$, hogy $0 < |x - 2| < \delta(\varepsilon)$
+	      esetén $\left| f(x) - \frac{4}{5} \right| < \varepsilon$. Legyen
+	      $\varepsilon > 0$.
+	      \[
+		      \left| \frac{x + 2}{x + 3} - \frac{4}{5} \right|
+		      = \frac{|5x + 10 - 4x - 12|}{5|x + 3|}
+		      = \frac{|x - 2|}{5|x + 3|}
+	      \]
+	      Ha $|x - 2| < 1$, akkor $1 < x < 3$, így $|x + 3| > 4$, tehát
+	      \[
+		      \frac{|x - 2|}{5|x + 3|} < \frac{|x - 2|}{20} < \varepsilon,
+	      \]
+	      ha $|x - 2| < 20\varepsilon$. Így
+	      $\delta(\varepsilon) = \min(1, 20\varepsilon)$.
+
+	\item \[
+		      \lim_{x \to 3} f(x)
+		      = \lim_{x \to 3} \frac{x + 2}{x + 3}
+		      = \frac{5}{6}
+	      \]
+
+	\item \[
+		      \lim_{x \to +\infty} f(x)
+		      = \lim_{x \to +\infty} \frac{1 + \frac{2}{x}}{1 + \frac{3}{x}}
+		      = 1
+	      \]
+\end{enumerate}
+\end{document}

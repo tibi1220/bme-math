@@ -1,0 +1,91 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+\begin{enumerate}
+	\item Például legyen
+	      \[
+		      f(x) = \begin{cases}
+			      1, & \text{ha } x = \frac{1}{n}
+			      \text{ valamilyen } n \in \mathbb{N}^+
+			      \text{ esetén},                 \\
+			      0, & \text{egyébként}.
+		      \end{cases}
+	      \]
+
+	      Mivel az $\left\{\frac{1}{n} : n \in \mathbb{N}^+\right\}$
+	      halmaznak egyetlen torlódási pontja a $0$, ezért
+	      minden $a \neq 0$ pontnak létezik olyan kipontozott
+	      környezete, amelyben $f \equiv 0$. Így
+	      \[
+		      \lim_{x \to a} f(x) = 0
+		      \qquad (a \neq 0)
+		      \text.
+	      \]
+
+	      A nullában viszont a határérték nem létezik,
+	      hiszen
+	      \[
+		      \frac{1}{n} \to 0,
+		      \qquad
+		      -\frac{1}{n} \to 0,
+	      \]
+	      ugyanakkor
+	      \[
+		      f\left(\frac{1}{n}\right) = 1 \to 1,
+		      \qquad
+		      f\left(-\frac{1}{n}\right) = 0 \to 0
+		      \text.
+	      \]
+	      A Heine-féle átviteli elv alapján tehát
+	      \[
+		      \lim_{x \to 0} f(x) \text{ nem létezik.}
+	      \]
+
+	\item \textbf{Bizonyítás indirekt módon}
+
+	      Tegyük fel, hogy létezik ilyen függvény.
+	      Mivel
+	      \[
+		      \lim_{x \to 0} f(x) = 1,
+	      \]
+	      ezért $\varepsilon = \frac{1}{2}$-höz létezik
+	      $\delta > 0$, hogy
+	      \[
+		      0 < |x| < \delta
+		      \quad \Longrightarrow \quad
+		      \frac{1}{2} < f(x) < \frac{3}{2}
+		      \text.
+	      \]
+
+	      Tekintsük az $a = \frac{\delta}{2}$ pontot.
+	      Mivel $a \neq 0$, a feltevés szerint
+	      \[
+		      \lim_{x \to a} f(x) = 0
+		      \text.
+	      \]
+
+	      Ugyanakkor $a$ a $(0,\delta)$ intervallum
+	      belső pontja, így létezik olyan környezete,
+	      amelyben minden $x$-re
+	      \[
+		      \frac{1}{2} < f(x) < \frac{3}{2}
+		      \text.
+	      \]
+
+	      Ezért a határértékekre vonatkozó
+	      egyenlőtlenségi tétel alapján
+	      \[
+		      \frac{1}{2}
+		      \leq \lim_{x \to a} f(x)
+		      \leq \frac{3}{2}
+		      \text,
+	      \]
+	      ami ellentmond annak, hogy
+	      $\displaystyle\lim_{x \to a} f(x) = 0$.
+
+	      Következésképpen: nem létezik ilyen függvény.
+\end{enumerate}
+\end{document}

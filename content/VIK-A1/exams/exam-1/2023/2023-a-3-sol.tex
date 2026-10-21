@@ -1,0 +1,47 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+\begin{enumerate}
+	\item Becsüljük a gyökjel alatti kifejezést:
+	      \[
+		      \frac{n}{8}
+		      = \frac{n^3}{3n^2 + 5n^2}
+		      \le \frac{n^3 + 3n}{3n^2 + 5}
+		      \le \frac{n^3 + 3n^3}{3n^2}
+		      = \frac{4n}{3}.
+	      \]
+	      \[
+		      1 \leftarrow \sqrt[n]{n} \sqrt[n]{\frac{1}{8}}
+		      \le a_n
+		      \le \sqrt[n]{n} \sqrt[n]{\frac{4}{3}} \to 1.
+	      \]
+	      Így a rendőrelv miatt $a_n \to 1$.
+
+	\item \(\displaystyle
+	      b_n
+	      =
+	      \frac{4n^2 + 3n - 4 - 4n^2}{\sqrt{4n^2 + 3n - 4} + 2n}
+	      =
+	      \frac{3 - \frac{4}{n}}{\sqrt{4 + \frac{3}{n} - \frac{4}{n^2}} + 2}
+	      \to
+	      \frac{3}{2 + 2}
+	      =
+	      \frac{3}{4}.
+	      \)
+
+	\item \(\displaystyle
+	      c_n
+	      =
+	      \left(
+	      \frac{\left(1 - \frac{1}{3n}\right)^{3n}}{\left(1 + \frac{2}{3n}\right)^{3n}}
+	      \right)^{\frac{2}{3}}
+	      \to
+	      \left( \frac{e^{-1}}{e^2} \right)^{\frac{2}{3}}
+	      =
+	      e^{-2}.
+	      \)
+\end{enumerate}
+\end{document}

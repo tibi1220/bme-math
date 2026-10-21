@@ -1,0 +1,85 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+\usepackage{xfrac}
+
+\begin{document}
+\begin{enumerate}
+	\item \textbf{Szöveges megoldás}
+
+	      A számlálóban a leggyorsabban növekvő tag a $3 \cdot 2^{2n + 1}
+		      = 6 \cdot 4^n$, hiszen
+	      \[
+		      n \ln n \ll n^2 \ll 4^n
+		      \text.
+	      \]
+	      A nevezőben a leggyorsabban növekvő tag a $4^{n + 3} = 64 \cdot 4^n$,
+	      hiszen
+	      \[
+		      n^6 \ll 4^n
+		      \text.
+	      \]
+	      Mivel mind a számlálóban, mind a nevezőben a $c \cdot 4^n$ a domináns
+	      tag, ezért a határérték ezen tagok együtthatóinak hányadosa lesz:
+	      \[
+		      \lim_{n \to \infty} \frac{
+			      n \, \ln(n) + 3 \cdot 2^{2n + 1}
+		      }{
+			      4^{n + 3} + 5 n^6
+		      } = \frac{6}{64} = \frac{3}{32}
+		      \text.
+	      \]
+
+	      \textbf{Másik megoldás}
+
+	      $3 \cdot 2^{2n + 1} = 6 \cdot 4^n$ és $4^{n + 3} = 64 \cdot 4^n$, így
+	      \[
+		      \frac{n \ln(n) + 6 \cdot 4^n}{64 \cdot 4^n + 5n^6}
+		      = \frac{\frac{n \ln(n)}{4^n} + 6}{64 + \frac{5n^6}{4^n}}
+		      \to \frac{6}{64}
+		      = \frac{3}{32}
+		      \text.
+	      \]
+
+	\item Behelyettesítéssel $(\infty - \infty)$ típusú határozatlan alakot
+	      kapunk. Alkalmazzuk a gyökös kifejezések racionalizálását, vagyis
+	      bővítsük a kifejezést a konjugáltjával:
+	      \[
+		      \sqrt{n^2 + 5n + 1} - n
+		      = \frac{
+			      (n^2 + 5n + 1) - n^2
+		      }{
+			      \sqrt{n^2 + 5n + 1} + n
+		      }
+		      = \frac{5n + 1}{\sqrt{n^2 + 5n + 1} + n}
+		      \text.
+	      \]
+	      A határérték tehát:
+	      \[
+		      = \frac{5n + 1}{\sqrt{n^2 + 5n + 1} + n}
+		      = \frac{5 + \sfrac{1}{n}}{\sqrt{1 + \sfrac{5}{n} + \sfrac{1}{n^2}} + 1}
+		      \to \frac{5}{1 + 1} = \frac{5}{2}
+		      \text.
+	      \]
+
+	\item \textbf{Számláló és nevező együtt kezelésével}
+	      \[
+		      \left( \frac{2n + 3}{5 + 2n} \right)^{n + 3}
+		      = \left( \frac{2n + 5 - 2}{5 + 2n} \right)^{n + 3}
+		      = \left[
+			      \left( 1 + \frac{-2}{5 + 2n} \right)^{5 + 2n}
+			      \right]^{\frac{n + 3}{5 + 2n}}
+		      \to \left[e^{-2}\right]^{\frac{1}{2}} = e^{-1}
+	      \]
+
+	      \textbf{Számláló és nevező külön kezelésével}
+	      \[
+		      \left( \frac{2n + 3}{5 + 2n} \right)^{n + 3}
+		      = \frac{\left(1 + \frac{3/2}{n}\right)^n}{\left(1 + \frac{5/2}{n}\right)^n}
+		      \cdot \left( \frac{2n + 3}{2n + 5} \right)^3
+		      \to \frac{e^{\sfrac{3}{2}}}{e^{\sfrac{5}{2}}} \cdot 1
+		      = e^{-1}
+	      \]
+\end{enumerate}
+\end{document}

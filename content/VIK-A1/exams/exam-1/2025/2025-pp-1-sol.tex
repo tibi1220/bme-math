@@ -1,0 +1,55 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+\begin{enumerate}
+	\item \textbf{Szöveges gondolatmenet}
+
+	      A gyökjel alatt a számlálóban a leggyorsabban növekvő tag a $2^n$,
+	      hiszen $n^2 \ll 2^n$, a nevezőben pedig az $n$. Mivel
+	      $\sqrt[n]{c} \to 1$ és $\sqrt[n]{n} \to 1$, a határérték a domináns
+	      exponenciális tag alapja, vagyis $2$ lesz.
+
+	      \textbf{Becslés a rendőrelvvel}
+
+	      $n \ge 4$ esetén $n^2 \le 2^n$, továbbá $n \le n + 3 \le 4n$.
+	      Becsüljük alulról és felülről a gyökjel alatti törtet:
+	      \[
+		      \frac{2^n}{4n}
+		      \le \frac{n^2 + 2^n}{n + 3}
+		      \le \frac{2 \cdot 2^n}{n}
+		      \text.
+	      \]
+	      Mindhárom kifejezésből $n$-edik gyököt vonva:
+	      \[
+		      2
+		      \leftarrow \frac{2}{\sqrt[n]{4} \cdot \sqrt[n]{n}}
+		      \le \sqrt[n]{\frac{n^2 + 2^n}{n + 3}}
+		      \le \frac{2 \cdot \sqrt[n]{2}}{\sqrt[n]{n}}
+		      \to 2
+		      \text.
+	      \]
+	      A rendőrelv alapján tehát a határérték $2$.
+
+	\item \textbf{Számláló és nevező együtt kezelésével}
+	      \[
+		      \left( \frac{n - 3}{n + 2} \right)^{n - 5}
+		      = \left( \frac{n + 2 - 5}{n + 2} \right)^{n - 5}
+		      = \left[
+			      \left( 1 + \frac{-5}{n + 2} \right)^{n + 2}
+			      \right]^{\frac{n - 5}{n + 2}}
+		      \to \left[e^{-5}\right]^{1} = e^{-5}
+	      \]
+
+	      \textbf{Számláló és nevező külön kezelésével}
+	      \[
+		      \left( \frac{n - 3}{n + 2} \right)^{n - 5}
+		      = \frac{\left(1 - \frac{3}{n}\right)^n}{\left(1 + \frac{2}{n}\right)^n}
+		      \cdot \left( \frac{n - 3}{n + 2} \right)^{-5}
+		      \to \frac{e^{-3}}{e^{2}} \cdot 1
+		      = e^{-5}
+	      \]
+\end{enumerate}
+\end{document}

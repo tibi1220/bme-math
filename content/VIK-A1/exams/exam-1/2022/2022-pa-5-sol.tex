@@ -1,0 +1,18 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+Mivel $(2n + 1)! - (2n)! = 2n \cdot (2n)!$ és $(2n)! \le (2n)^{2n}$, ezért
+\[
+	1
+	\le x_n
+	= \sqrt[n^2]{2n \cdot (2n)!}
+	\le \sqrt[n^2]{(2n)^{2n + 1}}
+	\le \sqrt[n^2]{(2n)^{3n}}
+	= \left( \sqrt[n]{2n} \right)^3
+	\to 1.
+\]
+A rendőrelv miatt $x_n \to 1$.
+\end{document}

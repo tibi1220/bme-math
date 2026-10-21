@@ -1,0 +1,40 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+\begin{enumerate}
+	\item \[
+		      a_n
+		      = \frac{\sqrt{n^2 + 2n} + n}{\left( n^2 + 2n \right) - n^2}
+		      = \frac{\sqrt{n^2 + 2n} + n}{2n}
+		      = \frac{\sqrt{1 + \frac{2}{n}} + 1}{2}
+		      \to 1
+	      \]
+
+	\item \[
+		      b_n
+		      = \frac{\left(1 - \frac{3/2}{n}\right)^n}{\left(1 + \frac{5/2}{n}\right)^n}
+		      \cdot \left( \frac{2n - 3}{2n + 5} \right)^2
+		      \to \frac{e^{-\frac{3}{2}}}{e^{\frac{5}{2}}} \cdot 1
+		      = e^{-4}
+	      \]
+
+	\item $n \ge 3$ esetén $5 \le 2^n$ és $n^2 + 1 \le 2n^2$, így
+	      \[
+		      \frac{2^n}{2n^2}
+		      \le \frac{2^n + 5}{n^2 + 1}
+		      \le \frac{2 \cdot 2^n}{n^2},
+	      \]
+	      tehát
+	      \[
+		      2
+		      \leftarrow \frac{2}{\sqrt[n]{2} \left( \sqrt[n]{n} \right)^2}
+		      \le c_n
+		      \le \frac{2 \sqrt[n]{2}}{\left( \sqrt[n]{n} \right)^2}
+		      \to 2,
+	      \]
+	      így a rendőrelv miatt $c_n \to 2$.
+\end{enumerate}
+\end{document}

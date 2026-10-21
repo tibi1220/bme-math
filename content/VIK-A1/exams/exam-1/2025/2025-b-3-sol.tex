@@ -1,0 +1,97 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+\usepackage{tikz}
+
+\begin{document}
+\begin{enumerate}
+	\item Bővítsük a törtünket a nevező konjugáltjával, majd végezzük el a
+	      megfelelő egyszerűsítéseket:
+	      \[
+		      \frac{3 + 2i}{i - 4}
+		      = \frac{(3 + 2i)(-4 - i)}{(-4 + i)(-4 - i)}
+		      = \frac{-12 - 3i - 8i - 2i^2}{(-4)^2 + 1^2}
+		      = -\frac{10}{17} - \frac{11}{17} i
+		      \text.
+	      \]
+
+	\item \textbf{Szöveges gondolatmenet}
+
+	      A $z = -8i$ egy olyan komplex szám, amelynek valós része
+	      $\operatorname{Re} \{z\} = 0$, képzetes része pedig
+	      $\operatorname{Im} \{z\} = -8 < 0$.
+
+	      Tehát a hossza $r = |z| = 8$, argumentuma pedig
+	      $\arg \{z\} = 270^\circ = 3\pi / 2$.
+
+	      A harmadik gyökök hossza $\sqrt[3]{8} = 2$ lesz, az egyik gyök
+	      argumentuma pedig pont az eredeti szám argumentumának harmada, vagyis
+	      $\varphi_1 = 270^\circ / 3 = 90^\circ = \pi / 2$. A másik két
+	      gyököt az előbb meghatározott gyök $120^\circ = 2\pi/3$, illetve
+	      $240^\circ = 4\pi / 3$-mal való elforgatásával kaphatjuk meg. Tehát
+	      a gyökök:
+	      \[
+		      \sqrt[3]{-8i} = \begin{cases}
+			      2 \cdot e^{i \cdot \frac{\pi}{2}}
+			      = 2i
+			      \text,
+			      \\
+			      2 \cdot e^{i \cdot \left(\frac{\pi}{2} + \frac{2\pi}{3}\right)}
+			      = 2 \cdot e^{i \cdot \frac{7\pi}{6}}
+			      \text,
+			      \\
+			      2 \cdot e^{i \cdot \left(\frac{\pi}{2} + \frac{4\pi}{3}\right)}
+			      = 2 \cdot e^{i \cdot \frac{11\pi}{6}}
+			      \text.
+		      \end{cases}
+	      \]
+
+
+	      \textbf{Másik megoldás}
+
+	      $-8i = 8\left(\cos \frac{3\pi}{2} + i \sin \frac{3\pi}{2}\right)$, így
+	      \[
+		      w_k
+		      = \sqrt[3]{8}\left(
+		      \cos\left(\frac{3\pi/2 + 2k\pi}{3}\right)
+		      + i \sin\left(\frac{3\pi/2 + 2k\pi}{3}\right)
+		      \right),
+		      \quad k \in \{0; 1; 2\}
+		      \text.
+	      \]
+	      A gyökök tehát:
+	      \[
+		      \begin{aligned}
+			      w_0 & = 2 \left(
+			      \cos \frac{\pi}{2} + i \sin \frac{\pi}{2}
+			      \right) = 2i
+			      \text,
+			      \\
+			      w_1 & = 2 \left(
+			      \cos \frac{7\pi}{6} + i \sin \frac{7\pi}{6}
+			      \right)
+			      \text,
+			      \\
+			      w_2 & = 2 \left(
+			      \cos \frac{11\pi}{6} + i \sin \frac{11\pi}{6}
+			      \right)
+			      \text.
+		      \end{aligned}
+	      \]
+	      A gyökök egy origó középpontú, $2$ sugarú körbe írt szabályos háromszög
+	      csúcsai:
+	      \begin{center}
+		      \begin{tikzpicture}[scale=0.8, >=stealth]
+			      \draw[->] (-2.8, 0) -- (2.8, 0) node[right] {$\operatorname{Re}$};
+			      \draw[->] (0, -2.8) -- (0, 2.8) node[above] {$\operatorname{Im}$};
+			      \draw[dashed] (0, 0) circle (2);
+			      \node[above right] at (2, 0) {$2$};
+			      \draw[thin] (90:2) -- (210:2) -- (330:2) -- cycle;
+			      \fill (90:2) circle (2pt) node at (102:2.5) {$w_0$};
+			      \fill (210:2) circle (2pt) node at (222:2.5) {$w_1$};
+			      \fill (330:2) circle (2pt) node at (342:2.5) {$w_2$};
+		      \end{tikzpicture}
+	      \end{center}
+\end{enumerate}
+\end{document}

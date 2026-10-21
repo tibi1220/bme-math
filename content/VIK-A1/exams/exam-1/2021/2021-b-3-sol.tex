@@ -1,0 +1,26 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+$n \ge 2$ esetén (elég nagy $n$ esetén is jó)
+\[
+	1
+	\leftarrow \sqrt[n]{\frac{1}{6}} \cdot \frac{1}{\sqrt[n]{n}}
+	= \sqrt[n]{\frac{n^4 - \frac{n^4}{2}}{n^5 + 2n^5}}
+	\le a_n
+	\le \sqrt[n]{\frac{n^4 + 7n^4}{n^5}}
+	= \sqrt[n]{8} \cdot \frac{1}{\sqrt[n]{n}}
+	\to 1,
+\]
+így a rendőrelv miatt $\lim_{n \to \infty} a_n = 1$.
+\[
+	b_n
+	= \sqrt{
+		\frac{n^4}{n^5} \cdot
+		\frac{1 - \frac{3}{n^2} + \frac{7}{n^4}}{1 + \frac{2}{n} - \frac{5}{n^3}}
+	}
+	\to 0.
+\]
+\end{document}

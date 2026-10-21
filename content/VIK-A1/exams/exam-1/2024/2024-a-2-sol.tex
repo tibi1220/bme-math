@@ -1,0 +1,27 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+\begin{enumerate}
+	\item Teljes indukcióval: $1 < a_1 = 2 < 4$. Ha $1 < a_n < 4$, akkor
+	      $1 < 5a_n - 4 < 16$, így
+	      $1 < a_{n + 1} = \sqrt{5a_n - 4} < 4$.
+
+	\item Mivel $a_n > 0$, ezért
+	      \[
+		      a_{n + 1} > a_n
+		      \iff 5a_n - 4 > a_n^2
+		      \iff (a_n - 1)(a_n - 4) < 0,
+	      \]
+	      ami az a) rész miatt teljesül. A sorozat tehát (szigorúan) monoton
+	      növő.
+
+	\item A sorozat monoton és korlátos, így konvergens; legyen
+	      $A = \lim a_n$. A rekurzióban határértéket véve (a gyökfüggvény
+	      folytonos) $A = \sqrt{5A - 4}$, azaz $A^2 - 5A + 4 = 0$, így $A = 1$
+	      vagy $A = 4$. Mivel a sorozat növő, $A \ge a_1 = 2$, tehát
+	      $\lim a_n = 4$.
+\end{enumerate}
+\end{document}

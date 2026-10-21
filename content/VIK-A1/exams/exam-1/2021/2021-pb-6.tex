@@ -1,0 +1,28 @@
+% ---
+% topic: 01
+% points: [4, 4]
+% imsc: true
+% ---
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+\begin{enumerate}
+	\item Igazolja, hogy ha az $(a_n)_{n \in \mathbb{N}}$ valós számsorozat
+	      határértéke $A \in \mathbb{R}$, akkor
+	      \[
+		      \exists \lim_{n \to \infty} \left(1 + \frac{a_n}{n}\right)^n
+		      = e^A.
+	      \]
+
+	\item Igazolja, hogy minden $\alpha \in \mathbb{R}$ esetén
+	      \[
+		      \lim_{n \to \infty} \left(1 + \frac{i \alpha}{n}\right)^n
+		      = e^{i \alpha}.
+	      \]
+\end{enumerate}
+A bizonyításhoz felhasználhatja, hogy
+$\lim_{n \to \infty} n \arctan\left(\frac{\alpha}{n}\right) = \alpha$.
+\end{document}

@@ -1,0 +1,37 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+Mivel $x^2 - 2x + 1 = (x - 1)^2$ és $x^3 - x = x(x - 1)(x + 1)$, ezért
+\[
+	f(x) = \frac{|x - 1| \sqrt{x^4 + 3}}{x (x - 1)(x + 1)}.
+\]
+\begin{itemize}
+	\item $x < 1$ esetén $|x - 1| = 1 - x$, így
+	      \[
+		      \lim_{x \to -\infty} f(x)
+		      = \lim_{x \to -\infty}
+		      \frac{1 - x}{x} \cdot
+		      \frac{\sqrt{1 + \frac{3}{x^4}}}{1 - \frac{1}{x^2}}
+		      = -1 \cdot 1
+		      = -1.
+	      \]
+
+	\item \[
+		      \lim_{x \to 1 \pm 0} f(x)
+		      = \lim_{x \to 1 \pm 0}
+		      \underbrace{\frac{|x - 1|}{x - 1}}_{= \pm 1} \cdot
+		      \underbrace{\frac{\sqrt{x^4 + 3}}{x (x + 1)}}_{\to 1}
+		      = \pm 1,
+	      \]
+	      a bal és a jobb oldali határérték különbözik, így
+	      $\lim_{x \to 1} f(x)$ nem létezik.
+
+	\item $f$ folytonos a $2$ pontban, így
+	      \(
+	      \lim_{x \to 2} f(x) = f(2) = \frac{\sqrt{19}}{6}
+	      \).
+\end{itemize}
+\end{document}

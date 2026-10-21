@@ -1,0 +1,45 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+\usepackage{tikz}
+
+\begin{document}
+Az egyenlet $z^2$-ben másodfokú:
+\[
+	z^2
+	= \frac{i - 4 \pm \sqrt{(4 - i)^2 + 16i}}{2}
+	= \frac{i - 4 \pm \sqrt{(4 + i)^2}}{2},
+\]
+vagyis $z^2 = i = \cos \frac{\pi}{2} + i \sin \frac{\pi}{2}$ vagy $z^2 = -4$.
+
+A gyökvonás képletével ($k \in \{0; 1\}$) az első egyenlet megoldásai
+\[
+	z_{k + 1}
+	= \sqrt{1} \left(
+	\cos \frac{\frac{\pi}{2} + 2k\pi}{2} + i \sin \frac{\frac{\pi}{2} + 2k\pi}{2}
+	\right)
+	= \cos\left(\frac{\pi}{4} + k\pi\right) + i \sin\left(\frac{\pi}{4} + k\pi\right),
+\]
+azaz $z_{1, 2} = \pm \left( \frac{\sqrt{2}}{2} + i \frac{\sqrt{2}}{2} \right)$.
+A második egyenletnél $-4 = 4 (\cos \pi + i \sin \pi)$, így
+\[
+	z_{k + 3}
+	= \sqrt{4} \left(
+	\cos \frac{\pi + 2k\pi}{2} + i \sin \frac{\pi + 2k\pi}{2}
+	\right),
+\]
+azaz $z_{3, 4} = \pm 2i$.
+\begin{center}
+	\begin{tikzpicture}[scale=0.7, >=stealth]
+		\draw[->] (-2.6, 0) -- (2.6, 0) node[right] {$\operatorname{Re}$};
+		\draw[->] (0, -2.6) -- (0, 2.6) node[above] {$\operatorname{Im}$};
+		\draw[dashed] (0, 0) circle (1);
+		\draw[dashed] (0, 0) circle (2);
+		\fill (45:1) circle (2pt) node[above right] {$z_1$};
+		\fill (225:1) circle (2pt) node[below left] {$z_2$};
+		\fill (90:2) circle (2pt) node[above right] {$z_3$};
+		\fill (270:2) circle (2pt) node[below right] {$z_4$};
+	\end{tikzpicture}
+\end{center}
+\end{document}

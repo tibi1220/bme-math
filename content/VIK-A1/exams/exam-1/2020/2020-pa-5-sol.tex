@@ -1,0 +1,33 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+Az $A = \sqrt[3]{5A^2 - 4A}$ egyenlet megoldásai $A_1 = 0$, $A_2 = 1$ és
+$A_3 = 4$.
+
+Teljes indukcióval belátjuk, hogy $1 \le a_n \le 4$ minden $n$-re.
+
+$n = 1$ esetén $1 \le a_1 = 3 \le 4$ teljesül.
+
+Ha $1 \le a_n \le 4$, akkor $1 \le 5a_n - 4 \le 16$, ezért
+$1 \le a_n (5a_n - 4) = 5a_n^2 - 4a_n \le 64$, tehát
+$1 \le \sqrt[3]{5a_n^2 - 4a_n} = a_{n + 1} \le 4$.
+
+Megmutatjuk, hogy $a_n \le a_{n + 1}$ minden $n$-re.
+
+Köbre emelés után $a_n^3 \le 5a_n^2 - 4a_n$, azaz
+$a_n (a_n^2 - 5a_n + 4) = a_n^3 - 5a_n^2 + 4a_n \le 0$, ami teljesül, mivel
+$a_n > 0$ és $a_n^2 - 5a_n + 4 \le 0$ az előbbi korlátok között.
+
+Megmutattuk, hogy $a_n$ monoton és korlátos, így a konvergencia elégséges
+feltétele miatt konvergens.
+
+Legyen $A = \lim a_n \in \mathbb{R}$! Felhasználva a részsorozat
+határértékére és a határérték és a műveletek kapcsolatára vonatkozó
+tételeket, kapjuk az $A = \sqrt[3]{5A^2 - 4A}$ egyenletet.
+
+Mivel $a_n$ monoton növő, ezért $A \ge a_1 = 3$, így a fenti gyökök közül
+csak az $A_3 = 4$ lehet a határérték.
+\end{document}

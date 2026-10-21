@@ -1,0 +1,34 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+\usepackage{tikz}
+
+\begin{document}
+Az algebra alaptétele (bármelyik változata elfogadható): minden legalább
+elsőfokú, komplex együtthatós polinomnak van komplex gyöke.
+\[
+	0 = z^4 + 3i z^3 + 4z^2 = z^2 \left( z^2 + 3i z + 4 \right).
+\]
+A megoldások $z_{1, 2} = 0$, és
+\[
+	z_{3, 4}
+	= \frac{-3i \pm \sqrt{(3i)^2 - 4 \cdot 4}}{2}
+	= \frac{-3i \pm \sqrt{-25}}{2}
+	= \frac{-3i \pm 5i}{2},
+\]
+azaz $z_3 = i$ és $z_4 = -4i$.
+
+A gyöktényezős alak: $z^4 + 3i z^3 + 4z^2 = z^2 (z - i)(z + 4i)$.
+
+A gyökök a komplex számsíkon:
+\begin{center}
+	\begin{tikzpicture}[scale=0.6, >=stealth]
+		\draw[->] (-2, 0) -- (2.2, 0) node[right] {$\operatorname{Re}$};
+		\draw[->] (0, -4.6) -- (0, 1.8) node[above] {$\operatorname{Im}$};
+		\fill (0, 0) circle (2pt) node[below left] {$z_{1, 2} = 0$};
+		\fill (0, 1) circle (2pt) node[right] {$z_3 = i$};
+		\fill (0, -4) circle (2pt) node[right] {$z_4 = -4i$};
+	\end{tikzpicture}
+\end{center}
+\end{document}

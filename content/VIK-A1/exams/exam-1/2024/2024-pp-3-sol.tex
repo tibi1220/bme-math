@@ -1,0 +1,52 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+\usepackage{tikz}
+
+\begin{document}
+\begin{enumerate}
+	\item \[
+		      \frac{3 + 2i}{3i - 5}
+		      = \frac{(3 + 2i)(-5 - 3i)}{(-5 + 3i)(-5 - 3i)}
+		      = \frac{-15 - 9i - 10i - 6i^2}{(-5)^2 + 3^2}
+		      = -\frac{9}{34} - \frac{19}{34} i
+	      \]
+	      A számok a komplex számsíkon:
+	      \begin{center}
+		      \begin{tikzpicture}[scale=0.55, >=stealth]
+			      \draw[->] (-6, 0) -- (4.2, 0) node[right] {$\operatorname{Re}$};
+			      \draw[->] (0, -1.6) -- (0, 3.8) node[above] {$\operatorname{Im}$};
+			      \fill (3, 2) circle (2pt) node[above right] {$3 + 2i$};
+			      \fill (-5, 3) circle (2pt) node[above] {$3i - 5$};
+			      \fill (-0.265, -0.559) circle (2pt) node[below left] {$-\frac{9}{34} - \frac{19}{34} i$};
+		      \end{tikzpicture}
+	      \end{center}
+
+	\item $-32 = 32 (\cos \pi + i \sin \pi)$, így a gyökvonás képletével
+	      \[
+		      z_k
+		      = \sqrt[5]{32} \left(
+		      \cos \frac{\pi + 2k\pi}{5} + i \sin \frac{\pi + 2k\pi}{5}
+		      \right),
+		      \quad k = 0, 1, 2, 3, 4,
+	      \]
+	      azaz $z_0 = 2e^{i \frac{\pi}{5}}$, $z_1 = 2e^{i \frac{3\pi}{5}}$,
+	      $z_2 = 2e^{i \pi} = -2$, $z_3 = 2e^{i \frac{7\pi}{5}}$ és
+	      $z_4 = 2e^{i \frac{9\pi}{5}}$. A gyökök egy origó középpontú, $2$
+	      sugarú körbe írt szabályos ötszög csúcsai:
+	      \begin{center}
+		      \begin{tikzpicture}[scale=0.8, >=stealth]
+			      \draw[->] (-2.8, 0) -- (2.8, 0) node[right] {$\operatorname{Re}$};
+			      \draw[->] (0, -2.8) -- (0, 2.8) node[above] {$\operatorname{Im}$};
+			      \draw[dashed] (0, 0) circle (2);
+			      \draw[thin] (36:2) -- (108:2) -- (180:2) -- (252:2) -- (324:2) -- cycle;
+			      \fill (36:2) circle (2pt) node at (48:2.5) {$z_0$};
+			      \fill (108:2) circle (2pt) node at (120:2.5) {$z_1$};
+			      \fill (180:2) circle (2pt) node at (192:2.5) {$z_2$};
+			      \fill (252:2) circle (2pt) node at (264:2.5) {$z_3$};
+			      \fill (324:2) circle (2pt) node at (336:2.5) {$z_4$};
+		      \end{tikzpicture}
+	      \end{center}
+\end{enumerate}
+\end{document}

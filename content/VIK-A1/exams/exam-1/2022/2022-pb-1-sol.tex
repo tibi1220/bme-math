@@ -1,0 +1,72 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+\usepackage{tikz}
+
+\begin{document}
+\begin{enumerate}
+	\item \[
+		      \frac{(3 + i) \cdot (2 + i)}{(6 + 2i) \cdot (2 - i)}
+		      = \frac{(2 + i)^2}{2 \cdot (2 - i) \cdot (2 + i)}
+		      = \frac{4 + 4i - 1}{10}
+		      = \frac{3}{10} + \frac{2}{5} i
+	      \]
+
+	\item \[
+		      \frac{2 \cdot (3 + i) + (1 - 5i)}{(7 - 3i)}
+		      = \frac{7 - 3i}{7 - 3i}
+		      = 1
+	      \]
+
+	      Az a) és b) rész eredménye a komplex számsíkon:
+	      \begin{center}
+	      	\begin{tikzpicture}[scale=2.2, >=stealth]
+	      		\draw[->] (-0.4, 0) -- (1.6, 0) node[right] {$\operatorname{Re}$};
+	      		\draw[->] (0, -0.4) -- (0, 0.9) node[above] {$\operatorname{Im}$};
+	      		\fill (0.3, 0.4) circle (2pt) node[right] {$\frac{3}{10} + \frac{2}{5} i$};
+	      		\fill (1, 0) circle (2pt) node[above] {$1$};
+	      	\end{tikzpicture}
+	      \end{center}
+
+	\item $z^8 - 8z^2 = z^2 (z^6 - 8)$ gyökei
+	      \[
+		      z_k
+		      = \sqrt[6]{8}
+		      = \sqrt{2} \left( \cos(k \cdot 60^\circ) + i \sin(k \cdot 60^\circ) \right),
+		      \quad k = 0, 1, 2, 3, 4, 5,
+	      \]
+	      és $z_{6, 7} = 0$.
+
+	      A nem valós gyökök valós és képzetes része (elég egyet megadni):
+	      \[
+		      \begin{aligned}
+			      \operatorname{Re} z_1 & = \sqrt{2} \cos 60^\circ = \frac{\sqrt{2}}{2},
+			                            & \operatorname{Im} z_1 & = \sqrt{2} \sin 60^\circ = \frac{\sqrt{6}}{2},   \\
+			      \operatorname{Re} z_2 & = \sqrt{2} \cos 120^\circ = -\frac{\sqrt{2}}{2},
+			                            & \operatorname{Im} z_2 & = \sqrt{2} \sin 120^\circ = \frac{\sqrt{6}}{2},  \\
+			      \operatorname{Re} z_4 & = \sqrt{2} \cos 240^\circ = -\frac{\sqrt{2}}{2},
+			                            & \operatorname{Im} z_4 & = \sqrt{2} \sin 240^\circ = -\frac{\sqrt{6}}{2}, \\
+			      \operatorname{Re} z_5 & = \sqrt{2} \cos 300^\circ = \frac{\sqrt{2}}{2},
+			                            & \operatorname{Im} z_5 & = \sqrt{2} \sin 300^\circ = -\frac{\sqrt{6}}{2}.
+		      \end{aligned}
+	      \]
+	      A gyökök a komplex számsíkon (a nem nulla gyökök egy
+	      $\sqrt{2}$ sugarú körbe írt szabályos hatszög csúcsai):
+	      \begin{center}
+	      	\begin{tikzpicture}[scale=0.9, >=stealth]
+	      		\draw[->] (-2.2, 0) -- (2.2, 0) node[right] {$\operatorname{Re}$};
+	      		\draw[->] (0, -2.2) -- (0, 2.2) node[above] {$\operatorname{Im}$};
+	      		\draw[dashed] (0, 0) circle (1.414);
+	      		\draw[thin] (0:1.414) -- (60:1.414) -- (120:1.414) -- (180:1.414) -- (240:1.414) -- (300:1.414) -- cycle;
+	      		\fill (0:1.414) circle (2pt) node[below right] {$z_0$};
+	      		\fill (60:1.414) circle (2pt) node[above right] {$z_1$};
+	      		\fill (120:1.414) circle (2pt) node[above left] {$z_2$};
+	      		\fill (180:1.414) circle (2pt) node[below left] {$z_3$};
+	      		\fill (240:1.414) circle (2pt) node[below left] {$z_4$};
+	      		\fill (300:1.414) circle (2pt) node[below right] {$z_5$};
+	      		\fill (0, 0) circle (2pt) node[below] {$z_{6, 7}$};
+	      	\end{tikzpicture}
+	      \end{center}
+\end{enumerate}
+\end{document}

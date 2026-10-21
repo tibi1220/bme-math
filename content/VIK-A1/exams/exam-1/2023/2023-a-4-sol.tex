@@ -1,0 +1,27 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+\[
+	a_n = \begin{cases}
+		\dfrac{n!}{n^n} \cdot \dfrac{1 + \frac{n^9}{n!}}{\left(\frac{9}{n}\right)^n + 1} \to 0,
+		 & \text{ha } n \text{ páros}     \\[3ex]
+		\dfrac{n!}{n^n} \cdot \dfrac{1 + \frac{n^9}{n!}}{\left(\frac{9}{n}\right)^n - 1} \to 0,
+		 & \text{ha } n \text{ páratlan}
+	\end{cases}
+\]
+A sorozat egyetlen torlódási pontja a $0$, vagyis
+$\limsup a_n = \liminf a_n = 0 = \lim a_n$.
+\[
+	b_n = \begin{cases}
+		\dfrac{n^n}{n!} \cdot \dfrac{\left(\frac{9}{n}\right)^n + 1}{1 + \frac{n^9}{n!}} \to \infty,
+		 & \text{ha } n \text{ páros}     \\[3ex]
+		\dfrac{n^n}{n!} \cdot \dfrac{\left(\frac{9}{n}\right)^n - 1}{1 + \frac{n^9}{n!}} \to -\infty,
+		 & \text{ha } n \text{ páratlan}
+	\end{cases}
+\]
+A sorozat torlódási pontjainak halmaza $\{-\infty, \infty\}$,
+vagyis $\limsup b_n = \infty$, $\liminf b_n = -\infty$, így a sorozat nem konvergens.
+\end{document}

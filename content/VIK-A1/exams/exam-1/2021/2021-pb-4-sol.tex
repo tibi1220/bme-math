@@ -1,0 +1,28 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+Ha a sorozat korlátos és monoton, akkor konvergens, és határértéke a sorozat
+legkisebb felső vagy legnagyobb alsó korlátja. A lehetséges $A$ határérték
+kielégíti az $A = 7 - \frac{10}{A}$ egyenletet, vagyis $A = 2$ vagy $A = 5$.
+
+Belátjuk, hogy $2 < a_n < 5$: $2 < a_1 < 5$, és ha $2 < a_n < 5$, akkor
+$\frac{1}{2} > \frac{1}{a_n} > \frac{1}{5}$, tehát
+$-5 < -\frac{10}{a_n} < -2$, így
+\[
+	2 = 7 - 5 < a_{n + 1} = 7 - \frac{10}{a_n} < 7 - 2 = 5.
+\]
+
+$a_2 = \frac{11}{3} > a_1$, és ha $a_n < a_{n + 1}$, akkor
+$\frac{1}{a_n} > \frac{1}{a_{n + 1}}$, és
+$-\frac{10}{a_n} < -\frac{10}{a_{n + 1}}$, tehát
+\[
+	a_{n + 1} = 7 - \frac{10}{a_n} < 7 - \frac{10}{a_{n + 1}} = a_{n + 2},
+\]
+vagyis a sorozat monoton nő. Mivel $a_n \ge 3$, így a határérték csak $5$
+lehet.
+
+A sorozat tehát monoton és korlátos, így konvergens, a határértéke $5$.
+\end{document}

@@ -1,0 +1,21 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+\begin{enumerate}
+	\item $\lim_{n \to \infty} a_n = \infty$, ha minden $P > 0$ számhoz
+	      létezik $N(P) \in \mathbb{N}$, melyre $n \ge N(P)$ esetén $a_n > P$.
+
+	\item Legyen $P > 0$. Ekkor $n \ge 3$ esetén
+	      $n^3 - 2n - 1 > \frac{n^3}{2}$, így
+	      \[
+		      \sqrt[5]{n^3 - 2n - 1} > \sqrt[5]{\frac{n^3}{2}} > P,
+	      \]
+	      ha $n^3 > 2P^5$, így
+	      \(
+	      N(P) = \max\left(3, \left[\sqrt[3]{2P^5}\right] + 1\right)
+	      \).
+\end{enumerate}
+\end{document}

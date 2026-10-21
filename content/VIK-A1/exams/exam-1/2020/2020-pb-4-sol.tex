@@ -1,0 +1,28 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+A rendőrelv (bármelyik változata elfogadható, akár a speciális is): ha
+$a_n \le b_n \le c_n$ elég nagy $n$-re, és $a_n \to A$, $c_n \to A$, akkor
+$b_n \to A$.
+\[
+	c_n
+	= \frac{(-27)^n + \frac{1}{(-27)^n}}{9^n + \frac{1}{9^n}}
+	= \frac{(-3)^n + \frac{1}{(-243)^n}}{1 + \frac{1}{81^n}}
+\]
+\[
+	c_{2n}
+	= \frac{3^{2n} + \frac{1}{243^{2n}}}{1 + \frac{1}{81^{2n}}}
+	\to \infty
+\]
+\[
+	c_{2n - 1}
+	= \frac{-3^{2n - 1} - \frac{1}{243^{2n - 1}}}{1 + \frac{1}{81^{2n - 1}}}
+	\to -\infty
+\]
+Minden elem szerepel valamelyik részsorozatban, így 2 torlódási pont van:
+$\pm \infty$. $\limsup c_n = \infty$, $\liminf c_n = -\infty$, a határérték
+nem létezik.
+\end{document}

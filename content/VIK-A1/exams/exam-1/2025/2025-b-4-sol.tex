@@ -1,0 +1,44 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+\begin{enumerate}
+	\item A nevező gyöktényezős alakban:
+	      \[
+		      x^2 + x - 6 = (x + 3)(x - 2)
+		      \text.
+	      \]
+	      A nullával való osztást nem értelmezzük, ezért $D_f = \mathbb{R}
+		      \setminus \{-3, 2\}$.
+
+	      A függvény $D_f$ minden pontjában folytonos, mert folytonos függvények
+	      hányadosa.
+
+	\item Az $x = -3$ pontban:
+	      \[
+		      \lim_{x \to -3} f(x)
+		      = \lim_{x \to -3}
+		      \underbrace{\frac{\sin\left(x^2 - 9\right)}{x^2 - 9}}_{\to 1} \cdot
+		      \underbrace{\frac{x (x - 3)}{x - 2}}_{\to \frac{(-3) \cdot (-6)}{-5}}
+		      = -\frac{18}{5},
+	      \]
+	      a bal és a jobb oldali határérték is $-\frac{18}{5}$, így itt
+	      megszüntethető (elsőfajú) szakadása van a függvénynek.
+
+	      Az $x = 2$ pontban:
+	      \[
+		      \lim_{x \to 2 \pm 0} f(x)
+		      = \lim_{x \to 2 \pm 0}
+		      \frac{
+			      \overbrace{x \sin\left(x^2 - 9\right)}^{\to 2 \sin(-5) > 0}
+		      }{
+			      \underbrace{(x + 3)(x - 2)}_{\to 0 \pm 0}
+		      }
+		      = \pm \infty,
+	      \]
+	      vagyis a bal oldali határérték $-\infty$, a jobb oldali $+\infty$, így
+	      itt másodfajú szakadása van a függvénynek.
+\end{enumerate}
+\end{document}

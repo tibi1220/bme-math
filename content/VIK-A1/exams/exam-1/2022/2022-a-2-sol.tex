@@ -1,0 +1,27 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+\begin{itemize}
+	\item \[
+		      a_n
+		      = \frac{\left(\sqrt{n + \sqrt{n}} - \sqrt{n}\right)\left(\sqrt{n + \sqrt{n}} + \sqrt{n}\right)}{\sqrt{n + \sqrt{n}} + \sqrt{n}}
+		      = \frac{\sqrt{n}}{\sqrt{n + \sqrt{n}} + \sqrt{n}}
+		      = \frac{1}{\sqrt{1 + \frac{1}{\sqrt{n}}} + 1}
+		      \to \frac{1}{2}
+	      \]
+
+	\item \[
+		      b_n
+		      = \frac{-\frac{1}{4} \cdot 16^n - 3 \cdot (-27)^n}{25^n}
+		      = -\frac{1}{4} \left(\frac{16}{25}\right)^n
+		      - 3 (-1)^n \left(\frac{27}{25}\right)^n
+	      \]
+	      Az első tag $0$-hoz tart, a második abszolút értéke $\infty$-hez, és
+	      előjele váltakozik: páros $n$-re $b_n \to -\infty$, páratlan $n$-re
+	      $b_n \to \infty$. A sorozatnak tehát két torlódási pontja van
+	      ($\pm \infty$), így nincs határértéke.
+\end{itemize}
+\end{document}

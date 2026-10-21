@@ -1,0 +1,28 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+Páratlan $n$ esetén
+\[
+	a_n
+	= \left( \frac{n + 1}{n + 4} \right)^{n - 1}
+	= \frac{\left(1 + \frac{1}{n}\right)^n}{\left(1 + \frac{4}{n}\right)^n}
+	\cdot \left( \frac{n + 1}{n + 4} \right)^{-1}
+	\to \frac{1}{e^3},
+\]
+páros $n$ esetén
+\[
+	a_n
+	= \left( \frac{n - 1}{n + 4} \right)^{n - 1}
+	= \frac{\left(1 - \frac{1}{n}\right)^n}{\left(1 + \frac{4}{n}\right)^n}
+	\cdot \left( \frac{n - 1}{n + 4} \right)^{-1}
+	\to \frac{1}{e^5},
+\]
+így a sorozat torlódási pontjainak halmaza
+$\left\{ \frac{1}{e^3}, \frac{1}{e^5} \right\}$,
+$\limsup a_n = \frac{1}{e^3}$,
+$\liminf a_n = \frac{1}{e^5}$, és mivel
+$\liminf a_n \ne \limsup a_n$, így a sorozat divergens.
+\end{document}

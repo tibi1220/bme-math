@@ -1,0 +1,62 @@
+import type { Metadata } from 'next';
+import { Geist, STIX_Two_Text } from 'next/font/google';
+import Link from 'next/link';
+import { Logo } from '@/components/logo';
+import { ThemeToggle } from '@/components/theme-toggle';
+import { THEME_SCRIPT } from '@/lib/theme';
+import 'katex/dist/katex.min.css';
+import './globals.css';
+
+const geistSans = Geist({
+  variable: '--font-geist-sans',
+  subsets: ['latin', 'latin-ext'],
+});
+
+// Formulas use STIX Two, like the PDFs (fontsetup with stixtwo).
+const stixTwo = STIX_Two_Text({
+  variable: '--font-stix-two',
+  subsets: ['latin', 'latin-ext', 'greek'],
+  style: ['normal', 'italic'],
+});
+
+export const metadata: Metadata = {
+  title: {
+    default: 'BME Matek',
+    template: '%s | BME Matek',
+  },
+  description:
+    'Régi zárthelyi és vizsgafeladatok témakörök szerint, BME-s matektárgyakhoz.',
+};
+
+export default function RootLayout({ children }: LayoutProps<'/'>) {
+  return (
+    <html
+      lang='hu'
+      data-theme='light'
+      // The inline script below may switch data-theme before hydration.
+      suppressHydrationWarning
+      className={`${geistSans.variable} ${stixTwo.variable} h-full antialiased`}
+    >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+      </head>
+      <body className='flex min-h-full flex-col bg-zinc-50 dark:bg-zinc-950 font-sans text-zinc-900 dark:text-zinc-100'>
+        <header className='border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900'>
+          <nav className='mx-auto flex max-w-3xl items-center justify-between px-4 py-3'>
+            <Link
+              href='/'
+              className='flex items-center gap-2 font-semibold tracking-tight'
+            >
+              <Logo className='size-7' />
+              BME Matek
+            </Link>
+            <ThemeToggle />
+          </nav>
+        </header>
+        <main className='mx-auto w-full max-w-3xl flex-1 px-4 py-8'>
+          {children}
+        </main>
+      </body>
+    </html>
+  );
+}

@@ -1,0 +1,38 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+$a_{2N} = 0$. Indoklás: az origó középpontú egységkörbe írt
+szabályos $2N$-szög csúcsaiba mutató vektorok összege az elrendezés
+szimmetriája miatt a nullvektor, és $2N \cdot a_{2N}$ éppen ezen vektorok
+vízszintes koordinátáinak összege.
+
+Hasonlóan igazolható, hogy ha $n$ a $2N$ többszöröse, akkor $a_n = 0$.
+
+Így ha $n = \alpha \cdot 2N + \beta$ ($\alpha, \beta \in \mathbb{N}$,
+$\beta < 2N$), akkor
+\[
+	a_n
+	= \frac{1}{n} \sum_{k = 1}^{n} \cos\left(\frac{k\pi}{N}\right)
+	= \frac{1}{n} \sum_{k = 1}^{\beta} \cos\left(\frac{k\pi}{N}\right),
+	\qquad \text{ezért} \qquad
+	|a_n| \le \frac{2N}{n} \to 0.
+\]
+Tehát az $(a_n)$ sorozat konvergens, határértéke $0$, így
+egyetlen torlódási pontja a $0$.
+
+Az $a_n$ képletében szereplő összegzés el is végezhető, ha észrevesszük, hogy
+$\cos \frac{k\pi}{N} = \operatorname{Re}(q^k)$, ahol $q = e^{i \frac{\pi}{N}}$,
+tehát $n a_n$ egy $q$ hányadosú, $n$ tagú mértani sor összegének valós része,
+így
+\(
+a_n = \frac{1}{n} \operatorname{Re}\left(q \frac{1 - q^n}{1 - q}\right)
+\).
+Innen is megkapható, hogy
+\(
+|a_n| \le \frac{1}{n} \left| q \frac{1 - q^n}{1 - q} \right|
+\le \frac{2}{n |1 - q|} \to 0
+\).
+\end{document}

@@ -1,0 +1,30 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+\usepackage{tikz}
+
+\begin{document}
+\[
+	z^4 - (3 + 4i) z^3 + 12i z^2 = z^2 \left( z^2 - (3 + 4i) z + 12i \right) = 0,
+\]
+ha $z = 0$, vagy
+\[
+	z
+	= \frac{3 + 4i \pm \sqrt{(3 + 4i)^2 - 48i}}{2}
+	= \frac{3 + 4i \pm \sqrt{(3 - 4i)^2}}{2}
+	= \frac{3 + 4i \pm (3 - 4i)}{2},
+\]
+tehát ha $z = 3$ vagy $z = 4i$.
+
+A gyökök a komplex számsíkon ($0$ kétszeres gyök):
+\begin{center}
+	\begin{tikzpicture}[scale=0.6, >=stealth]
+		\draw[->] (-1.2, 0) -- (3.8, 0) node[right] {$\operatorname{Re}$};
+		\draw[->] (0, -1) -- (0, 4.6) node[above] {$\operatorname{Im}$};
+		\fill (0, 0) circle (2pt) node[below left] {$0$};
+		\fill (3, 0) circle (2pt) node[above] {$3$};
+		\fill (0, 4) circle (2pt) node[right] {$4i$};
+	\end{tikzpicture}
+\end{center}
+\end{document}

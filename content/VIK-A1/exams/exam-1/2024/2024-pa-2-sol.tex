@@ -1,0 +1,40 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+\begin{enumerate}
+	\item \[
+		      a_n
+		      = \frac{\left(\sqrt{n^2 + 5n} - n\right)\left(\sqrt{n^2 + 5n} + n\right)}{\sqrt{n^2 + 5n} + n}
+		      = \frac{5n}{\sqrt{n^2 + 5n} + n}
+		      = \frac{5}{\sqrt{1 + \frac{5}{n}} + 1}
+		      \to \frac{5}{2}
+	      \]
+
+	\item Minden $n \ge 1$ esetén
+	      \(
+	      \frac{n}{4} = \frac{n^2}{4n} \le \frac{n^2 + 2}{n + 3} \le \frac{3n^2}{n} = 3n
+	      \),
+	      így
+	      \[
+		      1
+		      \leftarrow \sqrt[n]{\frac{1}{4}} \sqrt[n]{n}
+		      \le b_n
+		      \le \sqrt[n]{3} \sqrt[n]{n}
+		      \to 1,
+	      \]
+	      tehát a rendőrelv miatt $b_n \to 1$.
+
+	\item \[
+		      c_n
+		      = \frac{3^n}{n!} \cdot
+		      \frac{1 + \frac{n^2}{3^n}}{1 + \frac{2^n}{n!}}
+		      \to 0 \cdot \frac{1 + 0}{1 + 0}
+		      = 0,
+	      \]
+	      mert $\frac{3^n}{n!} \to 0$, $\frac{n^2}{3^n} \to 0$ és
+	      $\frac{2^n}{n!} \to 0$.
+\end{enumerate}
+\end{document}

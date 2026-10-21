@@ -1,0 +1,36 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+
+\begin{document}
+\begin{enumerate}
+	\item A mértani és a számtani közép közötti egyenlőtlenség miatt
+	      \(
+	      \frac{k \cdot (2n - k)}{n^2} \le 1
+	      \)
+	      minden $k \in \{0, \ldots, 2n\}$ esetén. Ezt felhasználva
+	      \[
+		      0
+		      \le \frac{(2n)!}{n^{2n}}
+		      = \frac{1 \cdot (2n - 1)}{n^2}
+		      \cdot \underbrace{\frac{2 \cdot (2n - 2)}{n^2}}_{\le 1}
+		      \cdots
+		      \underbrace{\frac{(n - 1) \cdot (n + 1)}{n^2}}_{\le 1}
+		      \cdot \frac{n \cdot 2n}{n^2}
+		      \le \frac{2(2n - 1)}{n^2}
+		      \to 0.
+	      \]
+	      A rendőrelv miatt
+	      \(\displaystyle \lim \frac{(2n)!}{n^{2n}} = 0\).
+
+	\item $n$ helyére $3n$-et írva kapjuk, hogy
+	      \(\displaystyle \frac{\sqrt[3n]{(3n)!}}{3n} > \frac{1}{e}\),
+	      amiből
+	      \(\displaystyle
+	      \frac{(3n)!}{n^{3n}} > \left(\frac{3}{e}\right)^{3n} \to \infty
+	      \),
+	      így a speciális rendőrelv miatt
+	      \(\displaystyle \lim \frac{(3n)!}{n^{3n}} = \infty\).
+\end{enumerate}
+\end{document}

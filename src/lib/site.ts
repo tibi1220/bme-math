@@ -19,7 +19,8 @@ export function absoluteUrl(path: string) {
 
 // Who runs the site, named in the privacy policy and the footer.
 export const operator = {
-  name: 'tibi1220',
+  name: 'Sándor Tibor',
+  github: 'tibi1220',
   url: 'https://github.com/tibi1220',
 };
 

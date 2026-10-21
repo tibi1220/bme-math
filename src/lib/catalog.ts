@@ -2,11 +2,23 @@
 // content/. Folder names in content/ are the keys; the generated content
 // (pnpm content) only knows about folders, never about display names.
 
+export type ExternalLink = {
+  title: string;
+  url: string;
+  description: string;
+};
+
 export type SubjectInfo = {
   slug: string;
   dir: string;
   name: string;
+  // The subject code in Neptun.
+  code: string;
   description: string;
+  // The official page of the subject.
+  website: string;
+  // Shown on the subject page, after the official page.
+  links: ExternalLink[];
 };
 
 // A test is a regular test, a retake (pótzárthelyi) or a second retake
@@ -46,7 +58,27 @@ export const subjects: SubjectInfo[] = [
     slug: 'analysis-a1',
     dir: 'VIK-A1',
     name: 'Analízis A1',
+    code: 'BMETEMIBsVANL1-00',
     description: 'Mérnökinformatikus BSc',
+    website: 'https://math.bme.hu/~tasnadi/merninf_anal_1/',
+    links: [
+      {
+        title: 'Matematika G1',
+        url: 'https://szilagyi-math.hu/subjects/G1',
+        description:
+          'Jegyzet és gyakorlati anyagok megoldásokkal, videókkal (Itt tanítottam korábban)',
+      },
+      {
+        title: 'Derivative Calculator',
+        url: 'https://www.derivative-calculator.net',
+        description: 'Deriváltak kiszámítása lépésről lépésre',
+      },
+      {
+        title: 'Integral Calculator',
+        url: 'https://www.integral-calculator.com',
+        description: 'Integrálok kiszámítása lépésről lépésre',
+      },
+    ],
   },
 ];
 

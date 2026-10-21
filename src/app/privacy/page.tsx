@@ -38,9 +38,10 @@ export default function PrivacyPage() {
 
         <h2>Az üzemeltető</h2>
         <p>
-          Az oldalt magánszemély üzemelteti, ingyenesen és nem üzleti céllal (
-          <a href={operator.url}>{operator.name}</a> a GitHubon). Az oldal
-          forráskódja nyilvános: <a href={repositoryUrl}>{repositoryUrl}</a>.
+          Az oldalt {operator.name} üzemelteti magánszemélyként, ingyenesen és
+          nem üzleti céllal (GitHub:{' '}
+          <a href={operator.url}>{operator.github}</a>). Az oldal forráskódja
+          nyilvános: <a href={repositoryUrl}>{repositoryUrl}</a>.
         </p>
 
         <h2>Milyen adatokat kezel az oldal?</h2>

@@ -19,7 +19,7 @@ export async function generateMetadata({
   if (!subject) return {};
   return pageMetadata({
     title: subject.name,
-    description: `${subject.name} (${subject.description}): régi zárthelyik és vizsgák feladatai kidolgozott megoldásokkal, évek és témakörök szerint.`,
+    description: `${subject.name} (${subject.code}, ${subject.description}): régi zárthelyik és vizsgák feladatai kidolgozott megoldásokkal, évek és témakörök szerint.`,
     path: `/${subject.slug}`,
   });
 }
@@ -35,7 +35,7 @@ export default async function SubjectPage({ params }: PageProps<'/[subject]'>) {
       />
       <PageHeader
         title={subject.name}
-        subtitle={subject.description}
+        subtitle={`${subject.description} · ${subject.code}`}
       />
 
       <section className='mb-10'>
@@ -60,7 +60,7 @@ export default async function SubjectPage({ params }: PageProps<'/[subject]'>) {
         </ul>
       </section>
 
-      <section>
+      <section className='mb-10'>
         <h2 className='mb-3 text-lg font-semibold'>
           Segédanyagok témakörönként
         </h2>
@@ -70,6 +70,30 @@ export default async function SubjectPage({ params }: PageProps<'/[subject]'>) {
               <LinkCard
                 title={topic.name}
                 description='Hamarosan'
+              />
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section>
+        <h2 className='mb-3 text-lg font-semibold'>Hasznos linkek</h2>
+        <ul className='grid gap-3 sm:grid-cols-2'>
+          <li>
+            <LinkCard
+              href={subject.website}
+              title='Tárgyhonlap'
+              description='A tárgy hivatalos oldala'
+              external
+            />
+          </li>
+          {subject.links.map(link => (
+            <li key={link.url}>
+              <LinkCard
+                href={link.url}
+                title={link.title}
+                description={link.description}
+                external
               />
             </li>
           ))}

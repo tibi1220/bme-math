@@ -23,7 +23,7 @@ export default function Home() {
             <LinkCard
               href={`/${subject.slug}`}
               title={subject.name}
-              description={subject.description}
+              description={`${subject.description} · ${subject.code}`}
             />
           </li>
         ))}

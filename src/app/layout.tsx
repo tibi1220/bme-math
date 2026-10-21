@@ -34,6 +34,7 @@ export const metadata: Metadata = {
     'BME',
     'VIK',
     'Analízis A1',
+    'BMETEMIBsVANL1-00',
     'zárthelyi',
     'pótzárthelyi',
     'régi zh',

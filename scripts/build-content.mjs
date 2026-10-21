@@ -36,7 +36,7 @@ const DOWNLOADS_DIR = path.join(ROOT, 'public', 'downloads');
 
 // Bump these whenever the conversion below changes, to invalidate the cache:
 // one version for the exercises, one for the topic materials.
-const PIPELINE_VERSION = { exercise: '9', material: '11' };
+const PIPELINE_VERSION = { exercise: '9', material: '12' };
 
 const EXERCISE_FILE = /^(\d{4})-([a-z]+)-(\d+)\.tex$/;
 // The solution of 2025-a-1.tex lives next to it in 2025-a-1-sol.tex.
@@ -322,25 +322,30 @@ function documentMacros(source) {
   return macros;
 }
 
+function renderTex(tex, displayMode, macros = {}) {
+  return katex.renderToString(tex, {
+    displayMode,
+    macros: { ...KATEX_MACROS, ...macros },
+    throwOnError: true,
+    // The Hungarian letters registered above have no KaTeX font metrics;
+    // the browser measures them itself, so the warning is only noise.
+    strict: errorCode =>
+      errorCode === 'unicodeTextInMathMode' || errorCode === 'symbolNotInFont'
+        ? 'ignore'
+        : 'warn',
+    output: 'htmlAndMathml',
+  });
+}
+
 function renderMath(html, macros = {}) {
   return html.replace(
     /\\\[([\s\S]*?)\\\]|\\\(([\s\S]*?)\\\)/g,
-    (_, display, inline) => {
-      const tex = unescapeHtml(display ?? inline).trim();
-      return katex.renderToString(tex, {
-        displayMode: display !== undefined,
-        macros: { ...KATEX_MACROS, ...macros },
-        throwOnError: true,
-        // The Hungarian letters registered above have no KaTeX font metrics;
-        // the browser measures them itself, so the warning is only noise.
-        strict: errorCode =>
-          errorCode === 'unicodeTextInMathMode' ||
-          errorCode === 'symbolNotInFont'
-            ? 'ignore'
-            : 'warn',
-        output: 'htmlAndMathml',
-      });
-    },
+    (_, display, inline) =>
+      renderTex(
+        unescapeHtml(display ?? inline).trim(),
+        display !== undefined,
+        macros,
+      ),
   );
 }
 
@@ -384,6 +389,13 @@ function tidyMaterial(html) {
       .replace(/(<span class="listmarker">[^<]*<\/span>)\s+/g, '$1')
       // \ref links point into lwarp's own HTML files.
       .replace(/href="[^"#]*\.html#/g, 'href="#')
+      // lwarp puts the \label of a figure after its caption, so a link to it
+      // would scroll the bottom of the figure to the top of the window. The
+      // label becomes the id of the figure instead.
+      .replace(
+        /<figure id="[^"]*"([^>]*)>((?:(?!<\/figure>)[\s\S])*?)<a id="([^"]+)"><\/a>\s*/g,
+        '<figure id="$3"$1>$2',
+      )
       .replace(/<p>\s*<\/p>/g, '')
   );
 }
@@ -666,6 +678,91 @@ function texToText(tex) {
   return tex.replace(/---/g, '—').replace(/--/g, '–').replace(/~/g, '\u00a0');
 }
 
+// The end of the element that starts at `start` (a <span>): the index after
+// the </span> that closes it.
+function spanEnd(html, start) {
+  const tags = /<\/?span\b[^>]*>/g;
+  tags.lastIndex = start;
+  let depth = 0;
+  for (let tag; (tag = tags.exec(html));) {
+    depth += tag[0][1] === '/' ? -1 : 1;
+    if (depth === 0) return tag.index + tag[0].length;
+  }
+  return html.length;
+}
+
+// The parts of a formula between its top-level \qquads, e.g. the two
+// equations of "a = b, \qquad c = d"; one part if there is none. A \qquad
+// inside braces, \left…\right or an environment does not count.
+function splitAtQquad(tex) {
+  const parts = [];
+  let depth = 0;
+  let start = 0;
+  const tokens =
+    /\\begin\{[^}]*\}|\\end\{[^}]*\}|\\left(?![a-zA-Z])|\\right(?![a-zA-Z])|\\qquad(?![a-zA-Z])|\\[{}]|[{}]/g;
+  for (const match of tex.matchAll(tokens)) {
+    const token = match[0];
+    if (token === '\\{' || token === '\\}') continue;
+    if (token === '{' || token === '\\left' || token.startsWith('\\begin')) {
+      depth++;
+    } else if (
+      token === '}' ||
+      token === '\\right' ||
+      token.startsWith('\\end')
+    ) {
+      depth--;
+    } else if (depth === 0) {
+      parts.push(tex.slice(start, match.index));
+      start = match.index + token.length;
+    }
+  }
+  parts.push(tex.slice(start));
+  return parts.map(part => part.trim()).filter(Boolean);
+}
+
+// A displayed formula made of several equations side by side ("a = b,
+// \qquad c = d") should wrap between the equations on a narrow screen, but
+// KaTeX only breaks after relations and operators. Such a display is rendered
+// again from its TeX (kept in its MathML annotation), one part per equation;
+// the website lays the parts out as a wrapping row (.math-split in
+// globals.css). Applied after the cache, like glueMathPunctuation.
+const DISPLAY_MATH = '<span class="katex-display">';
+const TEX_ANNOTATION =
+  /<annotation encoding="application\/x-tex">([\s\S]*?)<\/annotation>/;
+
+function splitDisplays(html, macros) {
+  let out = '';
+  let rest = 0;
+  for (
+    let start = html.indexOf(DISPLAY_MATH);
+    start !== -1;
+    start = html.indexOf(DISPLAY_MATH, rest)
+  ) {
+    const end = spanEnd(html, start);
+    const display = html.slice(start, end);
+    out += html.slice(rest, start);
+    rest = end;
+    const tex = TEX_ANNOTATION.exec(display);
+    const parts = tex ? splitAtQquad(unescapeHtml(tex[1])) : [];
+    if (parts.length < 2) {
+      out += display;
+      continue;
+    }
+    try {
+      const rendered = parts.map(part =>
+        renderTex(part, true, macros).replace(
+          DISPLAY_MATH,
+          '<span class="math-split-part">',
+        ),
+      );
+      out += `<span class="katex-display math-split">${rendered.join('')}</span>`;
+    } catch {
+      out += display;
+    }
+  }
+  return out + html.slice(rest);
+}
+
 // Browsers may break a line right after an inline formula, even before a
 // colon or a comma, which then starts the next line. KaTeX draws a formula as
 // a row of boxes (katex-base) and lines may only break between them, so
@@ -689,23 +786,15 @@ function glueMathPunctuation(html) {
     start !== -1;
     start = html.indexOf(INLINE_MATH, rest)
   ) {
-    // The end of the formula: the </span> that closes its outermost span.
-    const tags = /<\/?span\b[^>]*>/g;
-    tags.lastIndex = start;
-    let depth = 0;
-    let end = html.length;
-    for (let tag; (tag = tags.exec(html));) {
-      depth += tag[0][1] === '/' ? -1 : 1;
-      if (depth === 0) {
-        end = tag.index + tag[0].length;
-        break;
-      }
-    }
+    const end = spanEnd(html, start);
     let before = html.slice(rest, start);
     let math = html.slice(start, end);
     let post = '';
     // Display math is not inline; leave it alone.
-    if (!before.endsWith('<span class="katex-display">')) {
+    if (
+      !before.endsWith('<span class="katex-display">') &&
+      !before.endsWith('<span class="math-split-part">')
+    ) {
       const pre = /[^\s<>]*$/.exec(before)[0];
       post = /^[^\s<>]*/.exec(html.slice(end))[0];
       if (pre && FIRST_BOX.test(math)) {
@@ -725,6 +814,12 @@ function glueMathPunctuation(html) {
   return out + html.slice(rest);
 }
 
+// The steps that run on the HTML after the cache, so changing them needs no
+// recompilation.
+function afterCache(html, source) {
+  return glueMathPunctuation(splitDisplays(html, documentMacros(source)));
+}
+
 async function convert(source, kind) {
   const hash = createHash('sha256')
     .update(PIPELINE_VERSION[kind])
@@ -736,7 +831,7 @@ async function convert(source, kind) {
   if (!force) {
     const hit = await fs.readFile(cached, 'utf8').catch(() => null);
     if (hit !== null) {
-      return { html: glueMathPunctuation(hit), fromCache: true };
+      return { html: afterCache(hit, source), fromCache: true };
     }
   }
   const html = toFragment(
@@ -746,7 +841,7 @@ async function convert(source, kind) {
   );
   await fs.mkdir(CACHE_DIR, { recursive: true });
   await fs.writeFile(cached, html);
-  return { html: glueMathPunctuation(html), fromCache: false };
+  return { html: afterCache(html, source), fromCache: false };
 }
 
 async function mapConcurrent(items, limit, fn) {

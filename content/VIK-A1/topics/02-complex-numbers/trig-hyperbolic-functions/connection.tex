@@ -180,8 +180,8 @@ ezekkel terjesztjük ki a függvényeket.
 		\cosh z := \frac{e^{z} + e^{-z}}{2}, \qquad
 		\sinh z := \frac{e^{z} - e^{-z}}{2}\text,
 	\]
-	továbbá $\tan z := \frac{\sin z}{\cos z}$ és
-	$\tanh z := \frac{\sinh z}{\cosh z}$, ahol a nevező nem nulla.
+	továbbá $\tan z := \sin z/\cos z$ és
+	$\tanh z := \sinh z/\cosh z$, ahol a nevező nem nulla.
 \end{definition}
 
 Valós $z$ esetén ezek a megszokott függvények: a trigonometrikusak az
@@ -216,7 +216,7 @@ Euler-formula, a hiperbolikusak az exponenciális alakjuk miatt.
 		\sin(iz) = \frac{e^{-z} - e^{z}}{2i}
 		= i \cdot \frac{e^{z} - e^{-z}}{2} = i \sinh z\text,
 	\]
-	ahol felhasználtuk, hogy $\frac{1}{i} = -i$. A tangensekre ezekből
+	ahol felhasználtuk, hogy $1/i = -i$. A tangensekre ezekből
 	\[
 		\tanh(iz) = \frac{\sinh(iz)}{\cosh(iz)} = \frac{i \sin z}{\cos z}
 		= i \tan z, \qquad
@@ -331,13 +331,13 @@ előjelet váltott a tag. Ez az \emph{Osborn-szabály}:
 		$\sinh(x + y) = \sinh x \cosh y + \cosh x \sinh y$                \\
 		$\cos(x + y) = \cos x \cos y - \sin x \sin y$      &
 		$\cosh(x + y) = \cosh x \cosh y + \sinh x \sinh y$                \\
-		$1 + \tan^2 x = \dfrac{1}{\cos^2 x}$               &
-		$1 - \tanh^2 x = \dfrac{1}{\cosh^2 x}$                            \\
+		$1 + \tan^2 x = 1/\cos^2 x$               &
+		$1 - \tanh^2 x = 1/\cosh^2 x$                            \\
 		\bottomrule
 	\end{tabular}
 \end{center}
 
-A $\tan^2 x = \frac{\sin^2 x}{\cos^2 x}$ is két szinusz szorzatát tartalmazza,
+A $\tan^2 x = \sin^2 x/\cos^2 x$ is két szinusz szorzatát tartalmazza,
 ezért vált előjelet a tangenses azonosság.
 
 \section{Valós és képzetes rész}
@@ -412,10 +412,10 @@ is kiszámolható.
 		Görbe             & $x^2 + y^2 = 1$                             &
 		$x^2 - y^2 = 1$                                                                   \\
 		Exponenciális alak &
-		$\cos z = \dfrac{e^{iz} + e^{-iz}}{2}$                          &
-		$\cosh z = \dfrac{e^{z} + e^{-z}}{2}$                                             \\
-		                  & $\sin z = \dfrac{e^{iz} - e^{-iz}}{2i}$     &
-		$\sinh z = \dfrac{e^{z} - e^{-z}}{2}$                                             \\
+		$\cos z = (e^{iz} + e^{-iz})/2$                          &
+		$\cosh z = (e^{z} + e^{-z})/2$                                             \\
+		                  & $\sin z = (e^{iz} - e^{-iz})/(2i)$     &
+		$\sinh z = (e^{z} - e^{-z})/2$                                             \\
 		Pitagorasz-tétel  & $\cos^2 z + \sin^2 z = 1$                   &
 		$\cosh^2 z - \sinh^2 z = 1$                                                       \\
 		Kapcsolat         & $\cos z = \cosh(iz)$                        &

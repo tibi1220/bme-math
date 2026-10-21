@@ -35,7 +35,7 @@ export const materialClasses = [
   // wide gaps. Figures, captions and tables sit in lwarp's centred blocks.
   'text-justify hyphens-auto',
   // The table of contents jumps here; leave some room above the heading.
-  '[&_h4]:scroll-mt-8 [&_h5]:scroll-mt-8',
+  '[&_h4]:scroll-mt-8 [&_h5]:scroll-mt-8 [&_figure]:scroll-mt-8',
   '[&_h4]:mt-12 [&_h4]:mb-4 [&_h4]:text-xl [&_h4]:font-semibold [&_h4]:tracking-tight [&_h4]:text-zinc-900 dark:[&_h4]:text-zinc-100',
   '[&_h5]:mt-8 [&_h5]:mb-3 [&_h5]:text-lg [&_h5]:font-semibold [&_h5]:text-zinc-900 dark:[&_h5]:text-zinc-100',
   '[&_.sectionnumber]:text-zinc-400 dark:[&_.sectionnumber]:text-zinc-500',

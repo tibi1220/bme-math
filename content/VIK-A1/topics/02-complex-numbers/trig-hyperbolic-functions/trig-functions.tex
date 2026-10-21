@@ -236,14 +236,14 @@ segítségével kapjuk meg őket (\ref{fig:special-angles}.~ábra).
 % 	\renewcommand{\arraystretch}{2.3}
 % 	\begin{tabular}{@{}l*{5}{c}@{}}
 % 		\toprule
-% 		$\varphi$             & $0$              & $\dfrac{\pi}{6}$      & $\dfrac{\pi}{4}$      &
-% 		$\dfrac{\pi}{3}$      & $\dfrac{\pi}{2}$                                                   \\
+% 		$\varphi$             & $0$              & $\pi/6$      & $\pi/4$      &
+% 		$\pi/3$      & $\pi/2$                                                   \\
 % 		\midrule
-% 		$\sin\varphi$         & $0$              & $\dfrac{1}{2}$        & $\dfrac{\sqrt{2}}{2}$ &
-% 		$\dfrac{\sqrt{3}}{2}$ & $1$                                                                \\
-% 		$\cos\varphi$         & $1$              & $\dfrac{\sqrt{3}}{2}$ & $\dfrac{\sqrt{2}}{2}$ &
-% 		$\dfrac{1}{2}$        & $0$                                                                \\
-% 		$\tan\varphi$         & $0$              & $\dfrac{\sqrt{3}}{3}$ & $1$                   &
+% 		$\sin\varphi$         & $0$              & $1/2$        & $\sqrt{2}/2$ &
+% 		$\sqrt{3}/2$ & $1$                                                                \\
+% 		$\cos\varphi$         & $1$              & $\sqrt{3}/2$ & $\sqrt{2}/2$ &
+% 		$1/2$        & $0$                                                                \\
+% 		$\tan\varphi$         & $0$              & $\sqrt{3}/3$ & $1$                   &
 % 		$\sqrt{3}$            & nincs értelmezve                                                   \\
 % 		\bottomrule
 % 	\end{tabular}
@@ -405,7 +405,7 @@ főbb tulajdonságai:
 				}
 		\end{axis}
 	\end{tikzpicture}
-	\caption{A szinusz nem injektív: az $y = \frac{1}{2}$ egyenes végtelen
+	\caption{A szinusz nem injektív: az $y = 1/2$ egyenes végtelen
 		sok pontban metszi a grafikonját.}
 	\label{fig:sine-not-injective}
 \end{figure}
@@ -513,17 +513,17 @@ tulajdonságai a szinuszéból következnek:
 \end{remark}
 
 % \begin{example}
-% 	Számítsuk ki az $\arcsin\left(\sin\frac{5\pi}{6}\right)$ értéket!
+% 	Számítsuk ki az $\arcsin\left(\sin5\pi/6\right)$ értéket!
 %
-% 	Mivel $\frac{5\pi}{6} \notin \left[-\frac{\pi}{2}, \frac{\pi}{2}\right]$,
-% 	a válasz nem $\frac{5\pi}{6}$. Számoljunk lépésenként:
+% 	Mivel $5\pi/6 \notin \left[-\pi/2, \pi/2\right]$,
+% 	a válasz nem $5\pi/6$. Számoljunk lépésenként:
 % 	\[
 % 		\arcsin\left(\sin\frac{5\pi}{6}\right)
 % 		= \arcsin\frac{1}{2}
 % 		= \frac{\pi}{6}\text,
 % 	\]
-% 	hiszen $\sin\frac{\pi}{6} = \frac{1}{2}$ és
-% 	$\frac{\pi}{6} \in \left[-\frac{\pi}{2}, \frac{\pi}{2}\right]$.
+% 	hiszen $\sin\pi/6 = 1/2$ és
+% 	$\pi/6 \in \left[-\pi/2, \pi/2\right]$.
 % \end{example}
 
 % \begin{example}
@@ -531,7 +531,7 @@ tulajdonságai a szinuszéból következnek:
 % 	$y \in [-1, 1]$ esetén!
 %
 % 	Legyen $x = \arcsin y$, ekkor $\sin x = y$ és
-% 	$x \in \left[-\frac{\pi}{2}, \frac{\pi}{2}\right]$. Ezen az intervallumon a
+% 	$x \in \left[-\pi/2, \pi/2\right]$. Ezen az intervallumon a
 % 	koszinusz nemnegatív, így a trigonometrikus Pitagorasz-tételből
 % 	\[
 % 		\cos(\arcsin y)
@@ -624,7 +624,7 @@ Az egységkörön negyed fordulattal elforgatva azt is kapjuk, hogy
 \[
 	\cos x = \sin\left(x + \frac{\pi}{2}\right)\text,
 \]
-vagyis a koszinusz grafikonja a szinuszgörbe $\frac{\pi}{2}$-vel balra
+vagyis a koszinusz grafikonja a szinuszgörbe $\pi/2$-vel balra
 eltolva (\ref{fig:cosine}.~ábra). Főbb tulajdonságai:
 \begin{itemize}
 	\item $D_{\cos} = \mathbb{R}$ és $R_{\cos} = [-1, 1]$;
@@ -758,19 +758,19 @@ Tulajdonságai (\ref{fig:arccos}.~ábra):
 \end{theorem}
 
 \begin{proof}
-	Legyen $x = \arcsin y \in \left[-\frac{\pi}{2}, \frac{\pi}{2}\right]$.
-	Ekkor $\frac{\pi}{2} - x \in [0, \pi]$, és
+	Legyen $x = \arcsin y \in \left[-\pi/2, \pi/2\right]$.
+	Ekkor $\pi/2 - x \in [0, \pi]$, és
 	\[
 		\cos\left(\frac{\pi}{2} - x\right) = \sin x = y\text,
 	\]
-	tehát $\arccos y = \frac{\pi}{2} - x = \frac{\pi}{2} - \arcsin y$.
+	tehát $\arccos y = \pi/2 - x = \pi/2 - \arcsin y$.
 \end{proof}
 
 % \begin{example}
-% 	Számítsuk ki az $\arccos\left(\cos\left(-\frac{\pi}{3}\right)\right)$
+% 	Számítsuk ki az $\arccos\left(\cos\left(-\pi/3\right)\right)$
 % 	értéket!
 %
-% 	A $-\frac{\pi}{3}$ nincs a $[0, \pi]$ intervallumban, ezért ismét
+% 	A $-\pi/3$ nincs a $[0, \pi]$ intervallumban, ezért ismét
 % 	lépésenként számolunk:
 % 	\[
 % 		\arccos\left(\cos\left(-\frac{\pi}{3}\right)\right)
@@ -790,7 +790,7 @@ A tangens ott van értelmezve, ahol a koszinusz nem nulla:
 	k \in \mathbb{Z} \right\}\text.
 \]
 Az egységkörön ez az $OP_\varphi$ egyenes és az $x = 1$ érintő metszéspontjának
-magassága (\ref{fig:unit-circle}.~ábra). Ha $\varphi \to \frac{\pi}{2}$ alulról,
+magassága (\ref{fig:unit-circle}.~ábra). Ha $\varphi \to \pi/2$ alulról,
 az egyenes egyre meredekebb, és a metszéspont a végtelenbe tart; ezért a
 tangens grafikonjának függőleges aszimptotái vannak az
 $x = \pi / 2 + k\pi$ helyeken (\ref{fig:tangent}.~ábra). Főbb
@@ -862,8 +862,8 @@ lesznek (\ref{fig:arctan}.~ábra). Tulajdonságai:
 	\item $D_{\arctan} = \mathbb{R}$ és
 	      $R_{\arctan} = \left(-\pi / 2, \pi / 2\right)$;
 	\item szigorúan monoton nő és páratlan;
-	\item $\displaystyle\lim_{y \to \infty} \arctan y = \frac{\pi}{2}$ és
-	      $\displaystyle\lim_{y \to -\infty} \arctan y = -\frac{\pi}{2}$.
+	\item $\displaystyle\lim_{y \to \infty} \arctan y = \pi/2$ és
+	      $\displaystyle\lim_{y \to -\infty} \arctan y = -\pi/2$.
 \end{itemize}
 
 \begin{figure}[ht]
@@ -899,11 +899,11 @@ lesznek (\ref{fig:arctan}.~ábra). Tulajdonságai:
 \end{figure}
 
 % \begin{example}
-% 	Számítsuk ki az $\arctan\left(\tan\frac{3\pi}{4}\right)$ értéket!
+% 	Számítsuk ki az $\arctan\left(\tan3\pi/4\right)$ értéket!
 %
 % 	A tangens $\pi$ szerint periodikus, és
-% 	$\frac{3\pi}{4} - \pi = -\frac{\pi}{4} \in \left(-\frac{\pi}{2},
-% 		\frac{\pi}{2}\right)$, így
+% 	$3\pi/4 - \pi = -\pi/4 \in \left(-\pi/2,
+% 		\pi/2\right)$, így
 % 	\[
 % 		\arctan\left(\tan\frac{3\pi}{4}\right)
 % 		= \arctan\left(\tan\left(-\frac{\pi}{4}\right)\right)
@@ -912,11 +912,11 @@ lesznek (\ref{fig:arctan}.~ábra). Tulajdonságai:
 % \end{example}
 
 % \begin{example}
-% 	Mutassuk meg, hogy $\cos(\arctan y) = \dfrac{1}{\sqrt{1 + y^2}}$ minden
+% 	Mutassuk meg, hogy $\cos(\arctan y) = 1/\sqrt{1 + y^2}$ minden
 % 	$y \in \mathbb{R}$ esetén!
 %
 % 	Legyen $x = \arctan y$, ekkor $\tan x = y$ és
-% 	$x \in \left(-\frac{\pi}{2}, \frac{\pi}{2}\right)$, ahol $\cos x > 0$. A
+% 	$x \in \left(-\pi/2, \pi/2\right)$, ahol $\cos x > 0$. A
 % 	trigonometrikus Pitagorasz-tételt $\cos^2 x$-szel elosztva
 % 	\[
 % 		\tan^2 x + 1 = \frac{1}{\cos^2 x}\text,
@@ -937,12 +937,12 @@ lesznek (\ref{fig:arctan}.~ábra). Tulajdonságai:
 		Bijektív leszűkítés                                                    &
 		Inverz                                                                    \\
 		\midrule
-		$\sin\colon \left[-\frac{\pi}{2}, \frac{\pi}{2}\right] \to [-1, 1]$    &
-		$\arcsin\colon [-1, 1] \to \left[-\frac{\pi}{2}, \frac{\pi}{2}\right]$    \\
+		$\sin\colon \left[-\pi/2, \pi/2\right] \to [-1, 1]$    &
+		$\arcsin\colon [-1, 1] \to \left[-\pi/2, \pi/2\right]$    \\
 		$\cos\colon [0, \pi] \to [-1, 1]$                                      &
 		$\arccos\colon [-1, 1] \to [0, \pi]$                                      \\
-		$\tan\colon \left(-\frac{\pi}{2}, \frac{\pi}{2}\right) \to \mathbb{R}$ &
-		$\arctan\colon \mathbb{R} \to \left(-\frac{\pi}{2}, \frac{\pi}{2}\right)$ \\
+		$\tan\colon \left(-\pi/2, \pi/2\right) \to \mathbb{R}$ &
+		$\arctan\colon \mathbb{R} \to \left(-\pi/2, \pi/2\right)$ \\
 		\bottomrule
 	\end{tabular}
 \end{center}
@@ -957,6 +957,6 @@ Mindhárom esetben ugyanazt a receptet követtük:
 \end{enumerate}
 Az inverz függvénybe helyettesítés mindig visszaadja az eredeti értéket
 ($\sin(\arcsin y) = y$), fordítva azonban csak a leszűkített intervallumon
-($\arcsin(\sin x) = x$ csak ha $x \in \left[-\frac{\pi}{2},
-		\frac{\pi}{2}\right]$).
+($\arcsin(\sin x) = x$ csak ha $x \in \left[-\pi/2,
+		\pi/2\right]$).
 \end{document}

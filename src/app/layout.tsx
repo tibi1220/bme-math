@@ -48,6 +48,9 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
     <html
       lang='hu'
       data-theme='light'
+      // Smooth scrolling (globals.css) is for in-page links only; Next.js
+      // turns it off while navigating between pages.
+      data-scroll-behavior='smooth'
       // The inline script below may switch data-theme before hydration.
       suppressHydrationWarning
       className={`${geistSans.variable} ${stixTwo.variable} h-full antialiased`}

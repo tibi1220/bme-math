@@ -44,7 +44,7 @@ function splitAnimatedFigures(html: string): Part[] {
   let last = 0;
   for (const match of html.matchAll(/<figure[^>]*>[\s\S]*?<\/figure>/g)) {
     const label = Object.keys(figureAnimations).find(key =>
-      match[0].includes(`<a id="${key}">`),
+      match[0].startsWith(`<figure id="${key}"`),
     );
     if (!label) continue;
     parts.push({ kind: 'html', html: html.slice(last, match.index) });

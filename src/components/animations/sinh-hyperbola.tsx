@@ -333,6 +333,18 @@ export function SinhHyperbola() {
             t
           </tspan>
         </text>
+        {/* The area of the sector, at the centroid of the triangle O, (1, 0),
+            P_t, which lies inside the sector; once it is large enough. */}
+        <text
+          x={X(CX + (1 + Math.cosh(t)) / 3)}
+          y={Y(sinh / 3) + 5}
+          textAnchor='middle'
+          fontSize={14}
+          className={colors.orangeFill}
+          opacity={Math.abs(t) > 0.6 ? 1 : 0}
+        >
+          <tspan fontStyle='italic'>t</tspan>/2
+        </text>
         <text
           x={G.x / 2}
           y={sinh >= 0 ? 20 : -9}

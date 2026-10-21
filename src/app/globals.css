@@ -7,6 +7,13 @@
   color-scheme: dark;
 }
 
+/* In-page links (table of contents, figure references) scroll smoothly. */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
 @theme inline {
   --font-sans: var(--font-geist-sans);
 }
@@ -24,6 +31,29 @@
 
 .katex :is(.mathnormal, .mathit, .mathrm, .textrm, .mathbf, .boldsymbol) {
   font-family: var(--font-stix-two), KaTeX_Main, serif;
+}
+
+/*
+ * Displayed formulas may wrap on narrow screens. KaTeX lays a formula out as
+ * a row of boxes that a line may break between (after relations such as =
+ * and operators such as +), but katex.min.css forbids wrapping displays; this
+ * allows it. A formula with no such break point still scrolls sideways.
+ */
+:is(.katex-display, .math-split-part) > .katex {
+  white-space: normal;
+}
+
+/*
+ * The boxes of a display as a wrapping row: wrapped lines get some space
+ * between them (a formula on one line is unchanged), and a formula that still
+ * cannot fit stays scrollable from its left edge ("safe" centring).
+ */
+:is(.katex-display, .math-split-part) > .katex > .katex-html {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: safe center;
+  align-items: baseline;
+  row-gap: 0.5em;
 }
 
 /*
@@ -46,4 +76,23 @@
   body:has([data-floating-toc]) footer {
     padding-bottom: 4.5rem;
   }
+}
+
+/*
+ * A display of several equations side by side ("a = b, \qquad c = d"), split
+ * into one part per equation by scripts/build-content.mjs: the parts wrap as
+ * wholes, with the \qquad between them when they fit on one line.
+ */
+.katex-display.math-split {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: safe center;
+  align-items: baseline;
+  column-gap: 2em;
+  row-gap: 0.75em;
+}
+
+.math-split-part > .katex {
+  display: block;
+  text-align: center;
 }

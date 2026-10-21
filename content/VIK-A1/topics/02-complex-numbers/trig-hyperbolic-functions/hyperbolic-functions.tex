@@ -19,8 +19,8 @@
 % jelennek meg, ott nagyobb feliratok kellenek, mint a PDF-ben.
 \makeatletter
 \@ifpackageloaded{lwarp}{%
-	\newcommand{\figfont}{\Large}%
-	\newcommand{\figtickfont}{\Large}%
+	\newcommand{\figfont}{\large}%
+	\newcommand{\figtickfont}{\large}%
 }{%
 	\newcommand{\figfont}{\normalsize}%
 	\newcommand{\figtickfont}{\small}%
@@ -108,8 +108,8 @@ Két ága van, egy jobb oldali ($x \ge 1$) és egy bal oldali ($x \le -1$), az
 $y = x$ és az $y = -x$ egyenes pedig az aszimptotái. A továbbiakban csak a jobb
 oldali ággal dolgozunk.
 
-Az egységkörön az $\alpha$ szöget kétféleképpen is mérhetjük: $\alpha$ a
-kimetszett ív hossza, és $\frac{\alpha}{2}$ a hozzá tartozó körcikk területe.
+Az egységkörön a $\varphi$ szöget kétféleképpen is mérhetjük: $\varphi$ a
+kimetszett ív hossza, és $\varphi / 2$ a hozzá tartozó körcikk területe.
 A hiperbolán az ívhossz nem vezet szép függvényekhez, a terület viszont igen,
 ezért ott a szektor területével mérünk.
 
@@ -117,7 +117,7 @@ ezért ott a szektor területével mérünk.
 	Induljunk el az $(1, 0)$ pontból, és haladjunk az egységhiperbola jobb
 	oldali ágán; ha $t > 0$, felfelé, ha $t < 0$, lefelé, egészen addig, amíg
 	az $O$ origó, az $(1, 0)$ pont és az aktuális pont által határolt
-	\emph{hiperbolikus szektor} területe $\frac{|t|}{2}$ nem lesz. Jelölje $P_t$
+	\emph{hiperbolikus szektor} területe $|t|/2$ nem lesz. Jelölje $P_t$
 	azt a pontot, ahová érkezünk; $P_0 = (1, 0)$. Ekkor
 	\[
 		\cosh t := P_t \text{ első koordinátája,} \qquad
@@ -138,7 +138,7 @@ $y = x$ aszimptotánál laposabb, $|\tanh t| < 1$.
 
 \begin{figure}[ht]
 	\centering
-	\begin{tikzpicture}[scale=1.6, line cap=round]
+	\begin{tikzpicture}[scale=1.25, line cap=round]
 		\def\T{1.4}
 		\coordinate (O) at (0, 0);
 		\coordinate (P) at ({cosh(\T)}, {sinh(\T)});
@@ -146,7 +146,12 @@ $y = x$ aszimptotánál laposabb, $|\tanh t| < 1$.
 
 		% A hiperbolikus szektor, területe t/2.
 		\fill[arccolor, opacity=0.3] (O) -- plot[domain=0:\T, samples=60]
-		({cosh(\x)}, {sinh(\x)}) -- cycle;
+			({cosh(\x)}, {sinh(\x)}) -- cycle;
+		% The area of the sector; the tanh segment runs through its middle, so
+		% the label sits outside with an arrow.
+		\node[arccolor!70!black, font=\figtickfont] (area) at (0.45, 1.3)
+		{$t/2$};
+		\draw[arccolor!70!black, -{Stealth[length=5pt]}] (area) -- (0.65, 0.25);
 
 		\draw[-{Stealth}, gray!70!black] (-2.7, 0) -- (3, 0) node[below] {$x$};
 		\draw[-{Stealth}, gray!70!black] (0, -2.5) -- (0, 2.6) node[left] {$y$};
@@ -155,24 +160,24 @@ $y = x$ aszimptotánál laposabb, $|\tanh t| < 1$.
 		\draw[gray!65] (1, 0) -- (1, 1.2);
 
 		\draw[faded, continues] plot[domain=-1.6:1.6, samples=80]
-		({-cosh(\x)}, {sinh(\x)});
+			({-cosh(\x)}, {sinh(\x)});
 		\draw[line width=1.8pt, continues] plot[domain=-1.6:1.6, samples=80]
-		({cosh(\x)}, {sinh(\x)});
+			({cosh(\x)}, {sinh(\x)});
 		\draw (O) -- (P);
 
 		\draw[line width=2.8pt, coscolor] (O) -- (C)
-		node[pos=0.27, below] {$\cosh t$};
+		node[pos=0.4, below, fill=white] {$\cosh t$};
 		\draw[line width=2.8pt, sincolor] (C) -- (P)
 		node[pos=0.4, right] {$\sinh t$};
-		\draw[line width=2.8pt, tancolor] (1, 0) -- (1, {tanh(\T)});
-		\node[tancolor, left] at (1, 0.2) {$\tanh t$};
+		\draw[line width=2.8pt, tancolor] (1, 0) -- (1, {tanh(\T)})
+		node[pos=0.4, right] {$\tanh t$};
 
-		\fill (P) circle (1.4pt) node[above left] {$P_t$};
-		\fill (1, 0) circle (1.4pt);
+		\fill (P) circle (2.5pt) node[below right] {$P_t$};
+		\fill (1, 0) circle (2.5pt);
 		\node[below left] at (O) {$O$};
 	\end{tikzpicture}
 	\caption{Az egységhiperbola ($x^2 - y^2 = 1$). A narancssárga hiperbolikus
-		szektor területe $\frac{t}{2}$; a piros szakasz $\cosh t$, a kék
+		szektor területe $t / 2$; a piros szakasz $\cosh t$, a kék
 		$\sinh t$, a zöld $\tanh t$. A bal oldali ág halvány.}
 	\label{fig:unit-hyperbola}
 \end{figure}
@@ -218,7 +223,7 @@ exponenciális függvénnyel is egyszerűen kifejezhetők.
 	Legyen $t > 0$ és $P_t = (x, y)$, ekkor $y = \sqrt{x^2 - 1} > 0$. A
 	hiperbolikus szektor az $O$, a $C = (x, 0)$ és a $P_t$ pont alkotta háromszög,
 	amelyből elhagyjuk a hiperbola alatti tartományt az $1$ és az $x$ között
-	(\ref{fig:sector-area}.~ábra). A háromszög területe $\frac{xy}{2}$, és
+	(\ref{fig:sector-area}.~ábra). A háromszög területe $xy/2$, és
 	\[
 		\int_1^x \sqrt{u^2 - 1}\,\mathrm{d}u
 		= \left[\frac{u\sqrt{u^2 - 1} - \ln\left(u + \sqrt{u^2 - 1}\right)}{2}\right]_1^x
@@ -253,15 +258,19 @@ exponenciális függvénnyel is egyszerűen kifejezhetők.
 
 		% The triangle OCP, without the region under the hyperbola.
 		\fill[arccolor, opacity=0.3] (O) -- plot[domain=0:\T, samples=60]
-		({cosh(\x)}, {sinh(\x)}) -- cycle;
+			({cosh(\x)}, {sinh(\x)}) -- cycle;
+		% The area of the sector, at the centroid of the triangle O, (1, 0), P_t,
+		% which lies inside the sector.
+		\node[arccolor!70!black, font=\figtickfont]
+		at ({(1 + cosh(\T)) / 4}, {sinh(\T) / 5}) {$t/2$};
 		\fill[gray!25] (1, 0) -- plot[domain=0:\T, samples=60]
-		({cosh(\x)}, {sinh(\x)}) -- (C) -- cycle;
+			({cosh(\x)}, {sinh(\x)}) -- (C) -- cycle;
 		\draw[dashed, gray!70!black] (O) -- (C) -- (P) -- cycle;
 
 		\draw[-{Stealth}, gray!70!black] (-0.4, 0) -- (2.6, 0) node[below] {$x$};
 		\draw[-{Stealth}, gray!70!black] (0, -0.4) -- (0, 2.1) node[left] {$y$};
 		\draw[line width=1.8pt, continues right] plot[domain=0:1.5, samples=60]
-		({cosh(\x)}, {sinh(\x)});
+			({cosh(\x)}, {sinh(\x)});
 		\draw (O) -- (P);
 
 		\fill (P) circle (1.4pt) node[above left] {$P_t$};
@@ -274,10 +283,10 @@ exponenciális függvénnyel is egyszerűen kifejezhetők.
 	\label{fig:sector-area}
 \end{figure}
 
-A koszinusz hiperbolikusz tehát az $\frac{e^t}{2}$ és az $\frac{e^{-t}}{2}$
+A koszinusz hiperbolikusz tehát az $e^t / 2$ és az $e^{-t} / 2$
 függvény összege, a szinusz hiperbolikusz a különbségük, és
 $\cosh t + \sinh t = e^t$ (\ref{fig:exponentials}.~ábra). Ha $t$ nagy,
-$e^{-t}$ elhanyagolható, így mindkettő közel van $\frac{e^t}{2}$-höz. A
+$e^{-t}$ elhanyagolható, így mindkettő közel van $e^t / 2$-höz. A
 továbbiakban a függvények változóját a megszokott módon $x$-szel jelöljük.
 
 \begin{figure}[ht]
@@ -285,26 +294,28 @@ továbbiakban a függvények változóját a megszokott módon $x$-szel jelölj�
 	\begin{tikzpicture}
 		\begin{axis}[
 				hyp,
-				width=0.8\linewidth,
-				height=8.5cm,
-				xmin=-2.7, xmax=2.9,
-				ymin=-3.4, ymax=4.5,
+				width=0.4\linewidth,
+				height=7.5cm,
+				xmin=-2.6, xmax=2.6,
+				ymin=-3.4, ymax=3.6,
 				xtick={-2, -1, 1, 2},
-				ytick={-3, -2, -1, 1, 2, 3, 4},
+				ytick={-3, -2, -1, 1, 2, 3},
 			]
-			\addplot[mirror, continues, domain=-2.6:2.15] {exp(x) / 2}
-			node[pos=0.04, above] {$e^x/2$};
-			\addplot[mirror, continues, domain=-2.15:2.6] {exp(-x) / 2}
-			node[pos=0.96, above] {$e^{-x}/2$};
-			\addplot[graph, continues, coscolor, domain=-2.1:2.1] {cosh(x)}
-			node[pos=0.88, right] {$\cosh x$};
-			\addplot[graph, continues, sincolor, domain=-1.9:2.1] {sinh(x)}
-			node[pos=0.97, right] {$\sinh x$};
+			% Every curve leaves the plot at |y| = 3.2: e^{±x}/2 at x = ±ln 6.4,
+			% cosh at x = ±arcosh 3.2, sinh at x = ±arsinh 3.2.
+			\addplot[mirror, continues, domain=-2.5:1.8563] {exp(x) / 2}
+			node[pos=0.03, above] {$e^x/2$};
+			\addplot[mirror, continues, domain=-1.8563:2.5] {exp(-x) / 2}
+			node[pos=0.97, above] {$e^{-x}/2$};
+			\addplot[graph, continues, coscolor, domain=-1.8309:1.8309] {cosh(x)}
+			node[pos=0, left] {$\cosh x$};
+			\addplot[graph, continues, sincolor, domain=-1.8798:1.8798] {sinh(x)}
+			node[pos=1, right] {$\sinh x$};
 			\addplot[end dot, coscolor] coordinates {(0, 1)};
 		\end{axis}
 	\end{tikzpicture}
-	\caption{A koszinusz hiperbolikusz (piros) az $\frac{e^x}{2}$ és az
-		$\frac{e^{-x}}{2}$ (szaggatott) összege, a szinusz hiperbolikusz (kék) a
+	\caption{A koszinusz hiperbolikusz (piros) az $e^x/2$ és az
+		$e^{-x}/2$ (szaggatott) összege, a szinusz hiperbolikusz (kék) a
 		különbségük.}
 	\label{fig:exponentials}
 \end{figure}
@@ -326,18 +337,22 @@ szinuszgörbét.
 		% Egységhiperbola.
 		\begin{scope}[shift={(\cx, 0)}]
 			\fill[arccolor, opacity=0.3] (0, 0) -- plot[domain=0:\T, samples=60]
-			({cosh(\x)}, {sinh(\x)}) -- cycle;
+				({cosh(\x)}, {sinh(\x)}) -- cycle;
+			% The area of the sector, at the centroid of the triangle O, (1, 0), P_t,
+			% which lies inside the sector.
+			\node[arccolor!70!black, font=\figtickfont]
+			at ({(1 + cosh(\T)) / 4}, {sinh(\T) / 5}) {$t/2$};
 			\draw[-{Stealth}, gray!70!black] (-0.7, 0) -- (2.6, 0);
 			\draw[-{Stealth}, gray!70!black] (0, -2.4) -- (0, 2.5);
 			\draw[mirror] (-0.4, -0.4) -- (2.3, 2.3);
 			\draw[mirror] (-0.4, 0.4) -- (2.3, -2.3);
 			\draw[line width=1.8pt, continues] plot[domain=-1.5:1.5, samples=80]
-			({cosh(\x)}, {sinh(\x)});
+				({cosh(\x)}, {sinh(\x)});
 			\draw (0, 0) -- ({cosh(\T)}, {sinh(\T)});
 			\draw[line width=2.8pt, sincolor]
 			({cosh(\T)}, 0) -- ({cosh(\T)}, {sinh(\T)});
 			\fill ({cosh(\T)}, {sinh(\T)}) circle (1.9pt)
-			node[above left] {$P_t$};
+				node[above left] {$P_t$};
 		\end{scope}
 		% Grafikon.
 		\draw[-{Stealth}, gray!70!black] (-1.9, 0) -- (2.1, 0) node[below] {$x$};
@@ -356,7 +371,7 @@ szinuszgörbét.
 	\end{tikzpicture}
 	\caption{A szinusz hiperbolikusz az egységhiperbolából: a $P_t$ pont
 		magassága az $x = t$ helyen. A narancssárga szektor területe
-		$\frac{t}{2}$.}
+		$t/2$.}
 	\label{fig:sinh-from-hyperbola}
 \end{figure}
 
@@ -383,8 +398,8 @@ bijektív; semmit sem kell leszűkíteni.
 	\begin{tikzpicture}
 		\begin{axis}[
 				hyp,
-				width=0.7\linewidth,
-				height=8cm,
+				width=0.4\linewidth,
+				height=7.5cm,
 				xmin=-2.5, xmax=2.7,
 				ymin=-4.4, ymax=4.6,
 				xtick={-2, -1, 1, 2},
@@ -427,7 +442,7 @@ tükörképe az $y = x$ egyenesre (\ref{fig:arsinh}.~ábra). Tulajdonságai:
 	\begin{tikzpicture}
 		\begin{axis}[
 				hyp,
-				width=0.78\linewidth,
+				width=0.55\linewidth,
 				axis equal image,
 				xmin=-3.4, xmax=3.4, ymin=-3.4, ymax=3.4,
 				xtick={-3, -2, -1, 1, 2, 3},
@@ -439,10 +454,10 @@ tükörképe az $y = x$ egyenesre (\ref{fig:arsinh}.~ábra). Tulajdonságai:
 			node[pos=0.97, left, sincolor] {$\sinh x$};
 			\addplot[graph, continues, invcolor, domain=-1.87:1.87]
 			({sinh(x)}, {x}) node[pos=0.97, below, invcolor] {$\arsinh x$};
-			\addplot[densely dotted, line width=1.3pt, gray!80!black] coordinates
-				{(1, 1.1752) (1.1752, 1)};
-			\addplot[end dot, sincolor!75] coordinates {(1, 1.1752)};
-			\addplot[end dot, invcolor] coordinates {(1.1752, 1)};
+			% \addplot[densely dotted, line width=1.3pt, gray!80!black] coordinates
+			% 	{(1, 1.1752) (1.1752, 1)};
+			% \addplot[end dot, sincolor!75] coordinates {(1, 1.1752)};
+			% \addplot[end dot, invcolor] coordinates {(1.1752, 1)};
 		\end{axis}
 	\end{tikzpicture}
 	\caption{Az area szinusz hiperbolikusz grafikonja (lila) a szinusz
@@ -472,16 +487,16 @@ tükörképe az $y = x$ egyenesre (\ref{fig:arsinh}.~ábra). Tulajdonságai:
 	logaritmusát véve kapjuk az állítást.
 \end{proof}
 
-\begin{example}
-	Mutassuk meg, hogy $\cosh(\arsinh y) = \sqrt{1 + y^2}$ minden
-	$y \in \mathbb{R}$ esetén!
-
-	Legyen $x = \arsinh y$, ekkor $\sinh x = y$. A $\cosh^2 x - \sinh^2 x = 1$
-	azonosságból és abból, hogy $\cosh x > 0$:
-	\[
-		\cosh(\arsinh y) = \cosh x = \sqrt{1 + \sinh^2 x} = \sqrt{1 + y^2}\text.
-	\]
-\end{example}
+% \begin{example}
+% 	Mutassuk meg, hogy $\cosh(\arsinh y) = \sqrt{1 + y^2}$ minden
+% 	$y \in \mathbb{R}$ esetén!
+%
+% 	Legyen $x = \arsinh y$, ekkor $\sinh x = y$. A $\cosh^2 x - \sinh^2 x = 1$
+% 	azonosságból és abból, hogy $\cosh x > 0$:
+% 	\[
+% 		\cosh(\arsinh y) = \cosh x = \sqrt{1 + \sinh^2 x} = \sqrt{1 + y^2}\text.
+% 	\]
+% \end{example}
 
 \section{A koszinusz hiperbolikusz és az area koszinusz hiperbolikusz}
 
@@ -503,7 +518,11 @@ gyorsabban távolodik.
 		\def\gapy{1.6}
 		% Unit hyperbola; its lower half is cut short, to leave room below.
 		\fill[arccolor, opacity=0.3] (0, 0) -- plot[domain=0:\T, samples=60]
-		({cosh(\x)}, {sinh(\x)}) -- cycle;
+			({cosh(\x)}, {sinh(\x)}) -- cycle;
+		% The area of the sector, at the centroid of the triangle O, (1, 0), P_t,
+		% which lies inside the sector.
+		\node[arccolor!70!black, font=\figtickfont]
+		at ({(1 + cosh(\T)) / 4}, {sinh(\T) / 5}) {$t/2$};
 		\draw[-{Stealth}, gray!70!black] (-0.6, 0) -- (2.8, 0);
 		\draw[-{Stealth}, gray!70!black] (0, -0.9) -- (0, 2.6);
 		\draw[mirror] (-0.5, -0.5) -- (2.4, 2.4);
@@ -514,7 +533,7 @@ gyorsabban távolodik.
 		\draw[line width=2.8pt, sincolor]
 		({cosh(\T)}, 0) -- ({cosh(\T)}, {sinh(\T)});
 		\fill ({cosh(\T)}, {sinh(\T)}) circle (1.9pt)
-		node[above left] {$P_t$};
+			node[above left] {$P_t$};
 
 		% sinh, unrolled to the right: the height of P_t.
 		\begin{scope}[shift={(\gapx, 0)}]
@@ -560,7 +579,7 @@ gyorsabban távolodik.
 	\caption{A szinusz és a koszinusz hiperbolikusz az egységhiperbolából. A
 		$P_t$ pont magassága (kék) jobbra, első koordinátája (piros) lefelé
 		kiterítve adja a két grafikont; a narancssárga szakaszok hossza $t$, a
-		narancssárga szektor területe $\frac{t}{2}$.}
+		narancssárga szektor területe $t/2$.}
 	\label{fig:cosh-from-hyperbola}
 \end{figure}
 
@@ -580,7 +599,7 @@ vagy kábel.
 	\begin{tikzpicture}
 		\begin{axis}[
 				hyp,
-				width=0.7\linewidth,
+				width=0.4\linewidth,
 				height=7.5cm,
 				xmin=-2.5, xmax=2.7,
 				ymin=-0.7, ymax=4.6,
@@ -615,7 +634,7 @@ leszűkítés bijektív. Ez a koszinusz $[0, \pi]$-re való leszűkítésének p
 	\begin{tikzpicture}
 		\begin{axis}[
 				hyp,
-				width=0.7\linewidth,
+				width=0.4\linewidth,
 				height=7.5cm,
 				xmin=-2.5, xmax=2.7,
 				ymin=-0.7, ymax=4.6,
@@ -657,7 +676,7 @@ Tulajdonságai (\ref{fig:arcosh}.~ábra):
 	\begin{tikzpicture}
 		\begin{axis}[
 				hyp,
-				width=0.78\linewidth,
+				width=0.55\linewidth,
 				axis equal image,
 				xmin=-0.8, xmax=4.4, ymin=-0.8, ymax=4.4,
 				xtick={1, 2, 3, 4},
@@ -671,10 +690,10 @@ Tulajdonságai (\ref{fig:arcosh}.~ábra):
 			({cosh(x)}, {x}) node[pos=1, above, invcolor] {$\arcosh x$};
 			\addplot[end dot, coscolor!75] coordinates {(0, 1)};
 			\addplot[end dot, invcolor] coordinates {(1, 0)};
-			\addplot[densely dotted, line width=1.3pt, gray!80!black] coordinates
-				{(1.2, 1.8107) (1.8107, 1.2)};
-			\addplot[end dot, coscolor!75] coordinates {(1.2, 1.8107)};
-			\addplot[end dot, invcolor] coordinates {(1.8107, 1.2)};
+			% \addplot[densely dotted, line width=1.3pt, gray!80!black] coordinates
+			% 	{(1.2, 1.8107) (1.8107, 1.2)};
+			% \addplot[end dot, coscolor!75] coordinates {(1.2, 1.8107)};
+			% \addplot[end dot, invcolor] coordinates {(1.8107, 1.2)};
 		\end{axis}
 	\end{tikzpicture}
 	\caption{Az area koszinusz hiperbolikusz grafikonja (lila) a leszűkített
@@ -706,15 +725,15 @@ Tulajdonságai (\ref{fig:arcosh}.~ábra):
 	\]
 \end{remark}
 
-\begin{example}
-	Számítsuk ki az $\arcosh(\cosh(-2))$ értéket!
-
-	A $-2$ nincs a $[0, \infty)$ intervallumban, így a válasz nem $-2$. Mivel
-	$\cosh(-2) = \cosh 2$ és $2 \ge 0$,
-	\[
-		\arcosh(\cosh(-2)) = \arcosh(\cosh 2) = 2\text.
-	\]
-\end{example}
+% \begin{example}
+% 	Számítsuk ki az $\arcosh(\cosh(-2))$ értéket!
+%
+% 	A $-2$ nincs a $[0, \infty)$ intervallumban, így a válasz nem $-2$. Mivel
+% 	$\cosh(-2) = \cosh 2$ és $2 \ge 0$,
+% 	\[
+% 		\arcosh(\cosh(-2)) = \arcosh(\cosh 2) = 2\text.
+% 	\]
+% \end{example}
 
 \section{A tangens hiperbolikusz és az area tangens hiperbolikusz}
 
@@ -785,8 +804,8 @@ Tulajdonságai:
 \begin{itemize}
 	\item $D_{\artanh} = (-1, 1)$ és $R_{\artanh} = \mathbb{R}$;
 	\item szigorúan monoton nő és páratlan;
-	\item $\displaystyle\lim_{y \to 1 - 0} \artanh y = \infty$ és
-	      $\displaystyle\lim_{y \to -1 + 0} \artanh y = -\infty$.
+	\item $\displaystyle\lim_{y \to 1^-} \artanh y = \infty$ és
+	      $\displaystyle\lim_{y \to -1^+} \artanh y = -\infty$.
 \end{itemize}
 
 \begin{figure}[ht]
@@ -794,7 +813,7 @@ Tulajdonságai:
 	\begin{tikzpicture}
 		\begin{axis}[
 				hyp,
-				width=0.78\linewidth,
+				width=0.55\linewidth,
 				axis equal image,
 				xmin=-3.4, xmax=3.4, ymin=-3.4, ymax=3.4,
 				xtick={-3, -2, -1, 1, 2, 3},
@@ -842,14 +861,14 @@ Tulajdonságai:
 	\renewcommand{\arraystretch}{1.7}
 	\begin{tabular}{@{}cc@{}}
 		\toprule
-		Bijektív leszűkítés                                 & Inverz \\
+		Bijektív leszűkítés                       & Inverz \\
 		\midrule
-		$\sinh\colon \mathbb{R} \to \mathbb{R}$             &
-		$\arsinh\colon \mathbb{R} \to \mathbb{R}$                    \\
-		$\cosh\colon [0, \infty) \to [1, \infty)$           &
-		$\arcosh\colon [1, \infty) \to [0, \infty)$                  \\
-		$\tanh\colon \mathbb{R} \to (-1, 1)$                &
-		$\artanh\colon (-1, 1) \to \mathbb{R}$                       \\
+		$\sinh\colon \mathbb{R} \to \mathbb{R}$   &
+		$\arsinh\colon \mathbb{R} \to \mathbb{R}$          \\
+		$\cosh\colon [0, \infty) \to [1, \infty)$ &
+		$\arcosh\colon [1, \infty) \to [0, \infty)$        \\
+		$\tanh\colon \mathbb{R} \to (-1, 1)$      &
+		$\artanh\colon (-1, 1) \to \mathbb{R}$             \\
 		\bottomrule
 	\end{tabular}
 \end{center}

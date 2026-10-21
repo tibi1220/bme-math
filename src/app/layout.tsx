@@ -3,6 +3,7 @@ import { Geist, STIX_Two_Text } from 'next/font/google';
 import Link from 'next/link';
 import { Logo } from '@/components/logo';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { absoluteUrl, siteDescription, siteName } from '@/lib/site';
 import { THEME_SCRIPT } from '@/lib/theme';
 import 'katex/dist/katex.min.css';
 import './globals.css';
@@ -20,12 +21,24 @@ const stixTwo = STIX_Two_Text({
 });
 
 export const metadata: Metadata = {
+  // Relative URLs in the metadata (canonical, Open Graph) resolve against it.
+  metadataBase: new URL(absoluteUrl('/')),
   title: {
-    default: 'BME Matek',
-    template: '%s | BME Matek',
+    default: siteName,
+    template: `%s | ${siteName}`,
   },
-  description:
-    'Régi zárthelyi és vizsgafeladatok témakörök szerint, BME-s matektárgyakhoz.',
+  description: siteDescription,
+  applicationName: siteName,
+  keywords: [
+    'BME',
+    'VIK',
+    'Analízis A1',
+    'zárthelyi',
+    'pótzárthelyi',
+    'régi zh',
+    'megoldások',
+    'matek',
+  ],
 };
 
 export default function RootLayout({ children }: LayoutProps<'/'>) {

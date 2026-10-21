@@ -4,6 +4,7 @@ import { Breadcrumbs } from '@/components/breadcrumbs';
 import { LinkCard } from '@/components/link-card';
 import { PageHeader } from '@/components/page-header';
 import { examHref, getSubject, subjects } from '@/lib/content';
+import { pageMetadata } from '@/lib/metadata';
 
 export const dynamicParams = false;
 
@@ -15,7 +16,12 @@ export async function generateMetadata({
   params,
 }: PageProps<'/[subject]'>): Promise<Metadata> {
   const subject = getSubject((await params).subject);
-  return { title: subject?.name };
+  if (!subject) return {};
+  return pageMetadata({
+    title: subject.name,
+    description: `${subject.name} (${subject.description}): régi zárthelyik és vizsgák feladatai kidolgozott megoldásokkal, évek és témakörök szerint.`,
+    path: `/${subject.slug}`,
+  });
 }
 
 export default async function SubjectPage({ params }: PageProps<'/[subject]'>) {

@@ -6,6 +6,7 @@ import { LinkCard } from '@/components/link-card';
 import { variantLabel } from '@/lib/catalog';
 import { PageHeader } from '@/components/page-header';
 import {
+  examHref,
   exercisesByTopic,
   getExam,
   getSubject,
@@ -15,6 +16,7 @@ import {
   topicHref,
   years,
 } from '@/lib/content';
+import { pageMetadata } from '@/lib/metadata';
 
 export const dynamicParams = false;
 
@@ -38,7 +40,12 @@ export async function generateMetadata({
   params,
 }: PageProps<'/[subject]/exams/[exam]'>): Promise<Metadata> {
   const { subject, exam } = await load(params);
-  return { title: `${exam.name} – ${subject.name}` };
+  const span = years(exam);
+  return pageMetadata({
+    title: `${exam.name} – ${subject.name}`,
+    description: `${subject.name}, ${exam.name}: ${exam.tests.length} feladatsor és ${exam.exercises.length} feladat ${Math.min(...span)}–${Math.max(...span)} között, kidolgozott megoldásokkal, évek és témakörök szerint.`,
+    path: examHref(subject, exam),
+  });
 }
 
 export default async function ExamPage({

@@ -11,10 +11,12 @@ import {
   getTest,
   subjects,
   testDownloadHref,
+  testHref,
   testTitle,
   topicBadge,
   totalPoints,
 } from '@/lib/content';
+import { pageMetadata } from '@/lib/metadata';
 
 type Params = PageProps<'/[subject]/exams/[exam]/[year]/[variant]'>['params'];
 
@@ -48,7 +50,11 @@ export async function generateMetadata({
   params: Params;
 }): Promise<Metadata> {
   const { subject, exam, test } = await load(params);
-  return { title: `${test.year} ${testTitle(exam, test)} – ${subject.name}` };
+  return pageMetadata({
+    title: `${test.year} ${testTitle(exam, test)} – ${subject.name}`,
+    description: `${subject.name}, ${testTitle(exam, test)} (${test.year}): ${test.exercises.length} feladat kidolgozott megoldással, PDF-ben is letölthetően.`,
+    path: testHref(subject, exam, test),
+  });
 }
 
 export default async function TestPage({ params }: { params: Params }) {

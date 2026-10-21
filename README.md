@@ -131,6 +131,11 @@ output is ignored by git.
 The site itself is a [Next.js](https://nextjs.org/) static export, styled with
 [Tailwind CSS](https://tailwindcss.com/).
 
+Every page has a description, a canonical URL and Open Graph tags;
+[`src/app/sitemap.ts`](src/app/sitemap.ts) and
+[`src/app/robots.ts`](src/app/robots.ts) generate `sitemap.xml` and
+`robots.txt`. The site URL is set in [`src/lib/site.ts`](src/lib/site.ts).
+
 ## Deployment
 
 Every push to `main` runs

@@ -1,6 +1,14 @@
+import type { Metadata } from 'next';
 import { LinkCard } from '@/components/link-card';
 import { PageHeader } from '@/components/page-header';
 import { subjects } from '@/lib/content';
+import { pageMetadata } from '@/lib/metadata';
+import { siteDescription } from '@/lib/site';
+
+export const metadata: Metadata = pageMetadata({
+  description: siteDescription,
+  path: '/',
+});
 
 export default function Home() {
   return (

@@ -13,9 +13,11 @@ import {
   subjects,
   testHref,
   testTitle,
+  topicHref,
   years,
   type Exercise,
 } from '@/lib/content';
+import { pageMetadata } from '@/lib/metadata';
 
 type Params = PageProps<'/[subject]/exams/[exam]/topics/[topic]'>['params'];
 
@@ -54,8 +56,12 @@ export async function generateMetadata({
 }: {
   params: Params;
 }): Promise<Metadata> {
-  const { subject, exam, topic } = await load(params);
-  return { title: `${topic.name} – ${exam.name} – ${subject.name}` };
+  const { subject, exam, topic, exercises } = await load(params);
+  return pageMetadata({
+    title: `${topic.name} – ${exam.name} – ${subject.name}`,
+    description: `${topic.name} – ${subject.name}, ${exam.name}: ${exercises.length} feladat a korábbi évekből, kidolgozott megoldásokkal.`,
+    path: topicHref(subject, exam, topic),
+  });
 }
 
 export default async function TopicPage({ params }: { params: Params }) {

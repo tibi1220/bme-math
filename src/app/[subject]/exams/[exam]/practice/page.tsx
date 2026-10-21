@@ -11,12 +11,14 @@ import {
   exercisesByTopic,
   getExam,
   getSubject,
+  practiceHref,
   subjects,
   testHref,
   testTitle,
   topicBadge,
   years,
 } from '@/lib/content';
+import { pageMetadata } from '@/lib/metadata';
 
 export const dynamicParams = false;
 
@@ -42,7 +44,11 @@ export async function generateMetadata({
   params,
 }: PageProps<'/[subject]/exams/[exam]/practice'>): Promise<Metadata> {
   const { subject, exam } = await load(params);
-  return { title: `Gyakorlás – ${exam.name} – ${subject.name}` };
+  return pageMetadata({
+    title: `Gyakorlás – ${exam.name} – ${subject.name}`,
+    description: `Véletlen feladatok gyakorláshoz – ${subject.name}, ${exam.name}: szűrés témakör, év és zárthelyitípus szerint, megoldásokkal.`,
+    path: practiceHref(subject, exam),
+  });
 }
 
 export default async function PracticePage({

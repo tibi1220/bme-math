@@ -183,6 +183,15 @@ export function practiceHref(subject: Subject, exam: Exam) {
   return `/${subject.slug}/exams/${exam.slug}/practice`;
 }
 
+// The practice page showing one exercise, e.g. …/practice/2025-a-1.
+export function practiceExerciseHref(
+  subject: Subject,
+  exam: Exam,
+  exercise: Exercise,
+) {
+  return `${practiceHref(subject, exam)}/${exerciseId(exercise)}`;
+}
+
 export function examHref(subject: Subject, exam: Exam) {
   return `/${subject.slug}/exams/${exam.slug}`;
 }

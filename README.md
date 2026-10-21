@@ -24,7 +24,8 @@ the same source serves both.
 - **Exercises by topic**: all exercises of a topic (sequences, complex numbers,
   functions, …) from every year on one page.
 - **Random practice**: draw random exercises, filtered by topic, year and kind
-  of test.
+  of test. Every exercise has its own prerendered practice page, so a picked
+  exercise can be reloaded or shared.
 - **Solutions on demand**: every exercise has a worked solution, hidden until
   the student opens it.
 - **Copy TeX**: one click copies an exercise (or its solution) as LaTeX, to
@@ -120,8 +121,7 @@ everything the site needs:
    [lwarp](https://ctan.org/pkg/lwarp). TikZ pictures become inline SVGs.
 2. The math is rendered with [KaTeX](https://katex.org/) at build time, so pages
    need no math JavaScript.
-3. The results go to `src/generated/content.json` (the pages),
-   `public/exercises/` (one file per exercise, for the practice page) and
+3. The results go to `src/generated/content.json` (the pages) and
    `public/downloads/` (a PDF of every test, with and without solutions).
 
 Every compiled file is cached by the hash of its source in

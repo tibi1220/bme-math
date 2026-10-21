@@ -3,6 +3,5 @@
 # Written by tools, not by hand
 pnpm-lock.yaml
 src/generated/
-public/exercises/
 public/downloads/
 AGENTS.md

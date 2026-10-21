@@ -8,7 +8,6 @@ base
 # `pnpm build` and the GitHub Pages workflow)
 /src/generated/
 /public/downloads/
-/public/exercises/
 
 # dependencies
 /node_modules

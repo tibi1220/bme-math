@@ -31,7 +31,6 @@ const CONTENT_DIR = path.join(ROOT, 'content');
 const OUT_FILE = path.join(ROOT, 'src', 'generated', 'content.json');
 const CACHE_DIR = path.join(ROOT, 'node_modules', '.cache', 'lwarp');
 const DOWNLOADS_DIR = path.join(ROOT, 'public', 'downloads');
-const EXERCISES_DIR = path.join(ROOT, 'public', 'exercises');
 
 // Bump this whenever the conversion below changes, to invalidate the cache.
 const PIPELINE_VERSION = '8';
@@ -324,47 +323,12 @@ function toFragment(lwarpHtml) {
   return tidy(renderMath(fragment));
 }
 
-// ---------------------------------------------------------------------------
-// Practice data
-//
-// The random practice page loads one exercise at a time from
-// public/exercises/<subject>/<exam>/<year>-<variant>-<number>.json, so the
-// browser never has to download the whole collection.
-
+// Rewriting an unchanged file would still make next dev reload the page.
 async function writeIfChanged(file, data) {
   const previous = await fs.readFile(file).catch(() => null);
   if (previous?.equals(data)) return;
   await fs.mkdir(path.dirname(file), { recursive: true });
   await fs.writeFile(file, data);
-}
-
-async function writeExerciseData(subjects, converted) {
-  const files = new Set();
-  for (const subject of subjects) {
-    const subjectInfo = subjectInfos.find(info => info.dir === subject.dir);
-    if (!subjectInfo) continue;
-    for (const exam of subject.exams) {
-      for (const job of exam.files) {
-        const exercise = {
-          year: job.year,
-          variant: job.variant,
-          number: job.number,
-          ...converted.get(job.file),
-        };
-        const file = path.join(
-          EXERCISES_DIR,
-          subjectInfo.slug,
-          exam.slug,
-          `${job.year}-${job.variant}-${job.number}.json`,
-        );
-        files.add(file);
-        await writeIfChanged(file, Buffer.from(JSON.stringify(exercise)));
-      }
-    }
-  }
-  for (const file of await listFiles(EXERCISES_DIR)) {
-    if (!files.has(file)) await fs.rm(file);
-  }
 }
 
 // ---------------------------------------------------------------------------
@@ -691,7 +655,6 @@ async function build() {
     await fs.mkdir(path.dirname(OUT_FILE), { recursive: true });
     await fs.writeFile(OUT_FILE, json);
   }
-  await writeExerciseData(subjects, converted);
   const pdfsOk = await buildTestPdfs(subjects, converted, preambles, limit);
 
   const solutions = jobs.filter(job => job.solutionFile).length;

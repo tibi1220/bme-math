@@ -25,3 +25,15 @@
 .katex :is(.mathnormal, .mathit, .mathrm, .textrm, .mathbf, .boldsymbol) {
   font-family: var(--font-stix-two), KaTeX_Main, serif;
 }
+
+/*
+ * Punctuation that touches an inline formula ("$x$:", "($y$",
+ * "$P_\alpha$-ból"): scripts/build-content.mjs moves it into the formula, so
+ * the line cannot break between them. It is set in the surrounding text's
+ * font and size again (.katex is 1.15em, see above).
+ */
+.katex .math-punct {
+  font-family: var(--font-geist-sans), sans-serif;
+  font-size: calc(100% / 1.15);
+  font-style: normal;
+}

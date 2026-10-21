@@ -95,6 +95,17 @@ export const topicNames: Record<string, { name: string; short: string }> = {
   integrals: { name: 'Integrálszámítás', short: 'Integrálás' },
 };
 
+// The groups of documents inside a topic folder (topics/02-complex-numbers/
+// trig-hyperbolic-functions/…), keyed by folder name. `order` lists the
+// documents by file name in reading order; any other document comes after.
+export const materialGroups: Record<string, { name: string; order: string[] }> =
+  {
+    'trig-hyperbolic-functions': {
+      name: 'Trigonometrikus és hiperbolikus függvények',
+      order: ['trig-functions', 'hyperbolic-functions', 'connection'],
+    },
+  };
+
 // Keyed by the exam folder name, which is also its URL slug.
 export const exams: Record<string, ExamInfo> = {
   'exam-1': {

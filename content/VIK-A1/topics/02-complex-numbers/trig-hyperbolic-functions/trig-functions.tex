@@ -1,0 +1,952 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[magyar]{babel}
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+\usepackage{tikz}
+\usepackage{pgfplots}
+
+\usetikzlibrary{arrows.meta}
+\pgfplotsset{compat=1.18}
+
+% Label sizes. On the website (converted with lwarp) the figures are shown
+% scaled down and need larger labels than in the PDF.
+\makeatletter
+\@ifpackageloaded{lwarp}{%
+	\newcommand{\figfont}{\Large}%
+	\newcommand{\figtickfont}{\Large}%
+	\newcommand{\figdensefont}{\large}%
+	\newcommand{\figsmallfont}{\normalsize}%
+}{%
+	\newcommand{\figfont}{\normalsize}%
+	\newcommand{\figtickfont}{\small}%
+	\newcommand{\figdensefont}{\small}%
+	\newcommand{\figsmallfont}{\scriptsize}%
+}
+\makeatother
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.66em}
+
+% Egy szín minden függvénynek, az összes ábrán.
+\definecolor{sincolor}{HTML}{1F77B4}
+\definecolor{coscolor}{HTML}{D62728}
+\definecolor{tancolor}{HTML}{2CA02C}
+\definecolor{arccolor}{HTML}{FF7F0E}
+\definecolor{invcolor}{HTML}{6A3D9A}
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definíció}
+\newtheorem{theorem}[definition]{Tétel}
+\newtheorem{example}[definition]{Példa}
+\theoremstyle{remark}
+\newtheorem*{remark}{Megjegyzés}
+
+% Közös stílus a függvénygrafikonokhoz.
+\pgfplotsset{
+	trig/.style={
+			axis lines=middle,
+			axis line style={-{Stealth[scale=1.1]}, gray!70!black, line width=1pt},
+			xlabel={$x$},
+			ylabel={$y$},
+			xlabel style={anchor=west},
+			ylabel style={anchor=south},
+			tick style={gray!70!black},
+			ticklabel style={font=\figtickfont, fill=white, inner sep=1pt},
+			label style={font=\figfont},
+			trig format plots=rad,
+			% Axes and tick labels (on white boxes) above the curves.
+			axis on top,
+			samples=200,
+			width=\linewidth,
+			clip=false,
+		},
+	pi ticks/.style={
+			xtick={-2*pi, -3*pi/2, -pi, -pi/2, pi/2, pi, 3*pi/2, 2*pi},
+			xticklabels={$-2\pi$, $-3\pi/2$, $-\pi$, $-\pi/2$,
+					$\pi/2$, $\pi$, $3\pi/2$, $2\pi$},
+		},
+}
+\tikzset{
+	% Thicker than TikZ's defaults: on the website the figures are shown
+	% scaled down, and thin lines get hard to see.
+	every picture/.append style={line width=0.9pt, font=\figfont},
+	% A curve that leaves the plot gets an arrow tip at that end; one that
+	% really ends there gets a dot (end dot).
+	tip/.tip={Stealth[length=8pt, width=7pt]},
+	continues/.style={tip-tip},
+	continues right/.style={-tip},
+	end dot/.style={only marks, mark=*, mark size=2.8pt},
+	graph/.style={line width=2.2pt, line cap=round},
+	faded/.style={line width=1.6pt, gray!55},
+	mirror/.style={densely dashed, line width=1pt, gray!75},
+}
+
+\title{Trigonometrikus függvények és inverzeik}
+\subtitle{Analízis A1 -- segédanyag}
+\author{Sándor Tibor}
+\date{}
+
+\begin{document}
+\maketitle
+
+Ebben a jegyzetben a szinusz, a koszinusz és a tangens függvényt az
+egységkörből építjük fel, majd mindhármat invertáljuk. Mivel egyik sem
+kölcsönösen egyértelmű, előbb egy alkalmas intervallumra szűkítjük őket; így
+kapjuk az arkusz szinusz, az arkusz koszinusz és az arkusz tangens függvényt.
+
+\section{Az egységkör}
+
+Az \emph{egységkör} az origó középpontú, egységnyi sugarú kör:
+\[
+	x^2 + y^2 = 1\text.
+\]
+A szögeket \emph{radiánban} mérjük: egy $\alpha$ szög nagysága annak az
+ívnek a hossza, amelyet a szög az egységkörből kimetsz. A teljes kör kerülete
+$2\pi$, így $360^\circ = 2\pi$, $180^\circ = \pi$ és $90^\circ =
+	\frac{\pi}{2}$.
+
+\begin{definition}
+	Induljunk el az $(1, 0)$ pontból, és haladjunk az egységkörön $\alpha$
+	hosszú utat; ha $\alpha > 0$, az óramutató járásával ellentétesen, ha
+	$\alpha < 0$, akkor azzal megegyezően. Jelölje $P_\alpha$ azt a pontot,
+	ahová érkezünk. Ekkor
+	\[
+		\cos\alpha := P_\alpha \text{ első koordinátája,} \qquad
+		\sin\alpha := P_\alpha \text{ második koordinátája.}
+	\]
+	Ha $\cos\alpha \ne 0$, akkor
+	\[
+		\tan\alpha := \frac{\sin\alpha}{\cos\alpha}\text.
+	\]
+\end{definition}
+
+A tangensnek is van szemléletes jelentése: az $OP_\alpha$ egyenes az
+$x = 1$ érintőt a $(1, \tan\alpha)$ pontban metszi. Ez a hasonló háromszögekből
+látszik: a két derékszögű háromszögben a függőleges és a vízszintes befogó
+aránya ugyanaz, $\frac{\sin\alpha}{\cos\alpha} = \frac{\tan\alpha}{1}$.
+
+\begin{figure}[ht]
+	\centering
+	\begin{tikzpicture}[scale=3, >=Stealth, line cap=round]
+		\def\ang{40}
+		\coordinate (O) at (0, 0);
+		\coordinate (P) at (\ang:1);
+		\coordinate (C) at ({cos(\ang)}, 0);
+		\coordinate (T) at (1, {tan(\ang)});
+
+		\draw[->, gray!70!black] (-1.3, 0) -- (1.5, 0) node[below] {$x$};
+		\draw[->, gray!70!black] (0, -1.3) -- (0, 1.3) node[left] {$y$};
+		\draw[gray!65] (1, -0.4) -- (1, 1.15) node[above, font=\figtickfont] {$x = 1$};
+
+		\draw[line width=1.5pt] (O) circle (1);
+		\draw[tancolor!65] (O) -- (T);
+		\draw (O) -- (P) node[midway, above left=-1pt] {$1$};
+
+		\draw[line width=3.4pt, arccolor, opacity=0.8] (1, 0) arc (0:\ang:1);
+		\draw[->, arccolor] (0.22, 0) arc (0:\ang:0.22);
+		\node[arccolor] at ({\ang / 2}:0.32) {$\alpha$};
+
+		\draw[dashed, gray] (P) -- (0, {sin(\ang)})
+		node[left, sincolor] {$\sin\alpha$};
+		\draw[line width=2.8pt, coscolor] (O) -- (C)
+		node[midway, below] {$\cos\alpha$};
+		\draw[line width=2.8pt, sincolor] (C) -- (P);
+		\draw[line width=2.8pt, tancolor] (1, 0) -- (T)
+		node[midway, right] {$\tan\alpha$};
+
+		\fill (P) circle (0.9pt) node[above=2pt, xshift=-3pt] {$P_\alpha$};
+		\fill (T) circle (0.9pt);
+		\fill (1, 0) circle (0.9pt) node[below right] {$1$};
+		\node[below left] at (O) {$O$};
+	\end{tikzpicture}
+	\caption{Az $\alpha$ szöghöz tartozó $P_\alpha$ pont az egységkörön. A
+		narancssárga ív hossza $\alpha$; a piros szakasz $\cos\alpha$, a kék
+		$\sin\alpha$, a zöld $\tan\alpha$.}
+	\label{fig:unit-circle}
+\end{figure}
+
+\subsection{Alapvető összefüggések}
+
+Mivel $P_\alpha$ rajta van az egységkörön, koordinátái kielégítik a kör
+egyenletét. Ez a \emph{trigonometrikus Pitagorasz-tétel}:
+\[
+	\sin^2\alpha + \cos^2\alpha = 1
+	\qquad (\alpha \in \mathbb{R})\text.
+\]
+Egy teljes kört megtéve ugyanoda érkezünk, ezért $P_{\alpha + 2\pi} =
+	P_\alpha$, vagyis
+\[
+	\sin(\alpha + 2\pi) = \sin\alpha, \qquad
+	\cos(\alpha + 2\pi) = \cos\alpha\text.
+\]
+A többi azonosság a kör szimmetriáiból olvasható le
+(\ref{fig:symmetries}.~ábra):
+\begin{itemize}
+	\item az $x$ tengelyre tükrözve $P_\alpha$-ból $P_{-\alpha}$ lesz:
+	      $\cos(-\alpha) = \cos\alpha$ és $\sin(-\alpha) = -\sin\alpha$, azaz a
+	      koszinusz páros, a szinusz páratlan;
+	\item az $y$ tengelyre tükrözve $P_\alpha$-ból $P_{\pi - \alpha}$ lesz:
+	      $\sin(\pi - \alpha) = \sin\alpha$ és $\cos(\pi - \alpha) =
+		      -\cos\alpha$;
+	\item az origóra tükrözve $P_\alpha$-ból $P_{\alpha + \pi}$ lesz: mindkét
+	      koordináta előjelet vált, így $\tan(\alpha + \pi) = \tan\alpha$.
+\end{itemize}
+
+\begin{figure}[ht]
+	\centering
+	\newcommand{\symmetrycircle}[3]{%
+		\begin{tikzpicture}[scale=1.35, >=Stealth, line cap=round]
+			\def\ang{35}
+			\draw[->, gray!70!black] (-1.3, 0) -- (1.35, 0);
+			\draw[->, gray!70!black] (0, -1.3) -- (0, 1.3);
+			\draw[line width=1.5pt] (0, 0) circle (1);
+			\draw[sincolor, line width=1.8pt] (0, 0) -- (\ang:1);
+			\draw[coscolor, line width=1.8pt] (0, 0) -- (#1:1);
+			\draw[mirror] (\ang:1) -- (#1:1);
+			\fill[sincolor] (\ang:1) circle (2pt)
+				node[above right=-1pt] {$P_\alpha$};
+			\fill[coscolor] (#1:1) circle (2pt) node[#2] {$P_{#3}$};
+		\end{tikzpicture}%
+	}
+	\symmetrycircle{-35}{below right=-1pt}{-\alpha}\hfill
+	\symmetrycircle{145}{above left=-1pt}{\pi - \alpha}\hfill
+	\symmetrycircle{215}{below left=-1pt}{\alpha + \pi}
+	\caption{Tükrözés az $x$ tengelyre, az $y$ tengelyre és az origóra.}
+	\label{fig:symmetries}
+\end{figure}
+
+\subsection{Nevezetes szögek}
+
+Az alábbi értékeket érdemes fejből tudni. A $\frac{\pi}{4}$ szögnél egy
+egyenlő szárú derékszögű háromszög, a $\frac{\pi}{6}$ és a $\frac{\pi}{3}$
+szögnél egy félbevágott szabályos háromszög adja az értékeket; a többi
+negyedben a szimmetriák segítségével kapjuk meg őket
+(\ref{fig:special-angles}.~ábra).
+
+\begin{center}
+	\renewcommand{\arraystretch}{2.3}
+	\begin{tabular}{@{}l*{5}{c}@{}}
+		\toprule
+		$\alpha$              & $0$              & $\dfrac{\pi}{6}$      & $\dfrac{\pi}{4}$      &
+		$\dfrac{\pi}{3}$      & $\dfrac{\pi}{2}$                                                   \\
+		\midrule
+		$\sin\alpha$          & $0$              & $\dfrac{1}{2}$        & $\dfrac{\sqrt{2}}{2}$ &
+		$\dfrac{\sqrt{3}}{2}$ & $1$                                                                \\
+		$\cos\alpha$          & $1$              & $\dfrac{\sqrt{3}}{2}$ & $\dfrac{\sqrt{2}}{2}$ &
+		$\dfrac{1}{2}$        & $0$                                                                \\
+		$\tan\alpha$          & $0$              & $\dfrac{\sqrt{3}}{3}$ & $1$                   &
+		$\sqrt{3}$            & nincs értelmezve                                                   \\
+		\bottomrule
+	\end{tabular}
+\end{center}
+
+\begin{figure}[ht]
+	\centering
+	\begin{tikzpicture}[scale=2.6, line cap=round, font=\figdensefont]
+		\draw[gray!70!black] (-1.08, 0) -- (1.08, 0);
+		\draw[gray!70!black] (0, -1.08) -- (0, 1.08);
+		\draw[line width=1.5pt] (0, 0) circle (1);
+		% Az első negyed pontjainak vetületei.
+		\foreach \a in {30, 45, 60} {
+				\draw[densely dotted, gray] (\a:1) -- ({cos(\a)}, 0);
+				\draw[densely dotted, gray] (\a:1) -- (0, {sin(\a)});
+			}
+		\foreach \a/\t in {
+				0/0, 30/\frac{\pi}{6}, 45/\frac{\pi}{4}, 60/\frac{\pi}{3},
+				90/\frac{\pi}{2}, 120/\frac{2\pi}{3}, 135/\frac{3\pi}{4},
+				150/\frac{5\pi}{6}, 180/\pi, 210/\frac{7\pi}{6},
+				225/\frac{5\pi}{4}, 240/\frac{4\pi}{3}, 270/\frac{3\pi}{2},
+				300/\frac{5\pi}{3}, 315/\frac{7\pi}{4}, 330/\frac{11\pi}{6}} {
+				\draw[gray!55] (0, 0) -- (\a:1);
+				\fill[sincolor] (\a:1) circle (1.3pt);
+				\node[fill=white, inner sep=1pt] at (\a:1.25) {$\t$};
+			}
+		\node[font=\figsmallfont, coscolor, below] at ({sqrt(3) / 2}, 0)
+		{$\frac{\sqrt{3}}{2}$};
+		\node[font=\figsmallfont, coscolor, below] at (0.5, 0) {$\frac{1}{2}$};
+		\node[font=\figsmallfont, sincolor, left] at (0, {sqrt(3) / 2})
+		{$\frac{\sqrt{3}}{2}$};
+		\node[font=\figsmallfont, sincolor, left] at (0, 0.5) {$\frac{1}{2}$};
+	\end{tikzpicture}
+	\caption{A nevezetes szögekhez tartozó pontok az egységkörön. Az első
+		negyedben a $\frac{\pi}{6}$ és a $\frac{\pi}{3}$ szögű pont vetületei
+		is látszanak.}
+	\label{fig:special-angles}
+\end{figure}
+
+\section{Inverz függvény}
+
+Egy $f\colon A \to B$ függvény
+\begin{itemize}
+	\item \emph{injektív}, ha különböző pontokban különböző értéket vesz fel:
+	      $x_1 \ne x_2 \implies f(x_1) \ne f(x_2)$;
+	\item \emph{szürjektív}, ha minden $y \in B$ előáll $f(x)$ alakban, azaz
+	      $R_f = B$;
+	\item \emph{bijektív} (kölcsönösen egyértelmű), ha injektív és szürjektív
+	      is.
+\end{itemize}
+
+\begin{definition}
+	Ha $f\colon A \to B$ bijektív, akkor minden $y \in B$-hez pontosan egy
+	olyan $x \in A$ létezik, amelyre $f(x) = y$. Az így kapott
+	$f^{-1}\colon B \to A$, $f^{-1}(y) := x$ függvény $f$ \emph{inverze}. Ekkor
+	\[
+		f^{-1}\bigl(f(x)\bigr) = x \quad (x \in A)
+		\qquad\text{és}\qquad
+		f\bigl(f^{-1}(y)\bigr) = y \quad (y \in B)\text.
+	\]
+\end{definition}
+
+Az inverz grafikonját úgy kapjuk, hogy $f$ grafikonját tükrözzük az $y = x$
+egyenesre: ha $(a, b)$ rajta van $f$ grafikonján, akkor $(b, a)$ rajta van
+$f^{-1}$ grafikonján.
+
+Egy szigorúan monoton függvény mindig injektív. Ha tehát egy függvény nem
+injektív, akkor értelmezési tartományát leszűkíthetjük egy olyan
+intervallumra, ahol szigorúan monoton; a képhalmazt pedig az értékkészletre
+szűkítve szürjektívvé tehetjük. Pontosan ezt tesszük a trigonometrikus
+függvényekkel.
+
+\section{A szinusz és az arkusz szinusz}
+
+\subsection{A szinuszfüggvény}
+
+Ha $P_\alpha$ körbejár az egységkörön, második koordinátája $-1$ és $1$
+között hullámzik. Ha ezt a magasságot $\alpha$ függvényében ábrázoljuk, a
+szinuszgörbét kapjuk (\ref{fig:sine-from-circle}.~ábra): az egységkör ívét
+„kiterítjük” az $x$ tengelyre.
+
+\begin{figure}[ht]
+	\centering
+	\begin{tikzpicture}[scale=1.25, >=Stealth, line cap=round]
+		\def\a{1.0}
+		\def\cx{-1.8}
+		% Egységkör.
+		\draw[->, gray!70!black] (\cx - 1.25, 0) -- (\cx + 1.3, 0);
+		\draw[->, gray!70!black] (\cx, -1.3) -- (\cx, 1.35);
+		\draw[line width=1.5pt] (\cx, 0) circle (1);
+		\draw[line width=3.4pt, arccolor, opacity=0.8]
+		(\cx + 1, 0) arc (0:{deg(\a)}:1);
+		\draw (\cx, 0) -- ++({deg(\a)}:1);
+		\draw[line width=2.8pt, sincolor]
+		({\cx + cos(deg(\a))}, 0) -- ++(0, {sin(deg(\a))});
+		\fill ({\cx + cos(deg(\a))}, {sin(deg(\a))}) circle (1.9pt)
+			node[above=2pt] {$P_\alpha$};
+		% Grafikon.
+		\draw[->, gray!70!black] (-0.2, 0) -- (6.75, 0) node[below] {$x$};
+		\draw[->, gray!70!black] (0, -1.3) -- (0, 1.35) node[left] {$y$};
+		\draw[graph, sincolor, line width=2.2pt, continues right]
+		plot[domain=0:2*pi, samples=150] (\x, {sin(\x r)});
+		\draw[line width=3.4pt, arccolor, opacity=0.8] (0, 0) -- (\a, 0);
+		\node[arccolor, below] at ({\a / 2}, 0) {$\alpha$};
+		\draw[line width=2.8pt, sincolor] (\a, 0) -- (\a, {sin(\a r)});
+		\fill (\a, {sin(\a r)}) circle (1.9pt);
+		\draw[mirror] ({\cx + cos(deg(\a))}, {sin(deg(\a))})
+		-- (\a, {sin(\a r)});
+		\foreach \x/\t in {
+				1.5708/{\pi/2}, 3.1416/\pi, 4.7124/{3\pi/2}, 6.2832/2\pi} {
+				\draw[gray!70!black] ({\x}, 0.05) -- ({\x}, -0.05)
+					node[below, font=\figtickfont] {$\t$};
+			}
+		\draw[gray!70!black] (0.05, 1) -- (-0.05, 1)
+		node[left, font=\figtickfont] {$1$};
+		\draw[gray!70!black] (0.05, -1) -- (-0.05, -1)
+		node[left, font=\figtickfont] {$-1$};
+	\end{tikzpicture}
+	\caption{A szinuszgörbe az egységkörből: a $P_\alpha$ pont magassága az
+		$x = \alpha$ helyen.}
+	\label{fig:sine-from-circle}
+\end{figure}
+
+Az egységkörös definícióból és az előző fejezet azonosságaiból a szinusz
+főbb tulajdonságai:
+\begin{itemize}
+	\item $D_{\sin} = \mathbb{R}$ és $R_{\sin} = [-1, 1]$;
+	\item $2\pi$ szerint periodikus: $\sin(x + 2\pi) = \sin x$;
+	\item páratlan: $\sin(-x) = -\sin x$, grafikonja az origóra szimmetrikus;
+	\item zérushelyei: $\sin x = 0 \iff x = k\pi$ $(k \in \mathbb{Z})$.
+\end{itemize}
+
+\begin{figure}[ht]
+	\centering
+	\begin{tikzpicture}
+		\begin{axis}[
+				trig, pi ticks,
+				height=5.5cm,
+				xmin=-2*pi - 0.4, xmax=2*pi + 1,
+				ymin=-1.4, ymax=1.5,
+				ytick={-1, 1},
+			]
+			\addplot[graph, continues, sincolor, domain=-2*pi - 0.3:2*pi + 0.3] {sin(x)}
+			node[pos=0.6, above right] {$\sin x$};
+			\addplot[mirror, continues, domain=-2*pi - 0.3:2*pi + 0.3] {0.5}
+			node[right, black] {$y = 1/2$};
+			\foreach \x in {-11*pi/6, -7*pi/6, pi/6, 5*pi/6} {
+					\edef\temp{\noexpand\addplot[only marks, mark=*,
+							mark size=2.8pt, black] coordinates {(\x, 0.5)};}
+					\temp
+				}
+		\end{axis}
+	\end{tikzpicture}
+	\caption{A szinusz nem injektív: az $y = \frac{1}{2}$ egyenes végtelen
+		sok pontban metszi a grafikonját.}
+	\label{fig:sine-not-injective}
+\end{figure}
+
+\subsection{Bijektívvé tétel}
+
+A szinusz nem injektív, hiszen például
+\[
+	\sin\frac{\pi}{6} = \sin\frac{5\pi}{6} = \sin\frac{13\pi}{6} = \frac{1}{2}
+\]
+(\ref{fig:sine-not-injective}.~ábra), így nem is invertálható. A
+$\left[-\frac{\pi}{2}, \frac{\pi}{2}\right]$ intervallumon viszont szigorúan
+monoton nő, és közben minden $[-1, 1]$-beli értéket pontosan egyszer vesz fel
+(\ref{fig:sine-restriction}.~ábra). Ezért a
+\[
+	\sin\colon \left[-\frac{\pi}{2}, \frac{\pi}{2}\right] \to [-1, 1]
+\]
+leszűkítés bijektív. Más intervallumot is választhatnánk (például
+$\left[\frac{\pi}{2}, \frac{3\pi}{2}\right]$-t), de ez a megszokott választás:
+ez tartalmazza a $0$-t, és ezen a szinusz növekvő.
+
+\begin{figure}[ht]
+	\centering
+	\begin{tikzpicture}
+		\begin{axis}[
+				trig, pi ticks,
+				height=5.5cm,
+				xmin=-2*pi - 0.4, xmax=2*pi + 1,
+				ymin=-1.4, ymax=1.5,
+				ytick={-1, 1},
+			]
+			\fill[sincolor, opacity=0.08] (-pi/2, -1.4) rectangle (pi/2, 1.4);
+			\addplot[faded, continues, domain=-2*pi - 0.3:2*pi + 0.3] {sin(x)};
+			\addplot[graph, sincolor, line width=2.8pt, domain=-pi/2:pi/2] {sin(x)};
+			\addplot[only marks, mark=*, mark size=2.8pt, sincolor]
+			coordinates {(-pi/2, -1) (pi/2, 1)};
+		\end{axis}
+	\end{tikzpicture}
+	\caption{A szinusz leszűkítése a $\left[-\frac{\pi}{2},
+				\frac{\pi}{2}\right]$ intervallumra már szigorúan monoton.}
+	\label{fig:sine-restriction}
+\end{figure}
+
+\subsection{Az arkusz szinusz}
+
+\begin{definition}
+	Az \emph{arkusz szinusz} a leszűkített szinusz inverze:
+	\[
+		\arcsin\colon [-1, 1] \to \left[-\frac{\pi}{2}, \frac{\pi}{2}\right],
+		\qquad
+		\arcsin y = x \iff \sin x = y \text{ és }
+		x \in \left[-\frac{\pi}{2}, \frac{\pi}{2}\right]\text.
+	\]
+\end{definition}
+
+Szavakban: $\arcsin y$ az a $\left[-\frac{\pi}{2}, \frac{\pi}{2}\right]$-beli
+szög, amelynek szinusza $y$. Grafikonját a leszűkített szinusz grafikonjának
+az $y = x$ egyenesre vett tükörképe adja (\ref{fig:arcsin}.~ábra). Az inverz
+tulajdonságai a szinuszéból következnek:
+\begin{itemize}
+	\item $D_{\arcsin} = [-1, 1]$ és
+	      $R_{\arcsin} = \left[-\frac{\pi}{2}, \frac{\pi}{2}\right]$;
+	\item szigorúan monoton nő;
+	\item páratlan: $\arcsin(-y) = -\arcsin y$.
+\end{itemize}
+
+\begin{figure}[ht]
+	\centering
+	\begin{tikzpicture}
+		\begin{axis}[
+				trig,
+				width=0.78\linewidth,
+				axis equal image,
+				xmin=-2.1, xmax=2.1, ymin=-2.1, ymax=2.1,
+				xtick={-pi/2, -1, 1, pi/2},
+				xticklabels={$-\pi/2$, $-1$, $1$, $\pi/2$},
+				ytick={-pi/2, -1, 1, pi/2},
+				yticklabels={$-\pi/2$, $-1$, $1$, $\pi/2$},
+			]
+			\addplot[mirror, continues, domain=-2:2] {x} node[pos=0.96, below right]
+			{$y = x$};
+			\addplot[graph, sincolor!75, domain=-pi/2:pi/2] {sin(x)}
+			node[pos=0.98, below right, sincolor] {$\sin x$};
+			\addplot[end dot, sincolor!75] coordinates {(-pi/2, -1) (pi/2, 1)};
+			\addplot[end dot, invcolor] coordinates {(-1, -pi/2) (1, pi/2)};
+			\addplot[graph, invcolor, domain=-pi/2:pi/2] ({sin(x)}, {x})
+			node[pos=0.88, left, invcolor] {$\arcsin x$};
+			\addplot[densely dotted, line width=1.3pt, gray!80!black] coordinates
+				{(1, {sin(1)}) ({sin(1)}, 1)};
+			\addplot[only marks, mark=*, mark size=2.6pt, sincolor!75]
+			coordinates {(1, {sin(1)})};
+			\addplot[only marks, mark=*, mark size=2.6pt, invcolor]
+			coordinates {({sin(1)}, 1)};
+		\end{axis}
+	\end{tikzpicture}
+	\caption{Az arkusz szinusz grafikonja (lila) a leszűkített szinusz
+		grafikonjának (halványkék) tükörképe az $y = x$ egyenesre.}
+	\label{fig:arcsin}
+\end{figure}
+
+\begin{remark}
+	A $\sin(\arcsin y) = y$ egyenlőség minden $y \in [-1, 1]$ esetén igaz, az
+	$\arcsin(\sin x) = x$ viszont \emph{csak}
+	$x \in \left[-\frac{\pi}{2}, \frac{\pi}{2}\right]$ esetén! Az arkusz
+	szinusz ugyanis mindig $\left[-\frac{\pi}{2}, \frac{\pi}{2}\right]$-beli
+	értéket ad.
+\end{remark}
+
+\begin{example}
+	Számítsuk ki az $\arcsin\left(\sin\frac{5\pi}{6}\right)$ értéket!
+
+	Mivel $\frac{5\pi}{6} \notin \left[-\frac{\pi}{2}, \frac{\pi}{2}\right]$,
+	a válasz nem $\frac{5\pi}{6}$. Számoljunk lépésenként:
+	\[
+		\arcsin\left(\sin\frac{5\pi}{6}\right)
+		= \arcsin\frac{1}{2}
+		= \frac{\pi}{6}\text,
+	\]
+	hiszen $\sin\frac{\pi}{6} = \frac{1}{2}$ és
+	$\frac{\pi}{6} \in \left[-\frac{\pi}{2}, \frac{\pi}{2}\right]$.
+\end{example}
+
+\begin{example}
+	Mutassuk meg, hogy $\cos(\arcsin y) = \sqrt{1 - y^2}$ minden
+	$y \in [-1, 1]$ esetén!
+
+	Legyen $x = \arcsin y$, ekkor $\sin x = y$ és
+	$x \in \left[-\frac{\pi}{2}, \frac{\pi}{2}\right]$. Ezen az intervallumon a
+	koszinusz nemnegatív, így a trigonometrikus Pitagorasz-tételből
+	\[
+		\cos(\arcsin y)
+		= \cos x
+		= \sqrt{1 - \sin^2 x}
+		= \sqrt{1 - y^2}\text.
+	\]
+\end{example}
+
+\section{A koszinusz és az arkusz koszinusz}
+
+\subsection{A koszinuszfüggvény}
+
+A koszinusz $P_\alpha$ első koordinátája. Ahogy a szinuszgörbét a $P_\alpha$
+pont magasságából kaptuk, úgy a koszinusz grafikonja az első koordinátájából
+adódik: most az egységkör ívét lefelé terítjük ki, és minden $\alpha$ helyen
+vízszintesen mérjük fel $\cos\alpha$-t (\ref{fig:cosine-from-circle}.~ábra). Így
+a koszinuszgörbét elforgatva látjuk: a függőleges tengely mentén lefelé nő
+$\alpha$, és a görbe vízszintesen hullámzik $-1$ és $1$ között.
+
+\begin{figure}[ht]
+	\centering
+	\begin{tikzpicture}[scale=1.15, >=Stealth, line cap=round]
+		\def\a{1.0}
+		\def\gap{1.8}
+		% Unit circle.
+		\draw[->, gray!70!black] (-1.25, 0) -- (1.3, 0);
+		\draw[->, gray!70!black] (0, -1.3) -- (0, 1.35);
+		\draw[line width=1.5pt] (0, 0) circle (1);
+		\draw[line width=3.4pt, arccolor, opacity=0.8]
+		(1, 0) arc (0:{deg(\a)}:1);
+		\draw (0, 0) -- ({deg(\a)}:1);
+		\draw[line width=2.8pt, coscolor] (0, 0) -- ({cos(deg(\a))}, 0);
+		\draw[line width=2.8pt, sincolor]
+		({cos(deg(\a))}, 0) -- ({deg(\a)}:1);
+		\fill ({deg(\a)}:1) circle (1.9pt) node[above=2pt] {$P_\alpha$};
+
+		% Sine, unrolled to the right: the height of P_alpha.
+		\begin{scope}[shift={(\gap, 0)}]
+			\draw[->, gray!70!black] (-0.2, 0) -- (6.75, 0) node[below] {$x$};
+			\draw[->, gray!70!black] (0, -1.3) -- (0, 1.35) node[left] {$y$};
+			\draw[graph, sincolor, continues right]
+			plot[domain=0:2*pi, samples=150] (\x, {sin(\x r)});
+			\draw[line width=3.4pt, arccolor, opacity=0.8] (0, 0) -- (\a, 0);
+			\node[arccolor, below] at ({\a / 2}, 0) {$\alpha$};
+			\draw[line width=2.8pt, sincolor] (\a, 0) -- (\a, {sin(\a r)});
+			\fill (\a, {sin(\a r)}) circle (1.9pt);
+			\foreach \x/\t in {
+					1.5708/{\pi/2}, 3.1416/\pi, 4.7124/{3\pi/2}, 6.2832/2\pi} {
+					\draw[gray!70!black] ({\x}, 0.05) -- ({\x}, -0.05)
+					node[below, font=\figtickfont] {$\t$};
+				}
+			\draw[gray!70!black] (0.05, 1) -- (-0.05, 1)
+			node[left, font=\figtickfont] {$1$};
+			\draw[gray!70!black] (0.05, -1) -- (-0.05, -1)
+			node[left, font=\figtickfont] {$-1$};
+		\end{scope}
+		\draw[mirror] ({deg(\a)}:1) -- ({\gap + \a}, {sin(\a r)});
+
+		% Cosine, unrolled downwards: the first coordinate of P_alpha.
+		\begin{scope}[shift={(0, -\gap)}]
+			\draw[->, gray!70!black] (-1.3, 0) -- (1.4, 0) node[right] {$y$};
+			\draw[->, gray!70!black] (0, 0.2) -- (0, -6.75) node[left] {$x$};
+			\draw[graph, coscolor, continues right]
+			plot[domain=0:2*pi, samples=150] ({cos(\x r)}, -\x);
+			\draw[line width=3.4pt, arccolor, opacity=0.8] (0, 0) -- (0, -\a);
+			\node[arccolor, left] at (0, {-\a / 2}) {$\alpha$};
+			\draw[line width=2.8pt, coscolor] (0, -\a) -- ({cos(\a r)}, -\a);
+			\fill ({cos(\a r)}, -\a) circle (1.9pt);
+			\foreach \y/\t in {
+					1.5708/{\pi/2}, 3.1416/\pi, 4.7124/{3\pi/2}, 6.2832/2\pi} {
+					\draw[gray!70!black] (0.05, -\y) -- (-0.05, -\y)
+					node[left, font=\figtickfont, fill=white, inner sep=1pt]
+						{$\t$};
+				}
+			\draw[gray!70!black] (1, -0.05) -- (1, 0.05)
+			node[above, font=\figtickfont] {$1$};
+			\draw[gray!70!black] (-1, -0.05) -- (-1, 0.05)
+			node[above, font=\figtickfont] {$-1$};
+		\end{scope}
+		\draw[mirror] ({cos(deg(\a))}, 0) -- ({cos(\a r)}, {-\gap - \a});
+	\end{tikzpicture}
+	\caption{A szinusz- és a koszinuszgörbe az egységkörből. A $P_\alpha$ pont
+		magassága (kék) jobbra, első koordinátája (piros) lefelé kiterítve
+		adja a két grafikont; a narancssárga szakaszok hossza $\alpha$.}
+	\label{fig:cosine-from-circle}
+\end{figure}
+
+Az egységkörön negyed fordulattal elforgatva azt is kapjuk, hogy
+\[
+	\cos x = \sin\left(x + \frac{\pi}{2}\right)\text,
+\]
+vagyis a koszinusz grafikonja a szinuszgörbe $\frac{\pi}{2}$-vel balra
+eltolva (\ref{fig:cosine}.~ábra). Főbb tulajdonságai:
+\begin{itemize}
+	\item $D_{\cos} = \mathbb{R}$ és $R_{\cos} = [-1, 1]$;
+	\item $2\pi$ szerint periodikus: $\cos(x + 2\pi) = \cos x$;
+	\item páros: $\cos(-x) = \cos x$, grafikonja az $y$ tengelyre
+	      szimmetrikus;
+	\item zérushelyei: $\cos x = 0 \iff x = \frac{\pi}{2} + k\pi$
+	      $(k \in \mathbb{Z})$.
+\end{itemize}
+
+\begin{figure}[ht]
+	\centering
+	\begin{tikzpicture}
+		\begin{axis}[
+				trig, pi ticks,
+				height=5.5cm,
+				xmin=-2*pi - 0.4, xmax=2*pi + 1,
+				ymin=-1.4, ymax=1.5,
+				ytick={-1, 1},
+			]
+			\addplot[faded, continues, sincolor!50, domain=-2*pi - 0.3:2*pi + 0.3] {sin(x)};
+			\addplot[graph, continues, coscolor, domain=-2*pi - 0.3:2*pi + 0.3] {cos(x)}
+			node[pos=0.02, above right] {$\cos x$};
+			\addplot[mirror, continues, domain=-2*pi - 0.3:2*pi + 0.3] {0.5}
+			node[right, black] {$y = 1/2$};
+			\foreach \x in {-5*pi/3, -pi/3, pi/3, 5*pi/3} {
+					\edef\temp{\noexpand\addplot[only marks, mark=*,
+							mark size=2.8pt, black] coordinates {(\x, 0.5)};}
+					\temp
+				}
+		\end{axis}
+	\end{tikzpicture}
+	\caption{A koszinusz grafikonja (piros) a szinuszgörbe (halványkék)
+		$\frac{\pi}{2}$-vel balra tolva. A koszinusz sem injektív.}
+	\label{fig:cosine}
+\end{figure}
+
+\subsection{Bijektívvé tétel}
+
+A koszinusz sem injektív: például
+$\cos\left(-\frac{\pi}{3}\right) = \cos\frac{\pi}{3} = \frac{1}{2}$. Mivel
+páros, a $0$-t tartalmazó szimmetrikus intervallum most nem jó. A
+$[0, \pi]$ intervallumon viszont szigorúan monoton \emph{csökken}, és minden
+$[-1, 1]$-beli értéket pontosan egyszer vesz fel (\ref{fig:cosine-restriction}.~ábra).
+Ezért a
+\[
+	\cos\colon [0, \pi] \to [-1, 1]
+\]
+leszűkítés bijektív.
+
+\begin{figure}[ht]
+	\centering
+	\begin{tikzpicture}
+		\begin{axis}[
+				trig, pi ticks,
+				height=5.5cm,
+				xmin=-2*pi - 0.4, xmax=2*pi + 1,
+				ymin=-1.4, ymax=1.5,
+				ytick={-1, 1},
+			]
+			\fill[coscolor, opacity=0.08] (0, -1.4) rectangle (pi, 1.4);
+			\addplot[faded, continues, domain=-2*pi - 0.3:2*pi + 0.3] {cos(x)};
+			\addplot[graph, coscolor, line width=2.8pt, domain=0:pi] {cos(x)};
+			\addplot[only marks, mark=*, mark size=2.8pt, coscolor]
+			coordinates {(0, 1) (pi, -1)};
+		\end{axis}
+	\end{tikzpicture}
+	\caption{A koszinusz leszűkítése a $[0, \pi]$ intervallumra már szigorúan
+		monoton.}
+	\label{fig:cosine-restriction}
+\end{figure}
+
+\subsection{Az arkusz koszinusz}
+
+\begin{definition}
+	Az \emph{arkusz koszinusz} a leszűkített koszinusz inverze:
+	\[
+		\arccos\colon [-1, 1] \to [0, \pi],
+		\qquad
+		\arccos y = x \iff \cos x = y \text{ és } x \in [0, \pi]\text.
+	\]
+\end{definition}
+
+Tulajdonságai (\ref{fig:arccos}.~ábra):
+\begin{itemize}
+	\item $D_{\arccos} = [-1, 1]$ és $R_{\arccos} = [0, \pi]$;
+	\item szigorúan monoton csökken;
+	\item nem páros és nem páratlan, de grafikonja a
+	      $\left(0, \frac{\pi}{2}\right)$ pontra szimmetrikus:
+	      $\arccos(-y) = \pi - \arccos y$.
+\end{itemize}
+
+\begin{figure}[ht]
+	\centering
+	\begin{tikzpicture}
+		\begin{axis}[
+				trig,
+				width=0.78\linewidth,
+				axis equal image,
+				xmin=-1.6, xmax=3.6, ymin=-1.6, ymax=3.6,
+				xtick={-1, 1, pi/2, pi},
+				xticklabels={$-1$, $1$, $\pi/2$, $\pi$},
+				ytick={-1, 1, pi/2, pi},
+				yticklabels={$-1$, $1$, $\pi/2$, $\pi$},
+			]
+			\addplot[mirror, continues, domain=-1.5:3.5] {x} node[pos=0.97, below right]
+			{$y = x$};
+			\addplot[graph, coscolor!75, domain=0:pi] {cos(x)}
+			node[pos=1, below right, coscolor] {$\cos x$};
+			\addplot[end dot, coscolor!75] coordinates {(0, 1) (pi, -1)};
+			\addplot[end dot, invcolor] coordinates {(1, 0) (-1, pi)};
+			\addplot[graph, invcolor, domain=0:pi] ({cos(x)}, {x})
+			node[pos=1, left, invcolor] {$\arccos x$};
+			\addplot[densely dotted, line width=1.3pt, gray!80!black] coordinates
+				{(1, {cos(1)}) ({cos(1)}, 1)};
+			\addplot[only marks, mark=*, mark size=2.6pt, coscolor!75]
+			coordinates {(1, {cos(1)})};
+			\addplot[only marks, mark=*, mark size=2.6pt, invcolor]
+			coordinates {({cos(1)}, 1)};
+		\end{axis}
+	\end{tikzpicture}
+	\caption{Az arkusz koszinusz grafikonja (lila) a leszűkített koszinusz
+		grafikonjának (halványpiros) tükörképe az $y = x$ egyenesre.}
+	\label{fig:arccos}
+\end{figure}
+
+\begin{theorem}
+	Minden $y \in [-1, 1]$ esetén
+	\[
+		\arcsin y + \arccos y = \frac{\pi}{2}\text.
+	\]
+\end{theorem}
+
+\begin{proof}
+	Legyen $x = \arcsin y \in \left[-\frac{\pi}{2}, \frac{\pi}{2}\right]$.
+	Ekkor $\frac{\pi}{2} - x \in [0, \pi]$, és
+	\[
+		\cos\left(\frac{\pi}{2} - x\right) = \sin x = y\text,
+	\]
+	tehát $\arccos y = \frac{\pi}{2} - x = \frac{\pi}{2} - \arcsin y$.
+\end{proof}
+
+\begin{example}
+	Számítsuk ki az $\arccos\left(\cos\left(-\frac{\pi}{3}\right)\right)$
+	értéket!
+
+	A $-\frac{\pi}{3}$ nincs a $[0, \pi]$ intervallumban, ezért ismét
+	lépésenként számolunk:
+	\[
+		\arccos\left(\cos\left(-\frac{\pi}{3}\right)\right)
+		= \arccos\frac{1}{2}
+		= \frac{\pi}{3}\text.
+	\]
+\end{example}
+
+\section{A tangens és az arkusz tangens}
+
+\subsection{A tangensfüggvény}
+
+A tangens ott van értelmezve, ahol a koszinusz nem nulla:
+\[
+	\tan x = \frac{\sin x}{\cos x}, \qquad
+	D_{\tan} = \left\{ x \in \mathbb{R} : x \ne \frac{\pi}{2} + k\pi,\
+	k \in \mathbb{Z} \right\}\text.
+\]
+Az egységkörön ez az $OP_\alpha$ egyenes és az $x = 1$ érintő metszéspontjának
+magassága (\ref{fig:unit-circle}.~ábra). Ha $\alpha \to \frac{\pi}{2}$ alulról,
+az egyenes egyre meredekebb, és a metszéspont a végtelenbe tart; ezért a
+tangens grafikonjának függőleges aszimptotái vannak az
+$x = \frac{\pi}{2} + k\pi$ helyeken (\ref{fig:tangent}.~ábra). Főbb
+tulajdonságai:
+\begin{itemize}
+	\item $R_{\tan} = \mathbb{R}$;
+	\item $\pi$ szerint periodikus: $\tan(x + \pi) = \tan x$;
+	\item páratlan: $\tan(-x) = -\tan x$;
+	\item zérushelyei: $\tan x = 0 \iff x = k\pi$ $(k \in \mathbb{Z})$.
+\end{itemize}
+
+\begin{figure}[ht]
+	\centering
+	\begin{tikzpicture}
+		\begin{axis}[
+				trig, pi ticks,
+				height=7cm,
+				xmin=-3*pi/2 - 0.5, xmax=3*pi/2 + 0.6,
+				ymin=-4.2, ymax=4.2,
+				ytick=\empty,
+				restrict y to domain=-4.2:4.2,
+			]
+			\fill[tancolor, opacity=0.08] (-pi/2, -4.2) rectangle (pi/2, 4.2);
+			\foreach \k in {-3, -1, 1, 3} {
+					\edef\temp{\noexpand\draw[mirror]
+						({\k*pi/2}, -4.2) -- ({\k*pi/2}, 4.2);}
+					\temp
+				}
+			\addplot[faded, continues, domain=-pi - 1.3365:-pi + 1.3365] {tan(x)};
+			\addplot[faded, continues, domain=pi - 1.3365:pi + 1.3365] {tan(x)};
+			\addplot[graph, continues, tancolor, line width=2.8pt,
+				domain=-1.3365:1.3365] {tan(x)}
+			node[pos=0.93, right] {$\tan x$};
+		\end{axis}
+	\end{tikzpicture}
+	\caption{A tangens grafikonja. A szaggatott függőleges egyenesek az
+		aszimptoták; a $\left(-\frac{\pi}{2}, \frac{\pi}{2}\right)$
+		intervallumon (zöld) a tangens szigorúan monoton nő.}
+	\label{fig:tangent}
+\end{figure}
+
+\subsection{Bijektívvé tétel}
+
+A tangens $\pi$ szerint periodikus, így nem injektív. A
+$\left(-\frac{\pi}{2}, \frac{\pi}{2}\right)$ \emph{nyílt} intervallumon
+viszont szigorúan monoton nő, és minden valós értéket pontosan egyszer vesz
+fel. A végpontokat nem vehetjük hozzá, mert ott a tangens nincs értelmezve.
+Így a
+\[
+	\tan\colon \left(-\frac{\pi}{2}, \frac{\pi}{2}\right) \to \mathbb{R}
+\]
+leszűkítés bijektív.
+
+\subsection{Az arkusz tangens}
+
+\begin{definition}
+	Az \emph{arkusz tangens} a leszűkített tangens inverze:
+	\[
+		\arctan\colon \mathbb{R} \to \left(-\frac{\pi}{2}, \frac{\pi}{2}\right),
+		\qquad
+		\arctan y = x \iff \tan x = y \text{ és }
+		x \in \left(-\frac{\pi}{2}, \frac{\pi}{2}\right)\text.
+	\]
+\end{definition}
+
+A tükrözés során a tangens függőleges aszimptotáiból vízszintes aszimptoták
+lesznek (\ref{fig:arctan}.~ábra). Tulajdonságai:
+\begin{itemize}
+	\item $D_{\arctan} = \mathbb{R}$ és
+	      $R_{\arctan} = \left(-\frac{\pi}{2}, \frac{\pi}{2}\right)$;
+	\item szigorúan monoton nő és páratlan;
+	\item $\displaystyle\lim_{y \to \infty} \arctan y = \frac{\pi}{2}$ és
+	      $\displaystyle\lim_{y \to -\infty} \arctan y = -\frac{\pi}{2}$.
+\end{itemize}
+
+\begin{figure}[ht]
+	\centering
+	\begin{tikzpicture}
+		\begin{axis}[
+				trig,
+				width=0.75\linewidth,
+				axis equal image,
+				xmin=-4.6, xmax=4.6, ymin=-4.2, ymax=4.2,
+				xtick={-pi/2, pi/2},
+				xticklabels={$-\pi/2$, $\pi/2$},
+				ytick={-pi/2, pi/2},
+				yticklabels={$-\pi/2$, $\pi/2$},
+				restrict y to domain=-4.2:4.2,
+			]
+			\addplot[mirror, continues, domain=-4.2:4.2] {x} node[pos=0.97, below right]
+			{$y = x$};
+			\draw[mirror, invcolor!60] (-4.5, -pi/2) -- (4.5, -pi/2);
+			\draw[mirror, invcolor!60] (-4.5, pi/2) -- (4.5, pi/2);
+			\draw[mirror, tancolor!75] (-pi/2, -4.2) -- (-pi/2, 4.2);
+			\draw[mirror, tancolor!75] (pi/2, -4.2) -- (pi/2, 4.2);
+			\addplot[graph, continues, tancolor!75, domain=-1.3365:1.3365] {tan(x)}
+			node[pos=1, right, tancolor] {$\tan x$};
+			\addplot[graph, continues, invcolor, domain=-4.5:4.5] {atan(x)}
+			node[pos=0.97, below left, invcolor] {$\arctan x$};
+		\end{axis}
+	\end{tikzpicture}
+	\caption{Az arkusz tangens grafikonja (lila) a leszűkített tangens
+		grafikonjának (halványzöld) tükörképe. A tangens függőleges
+		aszimptotáiból az arkusz tangens vízszintes aszimptotái lesznek.}
+	\label{fig:arctan}
+\end{figure}
+
+\begin{example}
+	Számítsuk ki az $\arctan\left(\tan\frac{3\pi}{4}\right)$ értéket!
+
+	A tangens $\pi$ szerint periodikus, és
+	$\frac{3\pi}{4} - \pi = -\frac{\pi}{4} \in \left(-\frac{\pi}{2},
+		\frac{\pi}{2}\right)$, így
+	\[
+		\arctan\left(\tan\frac{3\pi}{4}\right)
+		= \arctan\left(\tan\left(-\frac{\pi}{4}\right)\right)
+		= -\frac{\pi}{4}\text.
+	\]
+\end{example}
+
+\begin{example}
+	Mutassuk meg, hogy $\cos(\arctan y) = \dfrac{1}{\sqrt{1 + y^2}}$ minden
+	$y \in \mathbb{R}$ esetén!
+
+	Legyen $x = \arctan y$, ekkor $\tan x = y$ és
+	$x \in \left(-\frac{\pi}{2}, \frac{\pi}{2}\right)$, ahol $\cos x > 0$. A
+	trigonometrikus Pitagorasz-tételt $\cos^2 x$-szel elosztva
+	\[
+		\tan^2 x + 1 = \frac{1}{\cos^2 x}\text,
+	\]
+	amiből
+	\[
+		\cos(\arctan y) = \cos x = \frac{1}{\sqrt{1 + \tan^2 x}}
+		= \frac{1}{\sqrt{1 + y^2}}\text.
+	\]
+\end{example}
+
+\section{Összefoglalás}
+
+\begin{center}
+	\renewcommand{\arraystretch}{1.7}
+	\begin{tabular}{@{}cc@{}}
+		\toprule
+		Bijektív leszűkítés                                                    &
+		Inverz                                                                    \\
+		\midrule
+		$\sin\colon \left[-\frac{\pi}{2}, \frac{\pi}{2}\right] \to [-1, 1]$    &
+		$\arcsin\colon [-1, 1] \to \left[-\frac{\pi}{2}, \frac{\pi}{2}\right]$    \\
+		$\cos\colon [0, \pi] \to [-1, 1]$                                      &
+		$\arccos\colon [-1, 1] \to [0, \pi]$                                      \\
+		$\tan\colon \left(-\frac{\pi}{2}, \frac{\pi}{2}\right) \to \mathbb{R}$ &
+		$\arctan\colon \mathbb{R} \to \left(-\frac{\pi}{2}, \frac{\pi}{2}\right)$ \\
+		\bottomrule
+	\end{tabular}
+\end{center}
+
+Mindhárom esetben ugyanazt a receptet követtük:
+\begin{enumerate}
+	\item megkerestünk egy intervallumot, ahol a függvény szigorúan monoton
+	      (így injektív), és minden értékét felveszi;
+	\item a képhalmazt az értékkészletre szűkítettük (így szürjektív);
+	\item a kapott bijekciót invertáltuk; az inverz grafikonja a leszűkített
+	      függvény grafikonjának tükörképe az $y = x$ egyenesre.
+\end{enumerate}
+Az inverz függvénybe helyettesítés mindig visszaadja az eredeti értéket
+($\sin(\arcsin y) = y$), fordítva azonban csak a leszűkített intervallumon
+($\arcsin(\sin x) = x$ csak ha $x \in \left[-\frac{\pi}{2},
+		\frac{\pi}{2}\right]$).
+\end{document}

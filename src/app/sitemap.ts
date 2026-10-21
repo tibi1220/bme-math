@@ -2,6 +2,8 @@ import type { MetadataRoute } from 'next';
 import {
   examHref,
   exercisesByTopic,
+  materialHref,
+  materialsHref,
   practiceHref,
   subjects,
   testHref,
@@ -18,6 +20,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/',
     ...subjects.flatMap(subject => [
       `/${subject.slug}`,
+      ...subject.topics
+        .filter(topic => topic.materials.length > 0)
+        .flatMap(topic => [
+          materialsHref(subject, topic),
+          ...topic.materials.map(material =>
+            materialHref(subject, topic, material),
+          ),
+        ]),
       ...subject.exams
         .filter(exam => exam.tests.length > 0)
         .flatMap(exam => [

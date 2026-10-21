@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { CopyButton } from '@/components/copy-button';
 import { exerciseAnchor, type Exercise } from '@/lib/exercise';
+import { lwarpClasses } from '@/lib/lwarp-classes';
 
 function pointsLabel(points: number[]) {
   const total = points.reduce((a, b) => a + b, 0);
@@ -8,30 +9,6 @@ function pointsLabel(points: number[]) {
     ? `${points.join(' + ')} = ${total} pont`
     : `${total} pont`;
 }
-
-// Styles the HTML produced by lwarp (paragraphs, enumerate/itemize lists with
-// inline .listmarker spans) and the KaTeX output inside it.
-const bodyClasses = [
-  'leading-relaxed text-zinc-800 dark:text-zinc-200',
-  '[&_p]:my-2',
-  '[&_ul]:my-3 [&_ul]:space-y-2',
-  '[&_li]:relative [&_li]:pl-7 [&_li>p:first-child]:-indent-7',
-  '[&_li_p]:my-1 [&_li_p:first-child]:mt-0',
-  '[&_.listmarker]:inline-block [&_.listmarker]:w-7 [&_.listmarker]:indent-0 [&_.listmarker]:font-medium',
-  '[&_.katex]:indent-0',
-  // An item that starts with display math gets its marker in a paragraph of
-  // its own; collapse it so the marker sits next to the formula.
-  '[&_li>p.listmarker-only]:my-0',
-  '[&_li>p.listmarker-only>.listmarker]:absolute [&_li>p.listmarker-only>.listmarker]:left-0',
-  '[&_li>p.listmarker-only+p]:mt-0',
-  '[&_li>p.listmarker-only+p>.katex-display:first-child]:mt-0',
-  '[&_.katex-display]:my-3 [&_.katex-display]:overflow-x-auto [&_.katex-display]:overflow-y-hidden [&_.katex-display]:py-1',
-  // Pictures (TikZ) that lwarp rendered to SVG.
-  '[&_.center]:my-3 [&_.center]:text-center',
-  '[&_.lateximage]:inline-block [&_.lateximage]:h-auto [&_.lateximage]:max-w-full',
-  // In the dark theme the black-on-white pictures are inverted.
-  'dark:[&_.lateximage]:invert',
-].join(' ');
 
 export function ExerciseCard({
   exercise,
@@ -86,7 +63,7 @@ export function ExerciseCard({
         </div>
       </header>
       <div
-        className={bodyClasses}
+        className={lwarpClasses}
         dangerouslySetInnerHTML={{ __html: exercise.html }}
       />
       {exercise.solution && (
@@ -111,7 +88,7 @@ export function ExerciseCard({
               </div>
             )}
             <div
-              className={bodyClasses}
+              className={lwarpClasses}
               dangerouslySetInnerHTML={{ __html: exercise.solution }}
             />
           </div>

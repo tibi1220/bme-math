@@ -21,6 +21,8 @@ the same source serves both.
 - **Tests by year**: every midterm, retake (pótzárthelyi) and second retake
   (aláíráspótló) as it was given, with downloadable PDFs with and without
   solutions.
+- **Topic materials**: notes with figures and worked examples, readable on the
+  site and downloadable as PDF.
 - **Exercises by topic**: all exercises of a topic (sequences, complex numbers,
   functions, …) from every year on one page.
 - **Random practice**: draw random exercises, filtered by topic, year and kind
@@ -86,6 +88,19 @@ The solution goes next to it in `<name>-sol.tex`, without the docstring. Use any
 package you need (TikZ for figures, `xfrac`, …); the website and the PDFs pick
 it up. Display names (subjects, exams, topics) and the variants are defined in
 [`src/lib/catalog.ts`](src/lib/catalog.ts).
+
+Topic materials (notes with figures and worked examples) live in
+`topics/<NN-topic>/<group>/<name>.tex`, e.g.
+`topics/02-complex-numbers/trig-hyperbolic-functions/trig-functions.tex`. Each
+is a complete document with a `\title` (and optionally a `\subtitle`); no
+docstring is needed, and empty files are skipped. The site shows them on the
+topic's page, with a PDF download. Group names and the reading order of the
+documents are set in `materialGroups` in `src/lib/catalog.ts`. A figure can also
+get an animated web version: write a component, list it under the figure's
+`\label` in
+[`src/components/animations/index.ts`](src/components/animations/index.ts) and
+add it to `figureAnimations` there; the PDF keeps the TikZ figure. Two are ready
+(the sine and sinh figures) but switched off.
 
 ## Development
 

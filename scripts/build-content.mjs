@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 // Converts the exercise .tex files under content/ to HTML fragments with
 // lwarp, renders their math with KaTeX and writes everything, together with
-// the YAML metadata, to src/generated/content.json.
+// the YAML metadata, to src/generated/content.json. The topic materials
+// (content/<subject>/topics/<NN-topic>/<group>/<name>.tex) are converted the
+// same way, and published as PDFs too.
 //
 // Usage: pnpm content [--force] [--watch]
 //
@@ -32,8 +34,9 @@ const OUT_FILE = path.join(ROOT, 'src', 'generated', 'content.json');
 const CACHE_DIR = path.join(ROOT, 'node_modules', '.cache', 'lwarp');
 const DOWNLOADS_DIR = path.join(ROOT, 'public', 'downloads');
 
-// Bump this whenever the conversion below changes, to invalidate the cache.
-const PIPELINE_VERSION = '8';
+// Bump these whenever the conversion below changes, to invalidate the cache:
+// one version for the exercises, one for the topic materials.
+const PIPELINE_VERSION = { exercise: '9', material: '11' };
 
 const EXERCISE_FILE = /^(\d{4})-([a-z]+)-(\d+)\.tex$/;
 // The solution of 2025-a-1.tex lives next to it in 2025-a-1-sol.tex.
@@ -66,7 +69,20 @@ async function discover() {
     const topics = [];
     for (const dir of await listDirs(path.join(subjectDir, 'topics'))) {
       const match = TOPIC_DIR.exec(dir);
-      if (match) topics.push({ id: match[1], slug: match[2] });
+      if (!match) continue;
+      const topicDir = path.join(subjectDir, 'topics', dir);
+      const materials = [];
+      for (const group of await listDirs(topicDir)) {
+        const groupDir = path.join(topicDir, group);
+        for (const name of (await fs.readdir(groupDir)).sort()) {
+          if (!name.endsWith('.tex')) continue;
+          const file = path.join(groupDir, name);
+          // A file that is still empty is a placeholder, not a document.
+          if ((await fs.readFile(file, 'utf8')).trim() === '') continue;
+          materials.push({ file, group, slug: name.replace(/\.tex$/, '') });
+        }
+      }
+      topics.push({ id: match[1], slug: match[2], materials });
     }
 
     const exams = [];
@@ -168,19 +184,31 @@ const LWARP_PREAMBLE = [
   '\\AtBeginDocument{\\renewcommand{\\labelenumi}{\\alph{enumi})}}',
 ].join('\n');
 
-function toLwarpSource(source) {
-  const withLwarp = source.replace(
+// A topic material is a whole article: it stays in one HTML file instead of
+// one per section, and the page shows its title, so \maketitle goes.
+const MATERIAL_PREAMBLE = '\\setcounter{FileDepth}{-5}';
+
+function toLwarpSource(source, kind) {
+  const preamble =
+    kind === 'material'
+      ? `${LWARP_PREAMBLE}\n${MATERIAL_PREAMBLE}`
+      : LWARP_PREAMBLE;
+  let withLwarp = source.replace(
     /^(\\documentclass(\[[^\]]*\])?\{[^}]*\}\s*\n)/m,
-    documentclass => `${documentclass}${LWARP_PREAMBLE}\n`,
+    documentclass => `${documentclass}${preamble}\n`,
   );
   if (withLwarp === source) throw new Error('no \\documentclass found');
+  if (kind === 'material') withLwarp = withLwarp.replace(/\\maketitle\b/, '');
   return withLwarp;
 }
 
-async function runLwarp(source) {
+async function runLwarp(source, kind) {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'lwarp-'));
   try {
-    await fs.writeFile(path.join(dir, 'exercise.tex'), toLwarpSource(source));
+    await fs.writeFile(
+      path.join(dir, 'exercise.tex'),
+      toLwarpSource(source, kind),
+    );
     const options = { cwd: dir, maxBuffer: 64 * 1024 * 1024 };
     try {
       await run(
@@ -260,7 +288,8 @@ function extractFragment(html) {
   const start = html.search(/<a id="[^"]*-autopage-1"><\/a>/);
   const end = html.search(/<a id="[^"]*-autofile-last"><\/a>/);
   if (start === -1 || end === -1) throw new Error('unexpected lwarp output');
-  return html.slice(start, end).replace(/<a id="[^"]*"><\/a>/g, '');
+  // Keep the anchors of \label (targets of \ref links), drop lwarp's own.
+  return html.slice(start, end).replace(/<a id="[^"]*auto[^"]*"><\/a>/g, '');
 }
 
 // KaTeX builds accented letters in \text{} from a base letter and an accent
@@ -276,14 +305,26 @@ const KATEX_MACROS = {
   '\\sfrac': '{}^{#1}\\!/\\!{}_{#2}',
 };
 
-function renderMath(html) {
+// The operators a document declares itself (\\DeclareMathOperator{\\arsinh}
+// {arsinh}), as KaTeX macros.
+function documentMacros(source) {
+  const macros = {};
+  for (const match of source.matchAll(
+    /\\DeclareMathOperator(\*?)\{(\\[A-Za-z]+)\}\{([^}]*)\}/g,
+  )) {
+    macros[match[2]] = `\\operatorname${match[1]}{${match[3]}}`;
+  }
+  return macros;
+}
+
+function renderMath(html, macros = {}) {
   return html.replace(
     /\\\[([\s\S]*?)\\\]|\\\(([\s\S]*?)\\\)/g,
     (_, display, inline) => {
       const tex = unescapeHtml(display ?? inline).trim();
       return katex.renderToString(tex, {
         displayMode: display !== undefined,
-        macros: { ...KATEX_MACROS },
+        macros: { ...KATEX_MACROS, ...macros },
         throwOnError: true,
         // The Hungarian letters registered above have no KaTeX font metrics;
         // the browser measures them itself, so the warning is only noise.
@@ -315,12 +356,40 @@ function tidy(html) {
     .trim();
 }
 
-function toFragment(lwarpHtml) {
+// The extra structure of a topic material: theorem-like blocks, figure
+// captions and cross-references.
+function tidyMaterial(html) {
+  return (
+    html
+      // amsthm wraps each block in a one-item list, with the label as its
+      // marker; unwrap it so the list styles do not apply.
+      .replace(
+        /<div class="(amsthm(?:body\w+|proof))">\s*<ul class="list"[^>]*>\s*<li>([\s\S]*?)<\/li>\s*<\/ul>\s*<\/div>/g,
+        (_, kind, body) =>
+          `<div class="theorem ${kind}">${body.replace('<span class="listmarker">', '<span class="theorem-label">')}</div>`,
+      )
+      // "3. ábra. …" follows the picture as loose text, or in a paragraph of
+      // its own (lwarp does that with longer captions).
+      .replace(
+        /(<figure[^>]*>[\s\S]*?<\/p>)\s*(?:<p>\s*)?(\d+\.&nbsp;ábra\.)([\s\S]*?)\s*(?:<\/p>\s*)?(?=<a id=|<\/div>)/g,
+        '$1<figcaption><span class="caption-label">$2</span>$3</figcaption>',
+      )
+      // The website justifies the materials; a space after a list marker
+      // would be stretched too, and the marker has a fixed width anyway.
+      .replace(/(<span class="listmarker">[^<]*<\/span>)\s+/g, '$1')
+      // \ref links point into lwarp's own HTML files.
+      .replace(/href="[^"#]*\.html#/g, 'href="#')
+      .replace(/<p>\s*<\/p>/g, '')
+  );
+}
+
+function toFragment(lwarpHtml, kind, macros) {
   // pdftotext yields decomposed accents (u + U+0308); recompose them.
   const fragment = decodeNumericEntities(extractFragment(lwarpHtml)).normalize(
     'NFC',
   );
-  return tidy(renderMath(fragment));
+  const html = tidy(renderMath(fragment, macros));
+  return kind === 'material' ? tidyMaterial(html) : html;
 }
 
 // Rewriting an unchanged file would still make next dev reload the page.
@@ -409,8 +478,9 @@ function testDocument({
   return lines.join('\n');
 }
 
-async function compilePdf(tex) {
-  const hash = createHash('sha256').update(tex).digest('hex');
+// `runs` > 1 resolves cross-references (\ref) in the materials.
+async function compilePdf(tex, runs = 1) {
+  const hash = createHash('sha256').update(`${runs}`).update(tex).digest('hex');
   const cached = path.join(CACHE_DIR, `${hash}.pdf`);
   const hit = await fs.readFile(cached).catch(() => null);
   if (hit) return { pdf: hit, fromCache: true };
@@ -419,11 +489,13 @@ async function compilePdf(tex) {
   try {
     await fs.writeFile(path.join(dir, 'test.tex'), tex);
     try {
-      await run(
-        'lualatex',
-        ['-interaction=nonstopmode', '-halt-on-error', 'test.tex'],
-        { cwd: dir, maxBuffer: 64 * 1024 * 1024 },
-      );
+      for (let i = 0; i < runs; i++) {
+        await run(
+          'lualatex',
+          ['-interaction=nonstopmode', '-halt-on-error', 'test.tex'],
+          { cwd: dir, maxBuffer: 64 * 1024 * 1024 },
+        );
+      }
     } catch (error) {
       const log = await fs
         .readFile(path.join(dir, 'test.log'), 'utf8')
@@ -449,8 +521,7 @@ async function listFiles(dir) {
     .map(e => path.join(e.parentPath, e.name));
 }
 
-// Returns false when some PDF failed to compile.
-async function buildTestPdfs(subjects, converted, preambles, limit) {
+function testPdfJobs(subjects, converted, preambles) {
   const jobs = [];
   for (const subject of subjects) {
     const subjectInfo = subjectInfos.find(info => info.dir === subject.dir);
@@ -502,13 +573,45 @@ async function buildTestPdfs(subjects, converted, preambles, limit) {
       }
     }
   }
+  return jobs;
+}
 
+// The topic materials as they are, under
+// public/downloads/<subject>/topics/<topic>/<name>.pdf.
+function materialPdfJobs(subjects, sources) {
+  const jobs = [];
+  for (const subject of subjects) {
+    const subjectInfo = subjectInfos.find(info => info.dir === subject.dir);
+    if (!subjectInfo) continue;
+    for (const topic of subject.topics) {
+      for (const material of topic.materials) {
+        const tex = sources.get(material.file);
+        if (tex === undefined) continue;
+        jobs.push({
+          file: path.join(
+            DOWNLOADS_DIR,
+            subjectInfo.slug,
+            'topics',
+            topic.slug,
+            `${material.slug}.pdf`,
+          ),
+          tex,
+          runs: 2,
+        });
+      }
+    }
+  }
+  return jobs;
+}
+
+// Returns false when some PDF failed to compile.
+async function buildPdfs(jobs, limit) {
   let compiled = 0;
   let failed = 0;
   await mapConcurrent(jobs, limit, async job => {
     const rel = path.relative(ROOT, job.file);
     try {
-      const { pdf, fromCache } = await compilePdf(job.tex);
+      const { pdf, fromCache } = await compilePdf(job.tex, job.runs);
       if (!fromCache) {
         compiled++;
         console.log(`compiled ${rel}`);
@@ -520,14 +623,14 @@ async function buildTestPdfs(subjects, converted, preambles, limit) {
     }
   });
 
-  // Remove the PDFs of tests that no longer exist.
+  // Remove the PDFs of tests and materials that no longer exist.
   const current = new Set(jobs.map(job => job.file));
   for (const file of await listFiles(DOWNLOADS_DIR)) {
     if (!current.has(file)) await fs.rm(file);
   }
 
   console.log(
-    `${jobs.length} test PDFs (${compiled} compiled, ${jobs.length - compiled} cached) → ${path.relative(ROOT, DOWNLOADS_DIR)}`,
+    `${jobs.length} PDFs (${compiled} compiled, ${jobs.length - compiled} cached) → ${path.relative(ROOT, DOWNLOADS_DIR)}`,
   );
   return failed === 0;
 }
@@ -535,21 +638,92 @@ async function buildTestPdfs(subjects, converted, preambles, limit) {
 // ---------------------------------------------------------------------------
 // Driver
 
-async function convert(source) {
+// The plain text of a short TeX string such as a title: dashes and ties.
+function texToText(tex) {
+  return tex.replace(/---/g, '—').replace(/--/g, '–').replace(/~/g, '\u00a0');
+}
+
+// Browsers may break a line right after an inline formula, even before a
+// colon or a comma, which then starts the next line. KaTeX draws a formula as
+// a row of boxes (katex-base) and lines may only break between them, so
+// punctuation (or a suffix such as "-ból") that touches the formula is moved
+// into its last box, and an opening parenthesis right before it into its
+// first. Long formulas can still break inside. The website sets these
+// characters in the text font (.math-punct in globals.css). Applied after the
+// cache, so changing it needs no recompilation.
+const INLINE_MATH = '<span class="katex">';
+const FORMULA_END = '</span></span></span>';
+const FIRST_BOX =
+  /<span class="katex-base"><span class="katex-strut"[^>]*><\/span>/;
+
+const punctuation = text => `<span class="math-punct">${text}</span>`;
+
+function glueMathPunctuation(html) {
+  let out = '';
+  let rest = 0;
+  for (
+    let start = html.indexOf(INLINE_MATH);
+    start !== -1;
+    start = html.indexOf(INLINE_MATH, rest)
+  ) {
+    // The end of the formula: the </span> that closes its outermost span.
+    const tags = /<\/?span\b[^>]*>/g;
+    tags.lastIndex = start;
+    let depth = 0;
+    let end = html.length;
+    for (let tag; (tag = tags.exec(html));) {
+      depth += tag[0][1] === '/' ? -1 : 1;
+      if (depth === 0) {
+        end = tag.index + tag[0].length;
+        break;
+      }
+    }
+    let before = html.slice(rest, start);
+    let math = html.slice(start, end);
+    let post = '';
+    // Display math is not inline; leave it alone.
+    if (!before.endsWith('<span class="katex-display">')) {
+      const pre = /[^\s<>]*$/.exec(before)[0];
+      post = /^[^\s<>]*/.exec(html.slice(end))[0];
+      if (pre && FIRST_BOX.test(math)) {
+        before = before.slice(0, before.length - pre.length);
+        math = math.replace(FIRST_BOX, box => box + punctuation(pre));
+      }
+      if (post && math.endsWith(FORMULA_END)) {
+        // Inside the last box: before the </span> that closes it.
+        math = `${math.slice(0, -FORMULA_END.length)}${punctuation(post)}${FORMULA_END}`;
+      } else {
+        post = '';
+      }
+    }
+    out += before + math;
+    rest = end + post.length;
+  }
+  return out + html.slice(rest);
+}
+
+async function convert(source, kind) {
   const hash = createHash('sha256')
-    .update(PIPELINE_VERSION)
+    .update(PIPELINE_VERSION[kind])
+    .update(kind)
     .update(katex.version)
     .update(source)
     .digest('hex');
   const cached = path.join(CACHE_DIR, `${hash}.html`);
   if (!force) {
     const hit = await fs.readFile(cached, 'utf8').catch(() => null);
-    if (hit !== null) return { html: hit, fromCache: true };
+    if (hit !== null) {
+      return { html: glueMathPunctuation(hit), fromCache: true };
+    }
   }
-  const html = toFragment(await runLwarp(source));
+  const html = toFragment(
+    await runLwarp(source, kind),
+    kind,
+    documentMacros(source),
+  );
   await fs.mkdir(CACHE_DIR, { recursive: true });
   await fs.writeFile(cached, html);
-  return { html, fromCache: false };
+  return { html: glueMathPunctuation(html), fromCache: false };
 }
 
 async function mapConcurrent(items, limit, fn) {
@@ -577,12 +751,12 @@ async function build() {
   let compiled = 0;
   let failed = 0;
 
-  async function convertFile(file) {
+  async function convertFile(file, kind = 'exercise') {
     const rel = path.relative(ROOT, file);
     total++;
     try {
       const source = await fs.readFile(file, 'utf8');
-      const { html, fromCache } = await convert(source);
+      const { html, fromCache } = await convert(source, kind);
       if (!fromCache) {
         compiled++;
         console.log(`converted ${rel}`);
@@ -625,6 +799,35 @@ async function build() {
     }
   });
 
+  // Topic materials: the title comes from \title (and \subtitle).
+  const materials = new Map();
+  const materialSources = new Map();
+  const materialJobs = subjects.flatMap(subject =>
+    subject.topics.flatMap(topic => topic.materials),
+  );
+  await mapConcurrent(materialJobs, limit, async material => {
+    const result = await convertFile(material.file, 'material');
+    if (!result) return;
+    const title = /\\title\{([^}]*)\}/.exec(result.source)?.[1];
+    if (!title) {
+      failed++;
+      console.error(
+        `\n✗ ${path.relative(ROOT, material.file)}: the document needs a \\title\n`,
+      );
+      return;
+    }
+    materials.set(material.file, {
+      group: material.group,
+      slug: material.slug,
+      title: texToText(title),
+      subtitle:
+        texToText(/\\subtitle\{([^}]*)\}/.exec(result.source)?.[1] ?? '') ||
+        null,
+      html: result.html,
+    });
+    materialSources.set(material.file, result.source);
+  });
+
   if (failed > 0) {
     console.error(
       `${failed} file(s) failed; ${path.relative(ROOT, OUT_FILE)} was not updated.`,
@@ -635,7 +838,13 @@ async function build() {
   const output = {
     subjects: subjects.map(subject => ({
       dir: subject.dir,
-      topics: subject.topics,
+      topics: subject.topics.map(topic => ({
+        id: topic.id,
+        slug: topic.slug,
+        materials: topic.materials.map(material =>
+          materials.get(material.file),
+        ),
+      })),
       exams: subject.exams.map(exam => ({
         slug: exam.slug,
         exercises: exam.files.map(job => ({
@@ -655,11 +864,17 @@ async function build() {
     await fs.mkdir(path.dirname(OUT_FILE), { recursive: true });
     await fs.writeFile(OUT_FILE, json);
   }
-  const pdfsOk = await buildTestPdfs(subjects, converted, preambles, limit);
+  const pdfsOk = await buildPdfs(
+    [
+      ...testPdfJobs(subjects, converted, preambles),
+      ...materialPdfJobs(subjects, materialSources),
+    ],
+    limit,
+  );
 
   const solutions = jobs.filter(job => job.solutionFile).length;
   console.log(
-    `${jobs.length} exercises, ${solutions} solutions (${compiled} compiled, ${total - compiled} cached) → ${path.relative(ROOT, OUT_FILE)}`,
+    `${jobs.length} exercises, ${solutions} solutions, ${materialJobs.length} materials (${compiled} compiled, ${total - compiled} cached) → ${path.relative(ROOT, OUT_FILE)}`,
   );
   return pdfsOk;
 }

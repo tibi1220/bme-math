@@ -2,6 +2,7 @@ import generated from '@/generated/content.json';
 import { withBasePath } from '@/lib/base-path';
 import {
   exams as examNames,
+  materialGroups,
   subjects as subjectInfos,
   topicNames,
   variantTitle,
@@ -14,11 +15,28 @@ import { exerciseAnchor, exerciseId, type Exercise } from '@/lib/exercise';
 
 export { exerciseAnchor, exerciseId, type Exercise };
 
+// A document of a topic, converted from content/<subject>/topics/….
+export type Material = {
+  group: string;
+  slug: string;
+  title: string;
+  subtitle: string | null;
+  html: string;
+};
+
+export type MaterialGroup = {
+  slug: string;
+  name: string;
+  materials: Material[];
+};
+
 export type Topic = {
   id: string;
   slug: string;
   name: string;
   short: string;
+  materials: Material[];
+  groups: MaterialGroup[];
 };
 
 export type Test = {
@@ -47,7 +65,7 @@ export type Subject = SubjectInfo & {
 // never[].
 type GeneratedSubject = {
   dir: string;
-  topics: { id: string; slug: string }[];
+  topics: { id: string; slug: string; materials: Material[] }[];
   exams: { slug: string; exercises: Exercise[] }[];
 };
 
@@ -89,15 +107,39 @@ function groupTests(exercises: Exercise[]): Test[] {
   return [...tests.values()];
 }
 
+function groupMaterials(materials: Material[]): MaterialGroup[] {
+  const slugs = [...new Set(materials.map(material => material.group))];
+  return slugs.map(slug => {
+    const info = materialGroups[slug];
+    const rank = (material: Material) => {
+      const index = info?.order.indexOf(material.slug) ?? -1;
+      return index === -1 ? Number.MAX_SAFE_INTEGER : index;
+    };
+    return {
+      slug,
+      name: info?.name ?? slug,
+      materials: materials
+        .filter(material => material.group === slug)
+        .sort((a, b) => rank(a) - rank(b) || a.slug.localeCompare(b.slug)),
+    };
+  });
+}
+
 function buildSubject(
   info: SubjectInfo,
   data: GeneratedSubject | undefined,
 ): Subject {
-  const topics = (data?.topics ?? []).map(topic => ({
-    ...topic,
-    name: topicNames[topic.slug]?.name ?? topic.slug,
-    short: topicNames[topic.slug]?.short ?? topic.slug,
-  }));
+  const topics = (data?.topics ?? []).map(topic => {
+    const groups = groupMaterials(topic.materials);
+    return {
+      ...topic,
+      name: topicNames[topic.slug]?.name ?? topic.slug,
+      short: topicNames[topic.slug]?.short ?? topic.slug,
+      // In reading order, as on the topic page.
+      materials: groups.flatMap(group => group.materials),
+      groups,
+    };
+  });
   const exams = (data?.exams ?? []).map(exam => {
     const exercises = [...exam.exercises].sort(compareExercises);
     const names = examNames[exam.slug] ?? {
@@ -134,6 +176,30 @@ export function getExam(subject: Subject, slug: string) {
 export function getTest(exam: Exam, year: string, variantSlug: string) {
   return exam.tests.find(
     test => String(test.year) === year && test.info.slug === variantSlug,
+  );
+}
+
+// The page of a topic's materials, e.g. /analysis-a1/topics/complex-numbers.
+export function materialsHref(subject: Subject, topic: Topic) {
+  return `/${subject.slug}/topics/${topic.slug}`;
+}
+
+export function materialHref(
+  subject: Subject,
+  topic: Topic,
+  material: Material,
+) {
+  return `${materialsHref(subject, topic)}/${material.slug}`;
+}
+
+// The PDF written by the content pipeline (scripts/build-content.mjs).
+export function materialDownloadHref(
+  subject: Subject,
+  topic: Topic,
+  material: Material,
+) {
+  return withBasePath(
+    `/downloads/${subject.slug}/topics/${topic.slug}/${material.slug}.pdf`,
   );
 }
 

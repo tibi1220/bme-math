@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import { Breadcrumbs } from '@/components/breadcrumbs';
 import { LinkCard } from '@/components/link-card';
 import { PageHeader } from '@/components/page-header';
-import { examHref, getSubject, subjects } from '@/lib/content';
+import { examHref, getSubject, materialsHref, subjects } from '@/lib/content';
 import { pageMetadata } from '@/lib/metadata';
 
 export const dynamicParams = false;
@@ -67,10 +67,18 @@ export default async function SubjectPage({ params }: PageProps<'/[subject]'>) {
         <ul className='grid gap-3 sm:grid-cols-2'>
           {subject.topics.map(topic => (
             <li key={topic.slug}>
-              <LinkCard
-                title={topic.name}
-                description='Hamarosan'
-              />
+              {topic.materials.length > 0 ? (
+                <LinkCard
+                  href={materialsHref(subject, topic)}
+                  title={topic.name}
+                  description={`${topic.materials.length} segédanyag`}
+                />
+              ) : (
+                <LinkCard
+                  title={topic.name}
+                  description='Hamarosan'
+                />
+              )}
             </li>
           ))}
         </ul>

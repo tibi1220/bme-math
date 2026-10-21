@@ -1,0 +1,872 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[magyar]{babel}
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+\usepackage{tikz}
+\usepackage{pgfplots}
+
+\usetikzlibrary{arrows.meta}
+\pgfplotsset{compat=1.18}
+
+% Feliratméretek. A weboldalon (lwarp-pal konvertálva) az ábrák kicsinyítve
+% jelennek meg, ott nagyobb feliratok kellenek, mint a PDF-ben.
+\makeatletter
+\@ifpackageloaded{lwarp}{%
+	\newcommand{\figfont}{\Large}%
+	\newcommand{\figtickfont}{\Large}%
+}{%
+	\newcommand{\figfont}{\normalsize}%
+	\newcommand{\figtickfont}{\small}%
+}
+\makeatother
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.66em}
+
+\DeclareMathOperator{\arsinh}{arsinh}
+\DeclareMathOperator{\arcosh}{arcosh}
+\DeclareMathOperator{\artanh}{artanh}
+
+% Egy szín minden függvénynek, az összes ábrán (mint a trigonometrikus
+% függvényeknél).
+\definecolor{sincolor}{HTML}{1F77B4}
+\definecolor{coscolor}{HTML}{D62728}
+\definecolor{tancolor}{HTML}{2CA02C}
+\definecolor{arccolor}{HTML}{FF7F0E}
+\definecolor{invcolor}{HTML}{6A3D9A}
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definíció}
+\newtheorem{theorem}[definition]{Tétel}
+\newtheorem{example}[definition]{Példa}
+\theoremstyle{remark}
+\newtheorem*{remark}{Megjegyzés}
+
+% Közös stílus a függvénygrafikonokhoz.
+\pgfplotsset{
+	hyp/.style={
+			axis lines=middle,
+			axis line style={-{Stealth[scale=1.1]}, gray!70!black, line width=1pt},
+			xlabel={$x$},
+			ylabel={$y$},
+			xlabel style={anchor=west},
+			ylabel style={anchor=south},
+			tick style={gray!70!black},
+			ticklabel style={font=\figtickfont, fill=white, inner sep=1pt},
+			label style={font=\figfont},
+			% A tengelyek és a feliratok (fehér háttéren) a görbék fölött.
+			axis on top,
+			samples=200,
+			clip=false,
+		},
+}
+\tikzset{
+	% A TikZ alapértelmezésénél vastagabb vonalak: a weboldalon az ábrák
+	% kicsinyítve jelennek meg.
+	every picture/.append style={line width=0.9pt, font=\figfont},
+	% Ha egy görbe kifut az ábrából, ott nyílhegyben végződik; ha valóban
+	% véget ér, ott pontban (end dot).
+	tip/.tip={Stealth[length=8pt, width=7pt]},
+	continues/.style={tip-tip},
+	continues right/.style={-tip},
+	end dot/.style={only marks, mark=*, mark size=2.8pt},
+	graph/.style={line width=2.2pt, line cap=round},
+	faded/.style={line width=1.6pt, gray!55},
+	mirror/.style={densely dashed, line width=1pt, gray!75},
+}
+
+\title{Hiperbolikus függvények és inverzeik}
+\subtitle{Analízis A1 -- segédanyag}
+\author{Sándor Tibor}
+\date{}
+
+\begin{document}
+\maketitle
+
+A hiperbolikus függvények sok tekintetben a trigonometrikus függvények párjai:
+ami ott az egységkör, az itt az egységhiperbola. Ebben a jegyzetben az
+egységhiperbolából építjük fel a szinusz, a koszinusz és a tangens
+hiperbolikuszt, megmutatjuk, hogy az exponenciális függvénnyel is kifejezhetők,
+majd invertáljuk őket. A trigonometrikus függvényekkel ellentétben kettő
+közülük eleve kölcsönösen egyértelmű, így csak a koszinusz hiperbolikuszt kell
+leszűkíteni.
+
+\section{Az egységhiperbola}
+
+Az egységkör $x^2 + y^2 = 1$ egyenletének párja az \emph{egységhiperbola}:
+\[
+	x^2 - y^2 = 1\text.
+\]
+Két ága van, egy jobb oldali ($x \ge 1$) és egy bal oldali ($x \le -1$), az
+$y = x$ és az $y = -x$ egyenes pedig az aszimptotái. A továbbiakban csak a jobb
+oldali ággal dolgozunk.
+
+Az egységkörön az $\alpha$ szöget kétféleképpen is mérhetjük: $\alpha$ a
+kimetszett ív hossza, és $\frac{\alpha}{2}$ a hozzá tartozó körcikk területe.
+A hiperbolán az ívhossz nem vezet szép függvényekhez, a terület viszont igen,
+ezért ott a szektor területével mérünk.
+
+\begin{definition}
+	Induljunk el az $(1, 0)$ pontból, és haladjunk az egységhiperbola jobb
+	oldali ágán; ha $t > 0$, felfelé, ha $t < 0$, lefelé, egészen addig, amíg
+	az $O$ origó, az $(1, 0)$ pont és az aktuális pont által határolt
+	\emph{hiperbolikus szektor} területe $\frac{|t|}{2}$ nem lesz. Jelölje $P_t$
+	azt a pontot, ahová érkezünk; $P_0 = (1, 0)$. Ekkor
+	\[
+		\cosh t := P_t \text{ első koordinátája,} \qquad
+		\sinh t := P_t \text{ második koordinátája,}
+	\]
+	és
+	\[
+		\tanh t := \frac{\sinh t}{\cosh t}\text.
+	\]
+	Kiolvasva: koszinusz hiperbolikusz, szinusz hiperbolikusz és tangens
+	hiperbolikusz.
+\end{definition}
+
+A tangens hiperbolikusznak is van szemléletes jelentése, akárcsak a tangensnek
+az egységkörön: az $OP_t$ egyenes az $x = 1$ egyenest az $(1, \tanh t)$
+pontban metszi (\ref{fig:unit-hyperbola}.~ábra). Mivel ez az egyenes az
+$y = x$ aszimptotánál laposabb, $|\tanh t| < 1$.
+
+\begin{figure}[ht]
+	\centering
+	\begin{tikzpicture}[scale=1.6, line cap=round]
+		\def\T{1.4}
+		\coordinate (O) at (0, 0);
+		\coordinate (P) at ({cosh(\T)}, {sinh(\T)});
+		\coordinate (C) at ({cosh(\T)}, 0);
+
+		% A hiperbolikus szektor, területe t/2.
+		\fill[arccolor, opacity=0.3] (O) -- plot[domain=0:\T, samples=60]
+		({cosh(\x)}, {sinh(\x)}) -- cycle;
+
+		\draw[-{Stealth}, gray!70!black] (-2.7, 0) -- (3, 0) node[below] {$x$};
+		\draw[-{Stealth}, gray!70!black] (0, -2.5) -- (0, 2.6) node[left] {$y$};
+		\draw[mirror] (-2.4, -2.4) -- (2.4, 2.4) node[above] {$y = x$};
+		\draw[mirror] (-2.4, 2.4) -- (2.4, -2.4) node[below] {$y = -x$};
+		\draw[gray!65] (1, 0) -- (1, 1.2);
+
+		\draw[faded, continues] plot[domain=-1.6:1.6, samples=80]
+		({-cosh(\x)}, {sinh(\x)});
+		\draw[line width=1.8pt, continues] plot[domain=-1.6:1.6, samples=80]
+		({cosh(\x)}, {sinh(\x)});
+		\draw (O) -- (P);
+
+		\draw[line width=2.8pt, coscolor] (O) -- (C)
+		node[pos=0.27, below] {$\cosh t$};
+		\draw[line width=2.8pt, sincolor] (C) -- (P)
+		node[pos=0.4, right] {$\sinh t$};
+		\draw[line width=2.8pt, tancolor] (1, 0) -- (1, {tanh(\T)});
+		\node[tancolor, left] at (1, 0.2) {$\tanh t$};
+
+		\fill (P) circle (1.4pt) node[above left] {$P_t$};
+		\fill (1, 0) circle (1.4pt);
+		\node[below left] at (O) {$O$};
+	\end{tikzpicture}
+	\caption{Az egységhiperbola ($x^2 - y^2 = 1$). A narancssárga hiperbolikus
+		szektor területe $\frac{t}{2}$; a piros szakasz $\cosh t$, a kék
+		$\sinh t$, a zöld $\tanh t$. A bal oldali ág halvány.}
+	\label{fig:unit-hyperbola}
+\end{figure}
+
+\subsection{Alapvető összefüggések}
+
+A definícióból, a hiperbola tulajdonságai alapján:
+\begin{itemize}
+	\item $P_t$ rajta van az egységhiperbolán, így koordinátái kielégítik az
+	      egyenletét:
+	      \[
+		      \cosh^2 t - \sinh^2 t = 1 \qquad (t \in \mathbb{R})\text.
+	      \]
+	      Ez a trigonometrikus Pitagorasz-tétel ($\cos^2 t + \sin^2 t = 1$)
+	      párja, egyetlen előjelnyi különbséggel.
+	\item $P_t$ a jobb oldali ágon van, így $\cosh t \ge 1$; továbbá
+	      $\cosh 0 = 1$ és $\sinh 0 = 0$.
+	\item Az $x$ tengelyre tükrözve a $t$-hez tartozó szektorból a $-t$-hez
+	      tartozó lesz, így $P_{-t}$ a $P_t$ tükörképe:
+	      $\cosh(-t) = \cosh t$ és $\sinh(-t) = -\sinh t$. A koszinusz
+	      hiperbolikusz tehát páros, a szinusz és a tangens hiperbolikusz
+	      páratlan.
+\end{itemize}
+
+\section{Az exponenciális alak}
+
+A hiperbolikus függvények, a trigonometrikusakkal ellentétben, az
+exponenciális függvénnyel is egyszerűen kifejezhetők.
+
+\begin{theorem}
+	Minden $t \in \mathbb{R}$ esetén
+	\[
+		\cosh t = \frac{e^t + e^{-t}}{2}, \qquad
+		\sinh t = \frac{e^t - e^{-t}}{2}, \qquad
+		\tanh t = \frac{e^t - e^{-t}}{e^t + e^{-t}}\text.
+	\]
+\end{theorem}
+
+\begin{proof}
+	Ehhez integrálszámítás kell; aki még nem tanulta, a tételt egyelőre
+	bizonyítás nélkül is elfogadhatja.
+
+	Legyen $t > 0$ és $P_t = (x, y)$, ekkor $y = \sqrt{x^2 - 1} > 0$. A
+	hiperbolikus szektor az $O$, a $C = (x, 0)$ és a $P_t$ pont alkotta háromszög,
+	amelyből elhagyjuk a hiperbola alatti tartományt az $1$ és az $x$ között
+	(\ref{fig:sector-area}.~ábra). A háromszög területe $\frac{xy}{2}$, és
+	\[
+		\int_1^x \sqrt{u^2 - 1}\,\mathrm{d}u
+		= \left[\frac{u\sqrt{u^2 - 1} - \ln\left(u + \sqrt{u^2 - 1}\right)}{2}\right]_1^x
+		= \frac{xy - \ln(x + y)}{2}\text,
+	\]
+	amit a primitív függvény deriválásával ellenőrizhetünk. A szektor területe
+	tehát
+	\[
+		\frac{t}{2} = \frac{xy}{2} - \frac{xy - \ln(x + y)}{2}
+		= \frac{\ln(x + y)}{2}\text,
+		\qquad\text{vagyis}\qquad
+		x + y = e^t\text.
+	\]
+	Mivel $(x + y)(x - y) = x^2 - y^2 = 1$, ebből $x - y = e^{-t}$. A két
+	egyenlőséget összeadva, illetve kivonva
+	\[
+		x = \frac{e^t + e^{-t}}{2}, \qquad y = \frac{e^t - e^{-t}}{2}\text.
+	\]
+	Ha $t < 0$, akkor $P_t$ a $P_{-t}$ tükörképe az $x$ tengelyre, és a
+	képletek a páros, illetve páratlan alak miatt ekkor is teljesülnek; $t = 0$
+	esetén pedig mindkét oldalon $P_0 = (1, 0)$ áll. A tangens hiperbolikusz
+	alakja a hányadosból adódik.
+\end{proof}
+
+\begin{figure}[ht]
+	\centering
+	\begin{tikzpicture}[scale=1.6, line cap=round]
+		\def\T{1.2}
+		\coordinate (O) at (0, 0);
+		\coordinate (P) at ({cosh(\T)}, {sinh(\T)});
+		\coordinate (C) at ({cosh(\T)}, 0);
+
+		% The triangle OCP, without the region under the hyperbola.
+		\fill[arccolor, opacity=0.3] (O) -- plot[domain=0:\T, samples=60]
+		({cosh(\x)}, {sinh(\x)}) -- cycle;
+		\fill[gray!25] (1, 0) -- plot[domain=0:\T, samples=60]
+		({cosh(\x)}, {sinh(\x)}) -- (C) -- cycle;
+		\draw[dashed, gray!70!black] (O) -- (C) -- (P) -- cycle;
+
+		\draw[-{Stealth}, gray!70!black] (-0.4, 0) -- (2.6, 0) node[below] {$x$};
+		\draw[-{Stealth}, gray!70!black] (0, -0.4) -- (0, 2.1) node[left] {$y$};
+		\draw[line width=1.8pt, continues right] plot[domain=0:1.5, samples=60]
+		({cosh(\x)}, {sinh(\x)});
+		\draw (O) -- (P);
+
+		\fill (P) circle (1.4pt) node[above left] {$P_t$};
+		\fill (C) circle (1.4pt) node[below] {$C$};
+		\fill (1, 0) circle (1.4pt) node[below] {$1$};
+		\node[below left] at (O) {$O$};
+	\end{tikzpicture}
+	\caption{A hiperbolikus szektor (narancssárga) az $OCP_t$ háromszög,
+		amelyből elhagyjuk a hiperbola alatti szürke tartományt.}
+	\label{fig:sector-area}
+\end{figure}
+
+A koszinusz hiperbolikusz tehát az $\frac{e^t}{2}$ és az $\frac{e^{-t}}{2}$
+függvény összege, a szinusz hiperbolikusz a különbségük, és
+$\cosh t + \sinh t = e^t$ (\ref{fig:exponentials}.~ábra). Ha $t$ nagy,
+$e^{-t}$ elhanyagolható, így mindkettő közel van $\frac{e^t}{2}$-höz. A
+továbbiakban a függvények változóját a megszokott módon $x$-szel jelöljük.
+
+\begin{figure}[ht]
+	\centering
+	\begin{tikzpicture}
+		\begin{axis}[
+				hyp,
+				width=0.8\linewidth,
+				height=8.5cm,
+				xmin=-2.7, xmax=2.9,
+				ymin=-3.4, ymax=4.5,
+				xtick={-2, -1, 1, 2},
+				ytick={-3, -2, -1, 1, 2, 3, 4},
+			]
+			\addplot[mirror, continues, domain=-2.6:2.15] {exp(x) / 2}
+			node[pos=0.04, above] {$e^x/2$};
+			\addplot[mirror, continues, domain=-2.15:2.6] {exp(-x) / 2}
+			node[pos=0.96, above] {$e^{-x}/2$};
+			\addplot[graph, continues, coscolor, domain=-2.1:2.1] {cosh(x)}
+			node[pos=0.88, right] {$\cosh x$};
+			\addplot[graph, continues, sincolor, domain=-1.9:2.1] {sinh(x)}
+			node[pos=0.97, right] {$\sinh x$};
+			\addplot[end dot, coscolor] coordinates {(0, 1)};
+		\end{axis}
+	\end{tikzpicture}
+	\caption{A koszinusz hiperbolikusz (piros) az $\frac{e^x}{2}$ és az
+		$\frac{e^{-x}}{2}$ (szaggatott) összege, a szinusz hiperbolikusz (kék) a
+		különbségük.}
+	\label{fig:exponentials}
+\end{figure}
+
+\section{A szinusz hiperbolikusz és az area szinusz hiperbolikusz}
+
+\subsection{A szinusz hiperbolikusz}
+
+Ha $P_t$ végigfut a hiperbola jobb oldali ágán, második koordinátája
+$\sinh t$. Ezt $t$ függvényében ábrázolva a szinusz hiperbolikusz grafikonját
+kapjuk (\ref{fig:sinh-from-hyperbola}.~ábra), ahogyan az egységkörből a
+szinuszgörbét.
+
+\begin{figure}[ht]
+	\centering
+	\begin{tikzpicture}[scale=1.25, line cap=round]
+		\def\T{1.0}
+		\def\cx{-4.6}
+		% Egységhiperbola.
+		\begin{scope}[shift={(\cx, 0)}]
+			\fill[arccolor, opacity=0.3] (0, 0) -- plot[domain=0:\T, samples=60]
+			({cosh(\x)}, {sinh(\x)}) -- cycle;
+			\draw[-{Stealth}, gray!70!black] (-0.7, 0) -- (2.6, 0);
+			\draw[-{Stealth}, gray!70!black] (0, -2.4) -- (0, 2.5);
+			\draw[mirror] (-0.4, -0.4) -- (2.3, 2.3);
+			\draw[mirror] (-0.4, 0.4) -- (2.3, -2.3);
+			\draw[line width=1.8pt, continues] plot[domain=-1.5:1.5, samples=80]
+			({cosh(\x)}, {sinh(\x)});
+			\draw (0, 0) -- ({cosh(\T)}, {sinh(\T)});
+			\draw[line width=2.8pt, sincolor]
+			({cosh(\T)}, 0) -- ({cosh(\T)}, {sinh(\T)});
+			\fill ({cosh(\T)}, {sinh(\T)}) circle (1.9pt)
+			node[above left] {$P_t$};
+		\end{scope}
+		% Grafikon.
+		\draw[-{Stealth}, gray!70!black] (-1.9, 0) -- (2.1, 0) node[below] {$x$};
+		\draw[-{Stealth}, gray!70!black] (0, -2.4) -- (0, 2.5) node[left] {$y$};
+		\draw[graph, sincolor, continues]
+		plot[domain=-1.5:1.5, samples=100] (\x, {sinh(\x)});
+		\draw[line width=3.4pt, arccolor, opacity=0.8] (0, 0) -- (\T, 0);
+		\node[arccolor, below] at ({\T / 2}, 0) {$t$};
+		\draw[line width=2.8pt, sincolor] (\T, 0) -- (\T, {sinh(\T)});
+		\fill (\T, {sinh(\T)}) circle (1.9pt);
+		\draw[mirror] ({\cx + cosh(\T)}, {sinh(\T)}) -- (\T, {sinh(\T)});
+		\foreach \v in {-2, -1, 1, 2} {
+				\draw[gray!70!black] (0.06, \v) -- (-0.06, \v) node[left, font=\figtickfont] {$\v$};
+			}
+		\draw[gray!70!black] (1, 0.06) -- (1, -0.06);
+	\end{tikzpicture}
+	\caption{A szinusz hiperbolikusz az egységhiperbolából: a $P_t$ pont
+		magassága az $x = t$ helyen. A narancssárga szektor területe
+		$\frac{t}{2}$.}
+	\label{fig:sinh-from-hyperbola}
+\end{figure}
+
+Főbb tulajdonságai:
+\begin{itemize}
+	\item $D_{\sinh} = \mathbb{R}$ és $R_{\sinh} = \mathbb{R}$;
+	\item páratlan, és nem periodikus;
+	\item szigorúan monoton nő, hiszen $e^x$ nő, $e^{-x}$ pedig csökken;
+	\item egyetlen zérushelye van: $\sinh x = 0 \iff x = 0$.
+\end{itemize}
+
+\subsection{Bijektív, leszűkítés nélkül}
+
+A szinusszal ellentétben a szinusz hiperbolikusz szigorúan monoton, tehát
+injektív: minden vízszintes egyenes legfeljebb egy pontban metszi a
+grafikonját (\ref{fig:sinh}.~ábra). Mivel minden valós értéket fel is vesz,
+\[
+	\sinh\colon \mathbb{R} \to \mathbb{R}
+\]
+bijektív; semmit sem kell leszűkíteni.
+
+\begin{figure}[ht]
+	\centering
+	\begin{tikzpicture}
+		\begin{axis}[
+				hyp,
+				width=0.7\linewidth,
+				height=8cm,
+				xmin=-2.5, xmax=2.7,
+				ymin=-4.4, ymax=4.6,
+				xtick={-2, -1, 1, 2},
+				ytick={-4, -2, 2, 4},
+			]
+			\addplot[mirror, continues, domain=-2.4:2.4] {1.5}
+			node[pos=0, above right] {$y = 1{,}5$};
+			\addplot[graph, continues, sincolor, domain=-2.1:2.1] {sinh(x)}
+			node[pos=0.97, right] {$\sinh x$};
+			\addplot[end dot, black] coordinates {(1.195, 1.5)};
+		\end{axis}
+	\end{tikzpicture}
+	\caption{A szinusz hiperbolikusz szigorúan monoton nő: minden vízszintes
+		egyenes pontosan egy pontban metszi a grafikonját.}
+	\label{fig:sinh}
+\end{figure}
+
+\subsection{Az area szinusz hiperbolikusz}
+
+\begin{definition}
+	Az \emph{area szinusz hiperbolikusz} a szinusz hiperbolikusz inverze:
+	\[
+		\arsinh\colon \mathbb{R} \to \mathbb{R},
+		\qquad
+		\arsinh y = x \iff \sinh x = y\text.
+	\]
+\end{definition}
+
+Az \emph{area} (terület) név onnan ered, hogy $\arsinh y$ az a $t$, amelyre
+$\sinh t = y$, ez pedig a \ref{fig:unit-hyperbola}.~ábra szerint a hiperbolikus
+szektor területének kétszerese. Grafikonja a szinusz hiperbolikusz grafikonjának
+tükörképe az $y = x$ egyenesre (\ref{fig:arsinh}.~ábra). Tulajdonságai:
+\begin{itemize}
+	\item $D_{\arsinh} = R_{\arsinh} = \mathbb{R}$;
+	\item szigorúan monoton nő és páratlan.
+\end{itemize}
+
+\begin{figure}[ht]
+	\centering
+	\begin{tikzpicture}
+		\begin{axis}[
+				hyp,
+				width=0.78\linewidth,
+				axis equal image,
+				xmin=-3.4, xmax=3.4, ymin=-3.4, ymax=3.4,
+				xtick={-3, -2, -1, 1, 2, 3},
+				ytick={-3, -2, -1, 1, 2, 3},
+			]
+			\addplot[mirror, continues, domain=-3.3:3.3] {x}
+			node[pos=0.97, below right] {$y = x$};
+			\addplot[graph, continues, sincolor!75, domain=-1.87:1.87] {sinh(x)}
+			node[pos=0.97, left, sincolor] {$\sinh x$};
+			\addplot[graph, continues, invcolor, domain=-1.87:1.87]
+			({sinh(x)}, {x}) node[pos=0.97, below, invcolor] {$\arsinh x$};
+			\addplot[densely dotted, line width=1.3pt, gray!80!black] coordinates
+				{(1, 1.1752) (1.1752, 1)};
+			\addplot[end dot, sincolor!75] coordinates {(1, 1.1752)};
+			\addplot[end dot, invcolor] coordinates {(1.1752, 1)};
+		\end{axis}
+	\end{tikzpicture}
+	\caption{Az area szinusz hiperbolikusz grafikonja (lila) a szinusz
+		hiperbolikusz grafikonjának (halványkék) tükörképe az $y = x$
+		egyenesre.}
+	\label{fig:arsinh}
+\end{figure}
+
+\begin{theorem}
+	Minden $y \in \mathbb{R}$ esetén
+	\[
+		\arsinh y = \ln\left(y + \sqrt{y^2 + 1}\right)\text.
+	\]
+\end{theorem}
+
+\begin{proof}
+	Oldjuk meg a $\sinh x = y$ egyenletet $x$-re. Szorozzunk $2e^x$-szel:
+	\[
+		e^{2x} - 2y\,e^x - 1 = 0\text.
+	\]
+	Ez $e^x$-ben másodfokú, így
+	\[
+		e^x = y \pm \sqrt{y^2 + 1}\text.
+	\]
+	Mivel $\sqrt{y^2 + 1} > |y|$, a negatív előjelű gyök negatív, $e^x > 0$
+	pedig csak a pozitív lehet: $e^x = y + \sqrt{y^2 + 1}$, és mindkét oldal
+	logaritmusát véve kapjuk az állítást.
+\end{proof}
+
+\begin{example}
+	Mutassuk meg, hogy $\cosh(\arsinh y) = \sqrt{1 + y^2}$ minden
+	$y \in \mathbb{R}$ esetén!
+
+	Legyen $x = \arsinh y$, ekkor $\sinh x = y$. A $\cosh^2 x - \sinh^2 x = 1$
+	azonosságból és abból, hogy $\cosh x > 0$:
+	\[
+		\cosh(\arsinh y) = \cosh x = \sqrt{1 + \sinh^2 x} = \sqrt{1 + y^2}\text.
+	\]
+\end{example}
+
+\section{A koszinusz hiperbolikusz és az area koszinusz hiperbolikusz}
+
+\subsection{A koszinusz hiperbolikusz}
+
+A koszinusz hiperbolikusz $P_t$ első koordinátája. Ahogy a szinusz
+hiperbolikuszt a $P_t$ pont magasságából kaptuk, úgy a koszinusz
+hiperbolikusz az első koordinátájából adódik: most a $t$ paramétert lefelé
+mérjük fel, és minden $t$ helyen vízszintesen mérjük fel $\cosh t$-t
+(\ref{fig:cosh-from-hyperbola}.~ábra). Így a grafikont elforgatva látjuk: a
+függőleges tengely mentén lefelé nő $t$, és a görbe $1$-től indulva egyre
+gyorsabban távolodik.
+
+\begin{figure}[ht]
+	\centering
+	\begin{tikzpicture}[scale=1.25, line cap=round]
+		\def\T{1.0}
+		\def\gapx{3.4}
+		\def\gapy{1.6}
+		% Unit hyperbola; its lower half is cut short, to leave room below.
+		\fill[arccolor, opacity=0.3] (0, 0) -- plot[domain=0:\T, samples=60]
+		({cosh(\x)}, {sinh(\x)}) -- cycle;
+		\draw[-{Stealth}, gray!70!black] (-0.6, 0) -- (2.8, 0);
+		\draw[-{Stealth}, gray!70!black] (0, -0.9) -- (0, 2.6);
+		\draw[mirror] (-0.5, -0.5) -- (2.4, 2.4);
+		\draw[line width=1.8pt, continues]
+		plot[domain=-0.75:1.6, samples=80] ({cosh(\x)}, {sinh(\x)});
+		\draw (0, 0) -- ({cosh(\T)}, {sinh(\T)});
+		\draw[line width=2.8pt, coscolor] (0, 0) -- ({cosh(\T)}, 0);
+		\draw[line width=2.8pt, sincolor]
+		({cosh(\T)}, 0) -- ({cosh(\T)}, {sinh(\T)});
+		\fill ({cosh(\T)}, {sinh(\T)}) circle (1.9pt)
+		node[above left] {$P_t$};
+
+		% sinh, unrolled to the right: the height of P_t.
+		\begin{scope}[shift={(\gapx, 0)}]
+			\draw[-{Stealth}, gray!70!black] (-0.3, 0) -- (2.1, 0)
+			node[below] {$x$};
+			\draw[-{Stealth}, gray!70!black] (0, -0.9) -- (0, 2.6)
+			node[left] {$y$};
+			\draw[graph, sincolor, continues right]
+			plot[domain=0:1.6, samples=80] (\x, {sinh(\x)});
+			\draw[line width=3.4pt, arccolor, opacity=0.8] (0, 0) -- (\T, 0);
+			\node[arccolor, below] at ({\T / 2}, 0) {$t$};
+			\draw[line width=2.8pt, sincolor] (\T, 0) -- (\T, {sinh(\T)});
+			\fill (\T, {sinh(\T)}) circle (1.9pt);
+			\foreach \v in {1, 2} {
+					\draw[gray!70!black] (0.06, \v) -- (-0.06, \v)
+					node[left, font=\figtickfont] {$\v$};
+				}
+			\draw[gray!70!black] (1, 0.06) -- (1, -0.06);
+		\end{scope}
+		\draw[mirror] ({cosh(\T)}, {sinh(\T)}) -- ({\gapx + \T}, {sinh(\T)});
+
+		% cosh, unrolled downwards: the first coordinate of P_t.
+		\begin{scope}[shift={(0, -\gapy)}]
+			\draw[-{Stealth}, gray!70!black] (-0.6, 0) -- (2.9, 0)
+			node[right] {$y$};
+			\draw[-{Stealth}, gray!70!black] (0, 0.2) -- (0, -1.95)
+			node[left] {$x$};
+			\draw[graph, coscolor, continues right]
+			plot[domain=0:1.6, samples=80] ({cosh(\x)}, -\x);
+			\draw[line width=3.4pt, arccolor, opacity=0.8] (0, 0) -- (0, -\T);
+			\node[arccolor, left] at (0, {-\T / 2}) {$t$};
+			\draw[line width=2.8pt, coscolor] (0, -\T) -- ({cosh(\T)}, -\T);
+			\fill ({cosh(\T)}, -\T) circle (1.9pt);
+			\foreach \v in {1, 2} {
+					\draw[gray!70!black] (\v, -0.06) -- (\v, 0.06)
+					node[above, font=\figtickfont] {$\v$};
+				}
+			\draw[gray!70!black] (0.06, -1) -- (-0.06, -1)
+			node[left, font=\figtickfont, fill=white, inner sep=1pt] {$1$};
+		\end{scope}
+		\draw[mirror] ({cosh(\T)}, 0) -- ({cosh(\T)}, {-\gapy - \T});
+	\end{tikzpicture}
+	\caption{A szinusz és a koszinusz hiperbolikusz az egységhiperbolából. A
+		$P_t$ pont magassága (kék) jobbra, első koordinátája (piros) lefelé
+		kiterítve adja a két grafikont; a narancssárga szakaszok hossza $t$, a
+		narancssárga szektor területe $\frac{t}{2}$.}
+	\label{fig:cosh-from-hyperbola}
+\end{figure}
+
+Főbb tulajdonságai (\ref{fig:cosh}.~ábra):
+\begin{itemize}
+	\item $D_{\cosh} = \mathbb{R}$ és $R_{\cosh} = [1, \infty)$;
+	\item páros, grafikonja az $y$ tengelyre szimmetrikus;
+	\item a $(-\infty, 0]$ intervallumon szigorúan monoton csökken, a
+	      $[0, \infty)$ intervallumon szigorúan monoton nő; minimuma
+	      $\cosh 0 = 1$.
+\end{itemize}
+A grafikon alakja a \emph{láncgörbe}: így lóg két végén felfüggesztett lánc
+vagy kábel.
+
+\begin{figure}[ht]
+	\centering
+	\begin{tikzpicture}
+		\begin{axis}[
+				hyp,
+				width=0.7\linewidth,
+				height=7.5cm,
+				xmin=-2.5, xmax=2.7,
+				ymin=-0.7, ymax=4.6,
+				xtick={-2, -1, 1, 2},
+				ytick={1, 2, 3, 4},
+			]
+			\addplot[mirror, continues, domain=-2.4:2.4] {2}
+			node[pos=1, above left, black] {$y = 2$};
+			\addplot[graph, continues, coscolor, domain=-2.1:2.1] {cosh(x)}
+			node[pos=0.97, right] {$\cosh x$};
+			\addplot[end dot, black] coordinates {(-1.317, 2) (1.317, 2)};
+		\end{axis}
+	\end{tikzpicture}
+	\caption{A koszinusz hiperbolikusz nem injektív: az $y = 2$ egyenes két
+		pontban metszi a grafikonját.}
+	\label{fig:cosh}
+\end{figure}
+
+\subsection{Bijektívvé tétel}
+
+A koszinusz hiperbolikusz páros, ezért nem injektív: például
+$\cosh(-1) = \cosh 1$. A $[0, \infty)$ intervallumon viszont szigorúan monoton
+nő, és minden $[1, \infty)$-beli értéket pontosan egyszer vesz fel
+(\ref{fig:cosh-restriction}.~ábra). Ezért a
+\[
+	\cosh\colon [0, \infty) \to [1, \infty)
+\]
+leszűkítés bijektív. Ez a koszinusz $[0, \pi]$-re való leszűkítésének párja.
+
+\begin{figure}[ht]
+	\centering
+	\begin{tikzpicture}
+		\begin{axis}[
+				hyp,
+				width=0.7\linewidth,
+				height=7.5cm,
+				xmin=-2.5, xmax=2.7,
+				ymin=-0.7, ymax=4.6,
+				xtick={-2, -1, 1, 2},
+				ytick={1, 2, 3, 4},
+			]
+			\fill[coscolor, opacity=0.08] (0, -0.7) rectangle (2.5, 4.6);
+			\addplot[faded, tip-, domain=-2.1:0] {cosh(x)};
+			\addplot[graph, continues right, coscolor, line width=2.8pt,
+				domain=0:2.1] {cosh(x)};
+			\addplot[end dot, coscolor] coordinates {(0, 1)};
+		\end{axis}
+	\end{tikzpicture}
+	\caption{A koszinusz hiperbolikusz leszűkítése a $[0, \infty)$
+		intervallumra már szigorúan monoton.}
+	\label{fig:cosh-restriction}
+\end{figure}
+
+\subsection{Az area koszinusz hiperbolikusz}
+
+\begin{definition}
+	Az \emph{area koszinusz hiperbolikusz} a leszűkített koszinusz
+	hiperbolikusz inverze:
+	\[
+		\arcosh\colon [1, \infty) \to [0, \infty),
+		\qquad
+		\arcosh y = x \iff \cosh x = y \text{ és } x \ge 0\text.
+	\]
+\end{definition}
+
+Tulajdonságai (\ref{fig:arcosh}.~ábra):
+\begin{itemize}
+	\item $D_{\arcosh} = [1, \infty)$ és $R_{\arcosh} = [0, \infty)$;
+	\item szigorúan monoton nő, és $\arcosh 1 = 0$.
+\end{itemize}
+
+\begin{figure}[ht]
+	\centering
+	\begin{tikzpicture}
+		\begin{axis}[
+				hyp,
+				width=0.78\linewidth,
+				axis equal image,
+				xmin=-0.8, xmax=4.4, ymin=-0.8, ymax=4.4,
+				xtick={1, 2, 3, 4},
+				ytick={1, 2, 3, 4},
+			]
+			\addplot[mirror, continues, domain=-0.7:4.2] {x}
+			node[pos=0.97, below right] {$y = x$};
+			\addplot[graph, continues right, coscolor!75, domain=0:2.06]
+			{cosh(x)} node[pos=1, right, coscolor] {$\cosh x$};
+			\addplot[graph, continues right, invcolor, domain=0:2.06]
+			({cosh(x)}, {x}) node[pos=1, above, invcolor] {$\arcosh x$};
+			\addplot[end dot, coscolor!75] coordinates {(0, 1)};
+			\addplot[end dot, invcolor] coordinates {(1, 0)};
+			\addplot[densely dotted, line width=1.3pt, gray!80!black] coordinates
+				{(1.2, 1.8107) (1.8107, 1.2)};
+			\addplot[end dot, coscolor!75] coordinates {(1.2, 1.8107)};
+			\addplot[end dot, invcolor] coordinates {(1.8107, 1.2)};
+		\end{axis}
+	\end{tikzpicture}
+	\caption{Az area koszinusz hiperbolikusz grafikonja (lila) a leszűkített
+		koszinusz hiperbolikusz grafikonjának (halványpiros) tükörképe az
+		$y = x$ egyenesre.}
+	\label{fig:arcosh}
+\end{figure}
+
+\begin{theorem}
+	Minden $y \ge 1$ esetén
+	\[
+		\arcosh y = \ln\left(y + \sqrt{y^2 - 1}\right)\text.
+	\]
+\end{theorem}
+
+\begin{proof}
+	A $\cosh x = y$ egyenletet $2e^x$-szel szorozva
+	$e^{2x} - 2y\,e^x + 1 = 0$, így $e^x = y \pm \sqrt{y^2 - 1}$. Az
+	$x \ge 0$ feltétel miatt $e^x \ge 1$; a két gyök szorzata $1$, ezért ez a
+	nagyobbik, $e^x = y + \sqrt{y^2 - 1}$.
+\end{proof}
+
+\begin{remark}
+	A $\cosh(\arcosh y) = y$ egyenlőség minden $y \ge 1$ esetén igaz, az
+	$\arcosh(\cosh x)$ viszont nem mindig $x$: mivel az area koszinusz
+	hiperbolikusz nemnegatív értéket ad, és a koszinusz hiperbolikusz páros,
+	\[
+		\arcosh(\cosh x) = |x| \qquad (x \in \mathbb{R})\text.
+	\]
+\end{remark}
+
+\begin{example}
+	Számítsuk ki az $\arcosh(\cosh(-2))$ értéket!
+
+	A $-2$ nincs a $[0, \infty)$ intervallumban, így a válasz nem $-2$. Mivel
+	$\cosh(-2) = \cosh 2$ és $2 \ge 0$,
+	\[
+		\arcosh(\cosh(-2)) = \arcosh(\cosh 2) = 2\text.
+	\]
+\end{example}
+
+\section{A tangens hiperbolikusz és az area tangens hiperbolikusz}
+
+\subsection{A tangens hiperbolikusz}
+
+A tangens hiperbolikusz mindenütt értelmezve van, hiszen $\cosh x \ge 1 > 0$.
+Számlálót és nevezőt $e^x$-szel osztva
+\[
+	\tanh x = \frac{1 - e^{-2x}}{1 + e^{-2x}}\text,
+\]
+amiből látszik, hogy $x \to \infty$ esetén $\tanh x \to 1$, és a páratlanság
+miatt $x \to -\infty$ esetén $\tanh x \to -1$. A grafikonnak tehát vízszintes
+aszimptotái vannak (\ref{fig:tanh}.~ábra). Főbb tulajdonságai:
+\begin{itemize}
+	\item $D_{\tanh} = \mathbb{R}$ és $R_{\tanh} = (-1, 1)$;
+	\item páratlan, és nem periodikus;
+	\item szigorúan monoton nő;
+	\item egyetlen zérushelye van: $\tanh x = 0 \iff x = 0$.
+\end{itemize}
+
+\begin{figure}[ht]
+	\centering
+	\begin{tikzpicture}
+		\begin{axis}[
+				hyp,
+				width=\linewidth,
+				height=5.5cm,
+				xmin=-3.9, xmax=4.1,
+				ymin=-1.5, ymax=1.6,
+				xtick={-3, -2, -1, 1, 2, 3},
+				ytick={-1, 1},
+			]
+			\draw[mirror, tancolor!75] (-3.8, -1) -- (3.8, -1);
+			\draw[mirror, tancolor!75] (-3.8, 1) -- (3.8, 1);
+			\addplot[graph, continues, tancolor, domain=-3.7:3.7] {tanh(x)}
+			node[pos=0.97, above left] {$\tanh x$};
+		\end{axis}
+	\end{tikzpicture}
+	\caption{A tangens hiperbolikusz grafikonja. Az $y = \pm 1$ egyenesek
+		(szaggatott) vízszintes aszimptoták; a függvény szigorúan monoton nő.}
+	\label{fig:tanh}
+\end{figure}
+
+\subsection{Bijektív, leszűkítés nélkül}
+
+A tangens hiperbolikusz szigorúan monoton, tehát injektív, és a $(-1, 1)$
+intervallum minden értékét felveszi. A képhalmazt az értékkészletre szűkítve
+\[
+	\tanh\colon \mathbb{R} \to (-1, 1)
+\]
+bijektív; az értelmezési tartományt most sem kell leszűkíteni.
+
+\subsection{Az area tangens hiperbolikusz}
+
+\begin{definition}
+	Az \emph{area tangens hiperbolikusz} a tangens hiperbolikusz inverze:
+	\[
+		\artanh\colon (-1, 1) \to \mathbb{R},
+		\qquad
+		\artanh y = x \iff \tanh x = y\text.
+	\]
+\end{definition}
+
+A tükrözés során a tangens hiperbolikusz vízszintes aszimptotáiból az area
+tangens hiperbolikusz függőleges aszimptotái lesznek: az $y = \pm 1$
+egyenesekből az $x = \pm 1$ egyenesek (\ref{fig:artanh}.~ábra).
+Tulajdonságai:
+\begin{itemize}
+	\item $D_{\artanh} = (-1, 1)$ és $R_{\artanh} = \mathbb{R}$;
+	\item szigorúan monoton nő és páratlan;
+	\item $\displaystyle\lim_{y \to 1 - 0} \artanh y = \infty$ és
+	      $\displaystyle\lim_{y \to -1 + 0} \artanh y = -\infty$.
+\end{itemize}
+
+\begin{figure}[ht]
+	\centering
+	\begin{tikzpicture}
+		\begin{axis}[
+				hyp,
+				width=0.78\linewidth,
+				axis equal image,
+				xmin=-3.4, xmax=3.4, ymin=-3.4, ymax=3.4,
+				xtick={-3, -2, -1, 1, 2, 3},
+				ytick={-3, -2, -1, 1, 2, 3},
+			]
+			\addplot[mirror, continues, domain=-3.3:3.3] {x}
+			node[pos=0.97, below right] {$y = x$};
+			\draw[mirror, tancolor!75] (-3.3, -1) -- (3.3, -1);
+			\draw[mirror, tancolor!75] (-3.3, 1) -- (3.3, 1);
+			\draw[mirror, invcolor!75] (-1, -3.3) -- (-1, 3.3);
+			\draw[mirror, invcolor!75] (1, -3.3) -- (1, 3.3);
+			\addplot[graph, continues, tancolor!75, domain=-3.2:3.2] {tanh(x)}
+			node[pos=1, below left, tancolor] {$\tanh x$};
+			\addplot[graph, continues, invcolor, domain=-3.2:3.2]
+			({tanh(x)}, {x}) node[pos=1, right, invcolor] {$\artanh x$};
+		\end{axis}
+	\end{tikzpicture}
+	\caption{Az area tangens hiperbolikusz grafikonja (lila) a tangens
+		hiperbolikusz grafikonjának (halványzöld) tükörképe. A vízszintes
+		aszimptotákból függőlegesek lesznek.}
+	\label{fig:artanh}
+\end{figure}
+
+\begin{theorem}
+	Minden $y \in (-1, 1)$ esetén
+	\[
+		\artanh y = \frac{1}{2} \ln\frac{1 + y}{1 - y}\text.
+	\]
+\end{theorem}
+
+\begin{proof}
+	A $\tanh x = y$ egyenletben a számlálót és a nevezőt $e^x$-szel szorozva
+	\[
+		\frac{e^{2x} - 1}{e^{2x} + 1} = y
+		\iff e^{2x} - 1 = y\,e^{2x} + y
+		\iff e^{2x} = \frac{1 + y}{1 - y}\text,
+	\]
+	ahol $|y| < 1$ miatt a jobb oldal pozitív. Logaritmust véve és kettővel
+	osztva kapjuk az állítást.
+\end{proof}
+
+\section{Összefoglalás}
+
+\begin{center}
+	\renewcommand{\arraystretch}{1.7}
+	\begin{tabular}{@{}cc@{}}
+		\toprule
+		Bijektív leszűkítés                                 & Inverz \\
+		\midrule
+		$\sinh\colon \mathbb{R} \to \mathbb{R}$             &
+		$\arsinh\colon \mathbb{R} \to \mathbb{R}$                    \\
+		$\cosh\colon [0, \infty) \to [1, \infty)$           &
+		$\arcosh\colon [1, \infty) \to [0, \infty)$                  \\
+		$\tanh\colon \mathbb{R} \to (-1, 1)$                &
+		$\artanh\colon (-1, 1) \to \mathbb{R}$                       \\
+		\bottomrule
+	\end{tabular}
+\end{center}
+
+Az inverzek logaritmussal is kifejezhetők:
+\[
+	\arsinh y = \ln\left(y + \sqrt{y^2 + 1}\right), \qquad
+	\arcosh y = \ln\left(y + \sqrt{y^2 - 1}\right), \qquad
+	\artanh y = \frac{1}{2} \ln\frac{1 + y}{1 - y}\text.
+\]
+
+A trigonometrikus függvényekkel összevetve: ott mindhárom függvényt le
+kellett szűkíteni, mert periodikusak; itt csak a koszinusz hiperbolikuszt,
+mert páros. A szinusz és a tangens hiperbolikusz szigorúan monoton, így
+eleve injektív. A recept viszont ugyanaz:
+\begin{enumerate}
+	\item ha kell, olyan intervallumra szűkítünk, ahol a függvény szigorúan
+	      monoton (így injektív);
+	\item a képhalmazt az értékkészletre szűkítjük (így szürjektív);
+	\item a kapott bijekciót invertáljuk; az inverz grafikonja a függvény
+	      grafikonjának tükörképe az $y = x$ egyenesre.
+\end{enumerate}
+\end{document}

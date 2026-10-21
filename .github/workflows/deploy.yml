@@ -35,13 +35,15 @@ jobs:
           apt-get update && apt-get install -y --no-install-recommends
           poppler-utils
 
-      # Installs the pnpm version pinned in package.json (packageManager).
-      - uses: pnpm/action-setup@v4
-
+      # Node first: the TeX Live container has none, and installing pnpm runs
+      # a Node script. (setup-node's pnpm cache is left out, because it needs
+      # pnpm to exist already; installing the dependencies is quick anyway.)
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-          cache: pnpm
+
+      # Installs the pnpm version pinned in package.json (packageManager).
+      - uses: pnpm/action-setup@v4
 
       - run: pnpm install --frozen-lockfile
 

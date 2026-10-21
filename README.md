@@ -92,9 +92,17 @@ it up. Display names (subjects, exams, topics) and the variants are defined in
 Topic materials (notes with figures and worked examples) live in
 `topics/<NN-topic>/<group>/<name>.tex`, e.g.
 `topics/02-complex-numbers/trig-hyperbolic-functions/trig-functions.tex`. Each
-is a complete document with a `\title` (and optionally a `\subtitle`); no
-docstring is needed, and empty files are skipped. The site shows them on the
-topic's page, with a PDF download. Group names and the reading order of the
+is a complete document with a `\title` (and optionally a `\subtitle`); empty
+files are skipped. The site shows them on the topic's page, with a PDF download.
+An optional docstring turns on an interactive table of contents for longer
+documents:
+
+````latex
+% ---
+% toc: true
+% ---
+\documentclass[11pt]{scrartcl}
+``` Group names and the reading order of the
 documents are set in `materialGroups` in `src/lib/catalog.ts`. A figure can also
 get an animated web version: write a component, list it under the figure's
 `\label` in
@@ -114,7 +122,7 @@ Requirements:
 ```sh
 pnpm install
 pnpm dev        # http://localhost:3000
-```
+````
 
 `pnpm dev` compiles the content, starts Next.js and watches `content/`: save a
 `.tex` file and the page reloads with the new version.

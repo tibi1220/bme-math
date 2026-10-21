@@ -151,11 +151,11 @@ function documentBody(source) {
   return match[1].replace(/^\s*\n/, '').trimEnd();
 }
 
-function parseFrontMatter(source, file) {
+// The YAML docstring at the top of a .tex file (between two "% ---" lines),
+// or null if there is none.
+function readDocstring(source, file) {
   const lines = source.split('\n');
-  if (lines[0]?.trim() !== '% ---') {
-    throw new Error(`${file}: missing YAML docstring`);
-  }
+  if (lines[0]?.trim() !== '% ---') return null;
   const end = lines.findIndex((line, i) => i > 0 && line.trim() === '% ---');
   if (end === -1) throw new Error(`${file}: unterminated YAML docstring`);
 
@@ -163,7 +163,12 @@ function parseFrontMatter(source, file) {
     .slice(1, end)
     .map(line => line.replace(/^%\s?/, ''))
     .join('\n');
-  const data = YAML.parse(yaml) ?? {};
+  return YAML.parse(yaml) ?? {};
+}
+
+function parseFrontMatter(source, file) {
+  const data = readDocstring(source, file);
+  if (!data) throw new Error(`${file}: missing YAML docstring`);
 
   const topic = String(data.topic ?? '').padStart(2, '0');
   const points = Array.isArray(data.points) ? data.points.map(Number) : [];
@@ -390,6 +395,24 @@ function toFragment(lwarpHtml, kind, macros) {
   );
   const html = tidy(renderMath(fragment, macros));
   return kind === 'material' ? tidyMaterial(html) : html;
+}
+
+// The sections (level 1) and subsections (level 2) of a material, for the
+// table of contents on its page. lwarp sets them as <h4> and <h5>, with the
+// number in a span of its own; the title is kept as HTML, as it may contain
+// math.
+function tableOfContents(html) {
+  return [...html.matchAll(/<h([45]) id="([^"]+)">([\s\S]*?)<\/h\1>/g)].map(
+    ([, level, id, inner]) => {
+      const number = /<span class="sectionnumber">([^<]*)<\/span>/.exec(inner);
+      return {
+        id,
+        level: level === '4' ? 1 : 2,
+        number: number?.[1].trim() ?? '',
+        title: inner.replace(number?.[0] ?? '', '').trim(),
+      };
+    },
+  );
 }
 
 // Rewriting an unchanged file would still make next dev reload the page.
@@ -799,7 +822,8 @@ async function build() {
     }
   });
 
-  // Topic materials: the title comes from \title (and \subtitle).
+  // Topic materials: the title comes from \title (and \subtitle). The
+  // optional docstring may turn on the table of contents (toc: true).
   const materials = new Map();
   const materialSources = new Map();
   const materialJobs = subjects.flatMap(subject =>
@@ -824,6 +848,11 @@ async function build() {
         texToText(/\\subtitle\{([^}]*)\}/.exec(result.source)?.[1] ?? '') ||
         null,
       html: result.html,
+      toc:
+        readDocstring(result.source, path.relative(ROOT, material.file))
+          ?.toc === true
+          ? tableOfContents(result.html)
+          : null,
     });
     materialSources.set(material.file, result.source);
   });

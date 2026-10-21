@@ -15,6 +15,16 @@ import { exerciseAnchor, exerciseId, type Exercise } from '@/lib/exercise';
 
 export { exerciseAnchor, exerciseId, type Exercise };
 
+// A heading of a material for its table of contents: a section (level 1) or
+// a subsection (level 2). The title is HTML, as it may contain math.
+export type TocEntry = {
+  id: string;
+  // 1 or 2 (typed as a number, like everything read from the JSON).
+  level: number;
+  number: string;
+  title: string;
+};
+
 // A document of a topic, converted from content/<subject>/topics/….
 export type Material = {
   group: string;
@@ -22,6 +32,8 @@ export type Material = {
   title: string;
   subtitle: string | null;
   html: string;
+  // Only when the docstring of the document says toc: true.
+  toc: TocEntry[] | null;
 };
 
 export type MaterialGroup = {

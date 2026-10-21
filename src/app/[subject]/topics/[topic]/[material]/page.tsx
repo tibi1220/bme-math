@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { figureAnimations } from '@/components/animations';
 import { Breadcrumbs } from '@/components/breadcrumbs';
 import { PageHeader } from '@/components/page-header';
+import { TableOfContents } from '@/components/table-of-contents';
 import {
   getSubject,
   getTopic,
@@ -112,6 +113,7 @@ export default async function MaterialPage({ params }: { params: Params }) {
         />
         Letöltés PDF-ben
       </a>
+      {material.toc && <TableOfContents entries={material.toc} />}
       <article className={materialClasses}>
         {splitAnimatedFigures(material.html).map((part, i) => {
           if (part.kind === 'html') {

@@ -37,3 +37,13 @@
   font-size: calc(100% / 1.15);
   font-style: normal;
 }
+
+/*
+ * The floating table of contents button (below the xl breakpoint) would cover
+ * the footer's links at the very bottom of the page; leave room for it.
+ */
+@media (width < 80rem) {
+  body:has([data-floating-toc]) footer {
+    padding-bottom: 4.5rem;
+  }
+}

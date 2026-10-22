@@ -103,7 +103,11 @@ documents:
 % ---
 \documentclass[11pt]{scrartcl}
 ``` Group names and the reading order of the
-documents are set in `materialGroups` in `src/lib/catalog.ts`. A figure can also
+documents are set in `materialGroups` in `src/lib/catalog.ts`. In the dark theme the website inverts figures; one whose colours carry meaning
+(e.g. a heat map) can be wrapped in `\begin{BlockClass}{keep-colors}`, which
+keeps its colours on a light card (define
+`\newenvironment{BlockClass}[2][]{}{}` for the PDF, where lwarp is not loaded,
+as `connection.tex` does). A figure can also
 get an animated web version: write a component, list it under the figure's
 `\label` in
 [`src/components/animations/index.ts`](src/components/animations/index.ts) and

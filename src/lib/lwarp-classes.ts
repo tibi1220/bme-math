@@ -25,6 +25,10 @@ export const lwarpClasses = [
   // inversion) the lighter.
   '[&_.lateximage]:mix-blend-darken',
   'dark:[&_.lateximage]:invert dark:[&_.lateximage]:hue-rotate-180 dark:[&_.lateximage]:mix-blend-lighten',
+  // Figures whose colours carry meaning (heat maps, marked keep-colors in the
+  // .tex) are not inverted; in the dark theme they sit on a light card.
+  '[&_.keep-colors_.lateximage]:filter-none [&_.keep-colors_.lateximage]:mix-blend-normal',
+  'dark:[&_.keep-colors_.lateximage]:rounded-lg dark:[&_.keep-colors_.lateximage]:bg-white dark:[&_.keep-colors_.lateximage]:p-3',
 ].join(' ');
 
 // A whole document (a topic material): sections, theorem-like blocks, figures

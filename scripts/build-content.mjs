@@ -36,7 +36,7 @@ const DOWNLOADS_DIR = path.join(ROOT, 'public', 'downloads');
 
 // Bump these whenever the conversion below changes, to invalidate the cache:
 // one version for the exercises, one for the topic materials.
-const PIPELINE_VERSION = { exercise: '9', material: '12' };
+const PIPELINE_VERSION = { exercise: '9', material: '13' };
 
 const EXERCISE_FILE = /^(\d{4})-([a-z]+)-(\d+)\.tex$/;
 // The solution of 2025-a-1.tex lives next to it in 2025-a-1-sol.tex.
@@ -247,14 +247,54 @@ async function embedImages(html, dir, options) {
   if (sources.length === 0) return html;
 
   await run('lwarpmk', ['limages'], options);
-  const svgs = new Map();
+  const images = new Map();
   for (const src of new Set(sources)) {
-    svgs.set(src, await readFinishedSvg(path.join(dir, src)));
+    const svg = await readFinishedSvg(path.join(dir, src));
+    images.set(
+      src,
+      svg.includes('<feImage')
+        ? `data:image/png;base64,${(await rasterizeImage(dir, src, options)).toString('base64')}`
+        : `data:image/svg+xml;base64,${Buffer.from(svg).toString('base64')}`,
+    );
   }
-  return html.replace(LATEX_IMAGE, (_, src) => {
-    const data = Buffer.from(svgs.get(src)).toString('base64');
-    return `<img src="data:image/svg+xml;base64,${data}" alt="" class="lateximage">`;
-  });
+  return html.replace(
+    LATEX_IMAGE,
+    (_, src) => `<img src="${images.get(src)}" alt="" class="lateximage">`,
+  );
+}
+
+// pdftocairo writes smooth shadings (pgfplots' shader=interp: heat maps,
+// surfaces) as SVG filters whose feImage points at elements of the same file,
+// which most browsers do not draw inside an <img>. Such a picture is rendered
+// to a PNG instead, from its page of the lwarp PDF, cropped the same way as
+// lwarpmk crops it for the SVG.
+const RASTER_DPI = 220;
+
+async function rasterizeImage(dir, src, options) {
+  const name = path.basename(src, '.svg');
+  const list = await fs.readFile(path.join(dir, 'exercise-images.txt'), 'utf8');
+  const page = list
+    .split('\n')
+    .map(line => line.match(/^\|(.*)\|(.*)\|(.*)\|$/))
+    .find(match => match?.[3] === name)?.[1];
+  if (!page) throw new Error(`no page for ${name} in exercise-images.txt`);
+  const tmp = path.join(dir, `raster-${name}`);
+  await run(
+    'pdfseparate',
+    ['-f', page, '-l', page, 'exercise_html.pdf', `${tmp}.pdf`],
+    options,
+  );
+  await run(
+    'pdfcrop',
+    ['--hires', '--margins', '0 1 0 0', `${tmp}.pdf`, `${tmp}-crop.pdf`],
+    options,
+  );
+  await run(
+    'pdftocairo',
+    ['-png', '-singlefile', '-r', String(RASTER_DPI), `${tmp}-crop.pdf`, tmp],
+    options,
+  );
+  return await fs.readFile(`${tmp}.png`);
 }
 
 // lwarpmk limages runs pdftocairo in the background on Unix, so wait until
@@ -379,9 +419,10 @@ function tidyMaterial(html) {
           `<div class="theorem ${kind}">${body.replace('<span class="listmarker">', '<span class="theorem-label">')}</div>`,
       )
       // "3. ábra. …" follows the picture as loose text, or in a paragraph of
-      // its own (lwarp does that with longer captions).
+      // its own (lwarp does that with longer captions); the picture may be
+      // wrapped in a BlockClass <div>.
       .replace(
-        /(<figure[^>]*>[\s\S]*?<\/p>)\s*(?:<p>\s*)?(\d+\.&nbsp;ábra\.)([\s\S]*?)\s*(?:<\/p>\s*)?(?=<a id=|<\/div>)/g,
+        /(<figure[^>]*>[\s\S]*?<\/p>(?:\s*<\/div>)?)\s*(?:<p>\s*)?(\d+\.&nbsp;ábra\.)([\s\S]*?)\s*(?:<\/p>\s*)?(?=<a id=|<\/div>)/g,
         '$1<figcaption><span class="caption-label">$2</span>$3</figcaption>',
       )
       // The website justifies the materials; a space after a list marker

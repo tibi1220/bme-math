@@ -1,5 +1,5 @@
 % ---
-% toc: false
+% toc: true
 % ---
 \documentclass[11pt]{scrartcl}
 
@@ -14,6 +14,8 @@
 
 \usetikzlibrary{arrows.meta}
 \pgfplotsset{compat=1.18}
+\usepgfplotslibrary{groupplots}
+\usepackage{luacode}
 
 % Feliratméretek. A weboldalon (lwarp-pal konvertálva) az ábrák kicsinyítve
 % jelennek meg, ott nagyobb feliratok kellenek, mint a PDF-ben.
@@ -25,6 +27,10 @@
 	\newcommand{\figfont}{\normalsize}%
 	\newcommand{\figtickfont}{\small}%
 }
+% Figures with meaningful colours (heat maps) are wrapped in
+% \begin{BlockClass}{keep-colors}: the website does not invert them in the dark
+% theme. Without lwarp (in the PDF) the environment does nothing.
+\@ifpackageloaded{lwarp}{}{\newenvironment{BlockClass}[2][]{}{}}
 \makeatother
 
 \setlength{\parindent}{0pt}
@@ -41,6 +47,139 @@
 \definecolor{arccolor}{HTML}{FF7F0E}
 \definecolor{invcolor}{HTML}{6A3D9A}
 
+% The surfaces of the 3D figures. \complexpanel{sin}{re} starts the next plot
+% of a groupplot with the real part of sin z (parts: re, im, abs) and draws
+% its slice along the real axis (along the imaginary axis for the hyperbolic
+% functions) in red. A point of the slice is drawn only if the surface does
+% not hide it: the ray from it towards the viewer is followed, and if the
+% surface crosses the ray, the point is hidden (a depth test, as a GPU's
+% z-buffer does, but exact for the height field). pgfplots projects the axis
+% box as a unit cube, so the test runs in those normalised coordinates.
+\begin{luacode*}
+local VIEW_AZ, VIEW_EL = math.rad(25), math.rad(35)
+local LONG, SHORT = 2 * math.pi, 1.6
+
+local function sinh(t) return (math.exp(t) - math.exp(-t)) / 2 end
+local function cosh(t) return (math.exp(t) + math.exp(-t)) / 2 end
+
+-- f(x + iy) as its real and imaginary part.
+local functions = {
+  sin = function(x, y) return math.sin(x) * cosh(y), math.cos(x) * sinh(y) end,
+  cos = function(x, y) return math.cos(x) * cosh(y), -math.sin(x) * sinh(y) end,
+  tan = function(x, y)
+    local d = math.cos(2 * x) + cosh(2 * y)
+    return math.sin(2 * x) / d, sinh(2 * y) / d
+  end,
+  sinh = function(x, y) return sinh(x) * math.cos(y), cosh(x) * math.sin(y) end,
+  cosh = function(x, y) return cosh(x) * math.cos(y), sinh(x) * math.sin(y) end,
+  tanh = function(x, y)
+    local d = cosh(2 * x) + math.cos(2 * y)
+    return sinh(2 * x) / d, math.sin(2 * y) / d
+  end,
+}
+
+local titles = { re = "$\\Real \\%s z$", im = "$\\Imag \\%s z$", abs = "$|\\%s z|$" }
+
+local function fmt(x, y, z) return string.format("(%.4f,%.4f,%.4f)", x, y, z) end
+
+function complexpanel(name, part)
+  local hyperbolic = name:sub(-1) == "h"
+  -- The tangents are cut at 3, near their poles.
+  local cut = (name == "tan" or name == "tanh") and 3 or 2.6
+  local box = hyperbolic
+      and { xmin = -SHORT, xmax = SHORT, ymin = -LONG, ymax = LONG }
+      or { xmin = -LONG, xmax = LONG, ymin = -SHORT, ymax = SHORT }
+  box.zmin, box.zmax = part == "abs" and 0 or -cut, cut
+
+  local function value(x, y)
+    local re, im = functions[name](x, y)
+    if part == "re" then return re end
+    if part == "im" then return im end
+    return math.sqrt(re * re + im * im)
+  end
+  local function surface(x, y)
+    local z = value(x, y)
+    if z ~= z then return box.zmax end
+    return math.max(box.zmin, math.min(box.zmax, z))
+  end
+
+  local ztick = part == "abs" and (cut == 3 and "{0,1,2,3}" or "{0,1,2}")
+      or (cut == 3 and "{-3,0,3}" or "{-2,0,2}")
+  tex.sprint(string.format(
+    "\\nextgroupplot[%s, title={%s}, xmin=%f, xmax=%f, ymin=%f, ymax=%f, zmin=%f, zmax=%f, ztick=%s]",
+    hyperbolic and "hyperbolic surface" or "trig surface",
+    string.format(titles[part], name),
+    box.xmin, box.xmax, box.ymin, box.ymax, box.zmin, box.zmax, ztick))
+
+  -- The surface; 100 steps along the long side, so that no grid point falls
+  -- on a pole of a tangent.
+  local nx, ny = 101, 41
+  if hyperbolic then nx, ny = 41, 101 end
+  local points = {}
+  for j = 0, ny - 1 do
+    local y = box.ymin + (box.ymax - box.ymin) * j / (ny - 1)
+    for i = 0, nx - 1 do
+      local x = box.xmin + (box.xmax - box.xmin) * i / (nx - 1)
+      points[#points + 1] = fmt(x, y, surface(x, y))
+    end
+  end
+  tex.sprint(string.format(
+    "\\addplot3[surf, shader=interp, mesh/cols=%d] coordinates {%s};",
+    nx, table.concat(points, " ")))
+
+  -- The depth test, in the unit cube of the axis box.
+  local view = {
+    math.sin(VIEW_AZ) * math.cos(VIEW_EL),
+    -math.cos(VIEW_AZ) * math.cos(VIEW_EL),
+    math.sin(VIEW_EL),
+  }
+  -- The point lies on the surface, so the ray starts on one side of it (above
+  -- it, or below it where we see the surface from underneath); the point is
+  -- hidden if the ray crosses the surface later.
+  local function hidden(x, y, z)
+    local u = (x - box.xmin) / (box.xmax - box.xmin)
+    local v = (y - box.ymin) / (box.ymax - box.ymin)
+    local w = (z - box.zmin) / (box.zmax - box.zmin)
+    local side
+    for t = 0.002, 2, 0.002 do
+      local tu, tv, tw = u + t * view[1], v + t * view[2], w + t * view[3]
+      if tu < 0 or tu > 1 or tv < 0 or tv > 1 then return false end
+      local sz = surface(box.xmin + tu * (box.xmax - box.xmin),
+        box.ymin + tv * (box.ymax - box.ymin))
+      local gap = (sz - box.zmin) / (box.zmax - box.zmin) - tw
+      if side == nil then
+        side = gap > 0 and 1 or -1
+      elseif gap * side < -1e-4 then
+        return true
+      end
+    end
+    return false
+  end
+
+  -- The slice, split into its visible runs; it also breaks where it leaves
+  -- the box (at the poles of the tangents).
+  local runs, run = {}, {}
+  local n = 401
+  for k = 0, n - 1 do
+    local t = -LONG + 2 * LONG * k / (n - 1)
+    local x, y = t, 0
+    if hyperbolic then x, y = 0, t end
+    local z = value(x, y)
+    if z ~= z or z < box.zmin or z > box.zmax or hidden(x, y, z) then
+      if #run > 1 then runs[#runs + 1] = run end
+      run = {}
+    else
+      run[#run + 1] = fmt(x, y, z)
+    end
+  end
+  if #run > 1 then runs[#runs + 1] = run end
+  for _, r in ipairs(runs) do
+    tex.sprint("\\addplot3[axis curve] coordinates {" .. table.concat(r, " ") .. "};")
+  end
+end
+\end{luacode*}
+\newcommand{\complexpanel}[2]{\directlua{complexpanel("#1", "#2")}}
+
 \theoremstyle{definition}
 \newtheorem{definition}{Definíció}
 \newtheorem{theorem}[definition]{Tétel}
@@ -50,6 +189,84 @@
 
 % Közös stílus a függvénygrafikonokhoz.
 \pgfplotsset{
+	% |f(z)| over the complex plane, as a heat map seen from above.
+	modulus/.style={
+			view={0}{90},
+			width=0.42\linewidth,
+			height=0.42\linewidth,
+			xmin=-6.2832, xmax=6.2832, ymin=-6.2832, ymax=6.2832,
+			domain=-6.2832:6.2832,
+			y domain=-6.2832:6.2832,
+			% 60 steps: no grid point falls on a pole of tan or tanh.
+			samples=61,
+			enlargelimits=false,
+			axis on top,
+			trig format plots=rad,
+			colormap/viridis,
+			% A logarithmic colour scale: the plots show ln(1 + |f(z)|), so that
+			% both the zeros and the fast growth are visible; the colour bar is
+			% labelled with |f(z)|.
+			point meta min=0,
+			point meta max=5.5947,
+			xtick={-6.2832, -3.1416, 0, 3.1416, 6.2832},
+			xticklabels={$-2\pi$, $-\pi$, $0$, $\pi$, $2\pi$},
+			ytick={-6.2832, -3.1416, 0, 3.1416, 6.2832},
+			yticklabels={$-2\pi$, $-\pi$, $0$, $\pi$, $2\pi$},
+			xlabel={$\Real z$},
+			ylabel={$\Imag z$},
+			ticklabel style={font=\figtickfont},
+			label style={font=\figfont},
+			title style={font=\figfont},
+		},
+	% A part of f(z) as a surface over a strip of the complex plane; the
+	% surfaces are computed by \complexpanel below. The view must match
+	% VIEW_AZ and VIEW_EL there.
+	surface/.style={
+			width=0.5\linewidth,
+			height=0.39\linewidth,
+			view={25}{35},
+			z buffer=sort,
+			colormap/viridis,
+			ticklabel style={font=\figtickfont},
+			label style={font=\figfont},
+			title style={font=\figfont},
+			xlabel={$\Real z$},
+			ylabel={$\Imag z$},
+		},
+	trig surface/.style={
+			xtick={-6.2832, -3.1416, 0, 3.1416, 6.2832},
+			xticklabels={$-2\pi$, $-\pi$, $0$, $\pi$, $2\pi$},
+			ytick={-1, 0, 1},
+		},
+	hyperbolic surface/.style={
+			xtick={-1, 0, 1},
+			ytick={-6.2832, -3.1416, 0, 3.1416, 6.2832},
+			yticklabels={$-2\pi$, $-\pi$, $0$, $\pi$, $2\pi$},
+		},
+	% The slice of a surface along the real axis (trigonometric) or the
+	% imaginary axis (hyperbolic).
+	axis curve/.style={red!85!black, line width=1.6pt},
+	zeros/.style={only marks, mark=*, mark size=2.2pt, white,
+			mark options={draw=black, line width=0.6pt}},
+	poles/.style={only marks, mark=diamond*, mark size=3.2pt, black,
+			mark options={draw=white, line width=0.6pt}},
+	modulus colorbar/.style={
+			colorbar,
+			colorbar style={
+					ytick={0, 1.0986, 2.3979, 3.9318, 5.5255},
+					yticklabels={$0$, $2$, $10$, $50$, $250$},
+					yticklabel style={font=\figtickfont},
+				},
+		},
+	% The tangents stay near 1 away from their poles, so they get a finer
+	% scale of their own, up to 10.
+	tangent scale/.style={
+			point meta max=2.3979,
+			colorbar style={
+					ytick={0, 0.6931, 1.0986, 1.6094, 2.3979},
+					yticklabels={$0$, $1$, $2$, $4$, $10$},
+				},
+		},
 	functionplot/.style={
 			axis lines=middle,
 			axis line style={-{Stealth[scale=1.1]}, gray!70!black, line width=1pt},
@@ -290,7 +507,7 @@ mint valós számokra.
 	\[
 		\begin{aligned}
 			\cosh(x + y) & = \cos(ix + iy)
-			= \cos(ix) \cos(iy) - \sin(ix) \sin(iy)                       \\
+			= \cos(ix) \cos(iy) - \sin(ix) \sin(iy)                         \\
 			             & = \cosh x \cosh y - (i \sinh x)(i \sinh y)\text,
 		\end{aligned}
 	\]
@@ -301,7 +518,7 @@ mint valós számokra.
 	Hasonlóan, $\sinh(x + y) = -i \sin(ix + iy)$ miatt
 	\[
 		\begin{aligned}
-			\sinh(x + y) & = -i \bigl(\sin(ix) \cos(iy) + \cos(ix) \sin(iy)\bigr) \\
+			\sinh(x + y) & = -i \bigl(\sin(ix) \cos(iy) + \cos(ix) \sin(iy)\bigr)       \\
 			             & = -i \bigl(i \sinh x \cosh y + i \cosh x \sinh y\bigr)\text,
 		\end{aligned}
 	\]
@@ -319,20 +536,20 @@ előjelet váltott a tag. Ez az \emph{Osborn-szabály}:
 	\renewcommand{\arraystretch}{1.7}
 	\begin{tabular}{@{}ll@{}}
 		\toprule
-		Trigonometrikus                                    & Hiperbolikus \\
+		Trigonometrikus                               & Hiperbolikus \\
 		\midrule
-		$\cos^2 x + \sin^2 x = 1$                          &
-		$\cosh^2 x - \sinh^2 x = 1$                                       \\
-		$\sin 2x = 2 \sin x \cos x$                        &
-		$\sinh 2x = 2 \sinh x \cosh x$                                    \\
-		$\cos 2x = \cos^2 x - \sin^2 x$                    &
-		$\cosh 2x = \cosh^2 x + \sinh^2 x$                                \\
-		$\sin(x + y) = \sin x \cos y + \cos x \sin y$      &
-		$\sinh(x + y) = \sinh x \cosh y + \cosh x \sinh y$                \\
-		$\cos(x + y) = \cos x \cos y - \sin x \sin y$      &
-		$\cosh(x + y) = \cosh x \cosh y + \sinh x \sinh y$                \\
-		$1 + \tan^2 x = 1/\cos^2 x$               &
-		$1 - \tanh^2 x = 1/\cosh^2 x$                            \\
+		$\cos^2 x + \sin^2 x = 1$                     &
+		$\cosh^2 x - \sinh^2 x = 1$                                  \\
+		$\sin 2x = 2 \sin x \cos x$                   &
+		$\sinh 2x = 2 \sinh x \cosh x$                               \\
+		$\cos 2x = \cos^2 x - \sin^2 x$               &
+		$\cosh 2x = \cosh^2 x + \sinh^2 x$                           \\
+		$\sin(x + y) = \sin x \cos y + \cos x \sin y$ &
+		$\sinh(x + y) = \sinh x \cosh y + \cosh x \sinh y$           \\
+		$\cos(x + y) = \cos x \cos y - \sin x \sin y$ &
+		$\cosh(x + y) = \cosh x \cosh y + \sinh x \sinh y$           \\
+		$1 + \tan^2 x = \dfrac{1}{\cos^2 x}$                   &
+		$1 - \tanh^2 x = \dfrac{1}{\cosh^2 x}$                                \\
 		\bottomrule
 	\end{tabular}
 \end{center}
@@ -401,27 +618,250 @@ is kiszámolható.
 	$z = k\pi$ $(k \in \mathbb{Z})$ számok.
 \end{example}
 
+\section{A komplex függvények ábrázolása}
+
+Egy $f\colon \mathbb{C} \to \mathbb{C}$ függvény grafikonja négydimenziós
+volna: két dimenzió kell a változónak és kettő az értéknek, így közvetlenül
+nem rajzolható le. Szemléletes megoldás, ha a komplex sík minden $z$ pontját
+az $|f(z)|$ abszolút érték szerint színezzük, vagy $|f(z)|$-t felületként a
+sík fölé rajzoljuk. Az abszolút értékek az előző fejezet tételéből
+kiszámolhatók.
+
+\begin{theorem}
+	Minden $x, y \in \mathbb{R}$ esetén
+	\[
+		|\sin(x + iy)|^2 = \sin^2 x + \sinh^2 y, \qquad
+		|\cos(x + iy)|^2 = \cos^2 x + \sinh^2 y,
+	\]
+	\[
+		|\sinh(x + iy)|^2 = \sinh^2 x + \sin^2 y, \qquad
+		|\cosh(x + iy)|^2 = \sinh^2 x + \cos^2 y\text,
+	\]
+	és ahol a nevező nem nulla,
+	\[
+		|\tan(x + iy)|^2 = \frac{\sin^2 x + \sinh^2 y}{\cos^2 x + \sinh^2 y},
+		\qquad
+		|\tanh(x + iy)|^2 = \frac{\sinh^2 x + \sin^2 y}{\sinh^2 x + \cos^2 y}\text.
+	\]
+\end{theorem}
+
+\begin{proof}
+	Az előző tétel szerint a valós és a képzetes rész négyzetösszege
+	\[
+		\begin{aligned}
+			|\sin(x + iy)|^2 & = \sin^2 x \cosh^2 y + \cos^2 x \sinh^2 y
+			= \sin^2 x \left(1 + \sinh^2 y\right) + \cos^2 x \sinh^2 y \\
+			                 & = \sin^2 x + \sinh^2 y\text,
+		\end{aligned}
+	\]
+	és ugyanígy $|\cos(x + iy)|^2 = \cos^2 x + \sinh^2 y$. A hiperbolikus
+	függvényekre $\sinh z = -i \sin(iz)$ és $\cosh z = \cos(iz)$, ahol
+	$i(x + iy) = -y + ix$, így
+	\[
+		|\sinh(x + iy)| = |\sin(-y + ix)|, \qquad
+		|\cosh(x + iy)| = |\cos(-y + ix)|\text,
+	\]
+	és ezekre az előző két képlet adja az állítást. A tangensek abszolút
+	értéke pedig a számláló és a nevező abszolút értékének hányadosa.
+\end{proof}
+
+\begin{figure}[ht]
+	\centering
+	\begin{BlockClass}{keep-colors}
+	\begin{tikzpicture}
+		\begin{groupplot}[
+				modulus,
+				group style={
+						group size=2 by 3,
+						horizontal sep=1.8cm,
+						vertical sep=2.2cm,
+					},
+			]
+			\nextgroupplot[title={$|\sin z|$}]
+			\addplot3[surf, shader=interp] {ln(1 + sqrt(sin(x)^2 + sinh(y)^2))};
+			\addplot3[zeros] coordinates {(-2*pi, 0, 0) (-pi, 0, 0) (0, 0, 0)
+					(pi, 0, 0) (2*pi, 0, 0)};
+			\nextgroupplot[title={$|\sinh z|$}, modulus colorbar]
+			\addplot3[surf, shader=interp] {ln(1 + sqrt(sinh(x)^2 + sin(y)^2))};
+			\addplot3[zeros] coordinates {(0, -2*pi, 0) (0, -pi, 0) (0, 0, 0)
+					(0, pi, 0) (0, 2*pi, 0)};
+			\nextgroupplot[title={$|\cos z|$}]
+			\addplot3[surf, shader=interp] {ln(1 + sqrt(cos(x)^2 + sinh(y)^2))};
+			\addplot3[zeros] coordinates {(-3*pi/2, 0, 0) (-pi/2, 0, 0)
+					(pi/2, 0, 0) (3*pi/2, 0, 0)};
+			\nextgroupplot[title={$|\cosh z|$}, modulus colorbar]
+			\addplot3[surf, shader=interp] {ln(1 + sqrt(sinh(x)^2 + cos(y)^2))};
+			\addplot3[zeros] coordinates {(0, -3*pi/2, 0) (0, -pi/2, 0)
+					(0, pi/2, 0) (0, 3*pi/2, 0)};
+			\nextgroupplot[title={$|\tan z|$}, tangent scale]
+			\addplot3[surf, shader=interp]
+			{ln(1 + sqrt((sin(x)^2 + sinh(y)^2)/(cos(x)^2 + sinh(y)^2)))};
+			\addplot3[zeros] coordinates {(-2*pi, 0, 0) (-pi, 0, 0) (0, 0, 0)
+					(pi, 0, 0) (2*pi, 0, 0)};
+			\addplot3[poles] coordinates {(-3*pi/2, 0, 0) (-pi/2, 0, 0)
+					(pi/2, 0, 0) (3*pi/2, 0, 0)};
+			\nextgroupplot[title={$|\tanh z|$}, modulus colorbar, tangent scale]
+			\addplot3[surf, shader=interp]
+			{ln(1 + sqrt((sinh(x)^2 + sin(y)^2)/(sinh(x)^2 + cos(y)^2)))};
+			\addplot3[zeros] coordinates {(0, -2*pi, 0) (0, -pi, 0) (0, 0, 0)
+					(0, pi, 0) (0, 2*pi, 0)};
+			\addplot3[poles] coordinates {(0, -3*pi/2, 0) (0, -pi/2, 0)
+					(0, pi/2, 0) (0, 3*pi/2, 0)};
+		\end{groupplot}
+	\end{tikzpicture}
+	\end{BlockClass}
+	\caption{A hat függvény abszolút értéke a komplex síkon, logaritmikus
+		színskálán (sötét: kicsi, világos: nagy). A fehér pontok a
+		zérushelyek, a fekete rombuszok a tangensek pólusai (ahol a nevező
+		nulla). Az alsó sor színskálája finomabb, mert a tangensek a
+		pólusaiktól távol $1$ közelében maradnak. A hiperbolikus függvények képe (jobbra) a
+		trigonometrikusaké (balra) $90^\circ$-kal elforgatva.}
+	\label{fig:moduli}
+\end{figure}
+
+Az abszolút érték mellett a valós és a képzetes rész is felületként
+ábrázolható (\ref{fig:sine-surfaces}--\ref{fig:tangent-surfaces}.~ábra). A
+trigonometrikus függvényekét az előző fejezet tétele adja, a hiperbolikusakét
+pedig ugyanígy az addíciós tételek:
+\[
+	\sinh(x + iy) = \sinh x \cos y + i \cosh x \sin y, \qquad
+	\cosh(x + iy) = \cosh x \cos y + i \sinh x \sin y\text.
+\]
+A tangensekre a tört bővítésével (a számlálót és a nevezőt is
+$\cos(x - iy)$-vel, illetve $\cosh(x - iy)$-vel szorozva)
+\[
+	\tan(x + iy) = \frac{\sin 2x + i \sinh 2y}{\cos 2x + \cosh 2y}, \qquad
+	\tanh(x + iy) = \frac{\sinh 2x + i \sin 2y}{\cosh 2x + \cos 2y}\text.
+\]
+
+\begin{figure}[p]
+	\centering
+	\begin{BlockClass}{keep-colors}
+	\begin{tikzpicture}
+		\begin{groupplot}[
+				surface,
+				group style={
+						group size=2 by 3,
+						horizontal sep=1.2cm,
+						vertical sep=2.1cm,
+					},
+			]
+			\complexpanel{sin}{re}\complexpanel{sinh}{re}
+			\complexpanel{sin}{im}\complexpanel{sinh}{im}
+			\complexpanel{sin}{abs}\complexpanel{sinh}{abs}
+		\end{groupplot}
+	\end{tikzpicture}
+	\end{BlockClass}
+	\caption{A $\sin z$ (balra) és a $\sinh z$ (jobbra) valós része, képzetes
+		része és abszolút értéke. A piros görbe a felület metszete a valós, illetve a képzetes tengely
+		fölött; ahol a felület eltakarja, ott nem látszik. A valós tengelyen
+		$\sin x$ valós, a képzetes tengelyen $\sinh(iy) = i \sin y$ tisztán
+		képzetes.}
+	\label{fig:sine-surfaces}
+\end{figure}
+
+\begin{figure}[p]
+	\centering
+	\begin{BlockClass}{keep-colors}
+	\begin{tikzpicture}
+		\begin{groupplot}[
+				surface,
+				group style={
+						group size=2 by 3,
+						horizontal sep=1.2cm,
+						vertical sep=2.1cm,
+					},
+			]
+			\complexpanel{cos}{re}\complexpanel{cosh}{re}
+			\complexpanel{cos}{im}\complexpanel{cosh}{im}
+			\complexpanel{cos}{abs}\complexpanel{cosh}{abs}
+		\end{groupplot}
+	\end{tikzpicture}
+	\end{BlockClass}
+	\caption{A $\cos z$ (balra) és a $\cosh z$ (jobbra) valós része, képzetes
+		része és abszolút értéke. A piros görbe a felület metszete a valós, illetve a képzetes tengely
+		fölött; ahol a felület eltakarja, ott nem látszik. Mindkét metszet valós:
+		$\cos x$, illetve $\cosh(iy) = \cos y$.}
+	\label{fig:cosine-surfaces}
+\end{figure}
+
+\begin{figure}[p]
+	\centering
+	\begin{BlockClass}{keep-colors}
+	\begin{tikzpicture}
+		\begin{groupplot}[
+				surface,
+				group style={
+						group size=2 by 3,
+						horizontal sep=1.2cm,
+						vertical sep=2.1cm,
+					},
+			]
+			\complexpanel{tan}{re}\complexpanel{tanh}{re}
+			\complexpanel{tan}{im}\complexpanel{tanh}{im}
+			\complexpanel{tan}{abs}\complexpanel{tanh}{abs}
+		\end{groupplot}
+	\end{tikzpicture}
+	\end{BlockClass}
+	\caption{A $\tan z$ (balra) és a $\tanh z$ (jobbra) valós része, képzetes
+		része és abszolút értéke, a pólusok közelében $\pm 3$-nál
+		levágva. A piros görbe a felület metszete a valós, illetve a képzetes tengely
+		fölött; ahol a felület eltakarja, ott nem látszik. A valós tengelyen $\tan x$ valós, a
+		képzetes tengelyen $\tanh(iy) = i \tan y$ tisztán képzetes.}
+	\label{fig:tangent-surfaces}
+\end{figure}
+
+Az ábrák (\ref{fig:moduli}--\ref{fig:tangent-surfaces}.~ábra) és a tétel
+képletei alapján a hat függvény összevetése:
+\begin{itemize}
+	\item \emph{Zérushelyek.} A $\sin z$ zérushelyei a $k\pi$, a $\cos z$-éi a
+	      $\pi/2 + k\pi$ valós számok; a $\sinh z$ zérushelyei a $k\pi i$, a
+	      $\cosh z$-éi a $(\pi/2 + k\pi)i$ tisztán képzetes számok
+	      $(k \in \mathbb{Z})$. A tangensnek a szinusszal közösek a
+	      zérushelyei, és a koszinusz zérushelyein pólusa van; a tangens
+	      hiperbolikusz ugyanígy a szinusz és a koszinusz hiperbolikuszból.
+	\item \emph{Periodicitás.} A szinusz és a koszinusz a valós tengely
+	      irányában periodikus: $\sin(z + 2\pi) = \sin z$. A hiperbolikus
+	      függvények a képzetes irányban: $\sinh(z + 2\pi i) = \sinh z$, mert
+	      $e^{z + 2\pi i} = e^z$. A tangensek periódusa ennek fele: $\pi$,
+	      illetve $\pi i$.
+	\item \emph{Növekedés.} A szinusz és a koszinusz a valós tengely mentén
+	      korlátos, a képzetes irányban viszont $\frac{1}{2}e^{|y|}$-hez
+	      hasonlóan nő; a hiperbolikus függvényeknél éppen fordítva. A
+	      tangensek ezzel szemben korlátosak a pólusaiktól távol: a tétel
+	      képlete szerint $|\tan(x + iy)| \to 1$, ha $|y| \to \infty$, mert
+	      a számláló és a nevező is $\sinh^2 y$-hoz hasonlóan nő; a
+	      $|\tanh(x + iy)|$ ugyanígy $1$-hez tart, ha $|x| \to \infty$.
+	\item \emph{Elforgatás.} Mivel $|\sinh z| = |\sin(iz)|$,
+	      $|\cosh z| = |\cos(iz)|$ és $|\tanh z| = |\tan(iz)|$, és az $i$-vel való szorzás $90^\circ$-os
+	      elforgatás, a hiperbolikus függvények képe a trigonometrikusaké
+	      $90^\circ$-kal elforgatva.
+	\item \emph{Eltolás.} Ahogy a valós számokon, a koszinusz a szinusz
+	      eltoltja ($\cos z = \sin(z + \pi/2)$), és ugyanígy a koszinusz
+	      hiperbolikusz a szinusz hiperbolikuszé a képzetes irányban.
+\end{itemize}
+
 \section{Összefoglalás}
 
 \begin{center}
 	\renewcommand{\arraystretch}{2.4}
 	\begin{tabular}{@{}lcc@{}}
 		\toprule
-		                  & Trigonometrikus                              & Hiperbolikus \\
+		                                & Trigonometrikus                    & Hiperbolikus \\
 		\midrule
-		Görbe             & $x^2 + y^2 = 1$                             &
-		$x^2 - y^2 = 1$                                                                   \\
-		Exponenciális alak &
-		$\cos z = (e^{iz} + e^{-iz})/2$                          &
-		$\cosh z = (e^{z} + e^{-z})/2$                                             \\
-		                  & $\sin z = (e^{iz} - e^{-iz})/(2i)$     &
-		$\sinh z = (e^{z} - e^{-z})/2$                                             \\
-		Pitagorasz-tétel  & $\cos^2 z + \sin^2 z = 1$                   &
-		$\cosh^2 z - \sinh^2 z = 1$                                                       \\
-		Kapcsolat         & $\cos z = \cosh(iz)$                        &
-		$\cosh z = \cos(iz)$                                                              \\
-		                  & $i \sin z = \sinh(iz)$                      &
-		$i \sinh z = \sin(iz)$                                                            \\
+		Görbe                           & $x^2 + y^2 = 1$                    &
+		$x^2 - y^2 = 1$                                                                     \\
+		Exponenciális alak              &
+		$\cos z = \dfrac{e^{iz} + e^{-iz}}{2}$ &
+		$\cosh z = \dfrac{e^{z} + e^{-z}}{2}$                                                      \\
+		                                & $\sin z = \dfrac{e^{iz} - e^{-iz}}{2i}$ &
+		$\sinh z = \dfrac{e^{z} - e^{-z}}{2}$                                                      \\
+		Pitagorasz-tétel                & $\cos^2 z + \sin^2 z = 1$          &
+		$\cosh^2 z - \sinh^2 z = 1$                                                         \\
+		Kapcsolat                       & $\cos z = \cosh(iz)$               &
+		$\cosh z = \cos(iz)$                                                                \\
+		                                & $i \sin z = \sinh(iz)$             &
+		$i \sinh z = \sin(iz)$                                                              \\
 		\bottomrule
 	\end{tabular}
 \end{center}

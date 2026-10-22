@@ -97,19 +97,28 @@ files are skipped. The site shows them on the topic's page, with a PDF download.
 An optional docstring turns on an interactive table of contents for longer
 documents:
 
-````latex
+```latex
 % ---
 % toc: true
 % ---
 \documentclass[11pt]{scrartcl}
-``` Group names and the reading order of the
-documents are set in `materialGroups` in `src/lib/catalog.ts`. In the dark theme the website inverts figures; one whose colours carry meaning
-(e.g. a heat map) can be wrapped in `\begin{BlockClass}{keep-colors}`, which
-keeps its colours on a light card (define
+```
+
+Group names and the reading order of the documents are set in `materialGroups`
+in `src/lib/catalog.ts`.
+
+In the dark theme the website inverts figures. One whose colours carry meaning
+(e.g. a heat map) can be wrapped in `\begin{BlockClass}{keep-colors}` (define
 `\newenvironment{BlockClass}[2][]{}{}` for the PDF, where lwarp is not loaded,
-as `connection.tex` does). A figure can also
-get an animated web version: write a component, list it under the figure's
-`\label` in
+as `connection.tex` does). Such a figure keeps its colours: a plain vector
+figure sits on a light card. A figure with smooth shadings (pgfplots'
+`shader=interp` surfaces and heat maps) is converted to a mixed SVG instead: the
+shaded regions are bitmaps, everything else stays vector. It gets a dark twin
+with its lines and labels made light and its colours kept, and both are written
+to `public/figures/`.
+
+A figure can also get an animated web version: write a component, list it under
+the figure's `\label` in
 [`src/components/animations/index.ts`](src/components/animations/index.ts) and
 add it to `figureAnimations` there; the PDF keeps the TikZ figure. Two are ready
 (the sine and sinh figures) but switched off.
@@ -126,18 +135,21 @@ Requirements:
 ```sh
 pnpm install
 pnpm dev        # http://localhost:3000
-````
+```
 
-`pnpm dev` compiles the content, starts Next.js and watches `content/`: save a
-`.tex` file and the page reloads with the new version.
+`pnpm dev` starts Next.js right away and brings the content up to date in the
+background (the pages reload when it is done; only a fresh clone, with no
+content yet, waits for the first build). It then watches `content/`: save a
+`.tex` file and the page reloads with the new version. The content steps are
+logged with a `[content …]` prefix.
 
-| Command        | What it does                                                |
-| -------------- | ----------------------------------------------------------- |
-| `pnpm dev`     | Content watcher and development server                      |
-| `pnpm content` | Compile the content only (`--force` ignores the cache)      |
-| `pnpm build`   | Compile the content, then build the static site into `out/` |
-| `pnpm lint`    | ESLint                                                      |
-| `pnpm format`  | Prettier                                                    |
+| Command        | What it does                                                                        |
+| -------------- | ----------------------------------------------------------------------------------- |
+| `pnpm dev`     | Content watcher and development server                                              |
+| `pnpm content` | Compile the content only (`--force` ignores the cache, `--verbose` logs every step) |
+| `pnpm build`   | Compile the content, then build the static site into `out/`                         |
+| `pnpm lint`    | ESLint                                                                              |
+| `pnpm format`  | Prettier                                                                            |
 
 ### How the pipeline works
 

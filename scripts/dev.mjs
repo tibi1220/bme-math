@@ -1,20 +1,26 @@
 #!/usr/bin/env node
-// pnpm dev: builds the content once, then runs next dev together with the
-// content watcher, which recompiles changed .tex files. Stopping either one
-// stops both.
+// pnpm dev: runs next dev together with the content watcher, which brings the
+// content up to date in the background (next dev reloads the pages when it is
+// written) and then recompiles changed .tex files. Stopping either one stops
+// both.
 
 import { spawn, spawnSync } from 'node:child_process';
+import { existsSync } from 'node:fs';
 import path from 'node:path';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
 
-// The generated content is not in git, so a fresh clone has none yet; build
-// it before next dev starts importing it. A failed file is reported, and the
-// watcher retries it after the next edit.
-spawnSync(process.execPath, [path.join(ROOT, 'scripts', 'build-content.mjs')], {
-  cwd: ROOT,
-  stdio: 'inherit',
-});
+// The generated content is not in git, so a fresh clone has none yet, and
+// next dev cannot start without it: only then is it built first. A failed
+// file is reported, and the watcher retries it after the next edit.
+if (!existsSync(path.join(ROOT, 'src', 'generated', 'content.json'))) {
+  console.log('No generated content yet; building it before next dev starts.');
+  spawnSync(
+    process.execPath,
+    [path.join(ROOT, 'scripts', 'build-content.mjs'), '--verbose'],
+    { cwd: ROOT, stdio: 'inherit' },
+  );
+}
 
 const children = [
   // --watch-path restarts the watcher when the pipeline itself changes, so it

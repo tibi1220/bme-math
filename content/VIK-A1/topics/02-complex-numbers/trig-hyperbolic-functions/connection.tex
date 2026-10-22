@@ -111,10 +111,11 @@ function complexpanel(name, part)
     string.format(titles[part], name),
     box.xmin, box.xmax, box.ymin, box.ymax, box.zmin, box.zmax, ztick))
 
-  -- The surface; 100 steps along the long side, so that no grid point falls
-  -- on a pole of a tangent.
-  local nx, ny = 101, 41
-  if hyperbolic then nx, ny = 41, 101 end
+  -- The surface; 196 steps along the long side (not a multiple of 8), so that
+  -- no grid point falls on a pole of a tangent. No sorting is needed: for a
+  -- graph over a grid, pgfplots draws the rows back to front by itself.
+  local nx, ny = 197, 81
+  if hyperbolic then nx, ny = 81, 197 end
   local points = {}
   for j = 0, ny - 1 do
     local y = box.ymin + (box.ymax - box.ymin) * j / (ny - 1)
@@ -159,7 +160,7 @@ function complexpanel(name, part)
   -- The slice, split into its visible runs; it also breaks where it leaves
   -- the box (at the poles of the tangents).
   local runs, run = {}, {}
-  local n = 401
+  local n = 801
   for k = 0, n - 1 do
     local t = -LONG + 2 * LONG * k / (n - 1)
     local x, y = t, 0
@@ -197,8 +198,8 @@ end
 			xmin=-6.2832, xmax=6.2832, ymin=-6.2832, ymax=6.2832,
 			domain=-6.2832:6.2832,
 			y domain=-6.2832:6.2832,
-			% 60 steps: no grid point falls on a pole of tan or tanh.
-			samples=61,
+			% 116 steps: no grid point falls on a pole of tan or tanh.
+			samples=117,
 			enlargelimits=false,
 			axis on top,
 			trig format plots=rad,
@@ -225,7 +226,6 @@ end
 			width=0.5\linewidth,
 			height=0.39\linewidth,
 			view={25}{35},
-			z buffer=sort,
 			colormap/viridis,
 			ticklabel style={font=\figtickfont},
 			label style={font=\figfont},
@@ -711,8 +711,8 @@ kiszámolhatók.
 	\end{tikzpicture}
 	\end{BlockClass}
 	\caption{A hat függvény abszolút értéke a komplex síkon, logaritmikus
-		színskálán (sötét: kicsi, világos: nagy). A fehér pontok a
-		zérushelyek, a fekete rombuszok a tangensek pólusai (ahol a nevező
+		színskálán (sötét: kicsi, világos: nagy). A karikák a
+		zérushelyek, a rombuszok a tangensek pólusai (ahol a nevező
 		nulla). Az alsó sor színskálája finomabb, mert a tangensek a
 		pólusaiktól távol $1$ közelében maradnak. A hiperbolikus függvények képe (jobbra) a
 		trigonometrikusaké (balra) $90^\circ$-kal elforgatva.}

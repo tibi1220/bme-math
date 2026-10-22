@@ -5,11 +5,12 @@
 // (content/<subject>/topics/<NN-topic>/<group>/<name>.tex) are converted the
 // same way, and published as PDFs too.
 //
-// Usage: pnpm content [--force] [--watch]
+// Usage: pnpm content [--force] [--watch] [--verbose]
 //
 // Each converted file is cached by the hash of its source, so only changed
 // files are recompiled. --force ignores the cache. --watch rebuilds whenever a
 // .tex file under content/ changes (pnpm dev runs it next to next dev).
+// --verbose (on by default with --watch) logs every step with timestamps.
 
 import { execFile } from 'node:child_process';
 import { createHash } from 'node:crypto';
@@ -19,6 +20,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { promisify } from 'node:util';
 import katex from 'katex';
+import { PNG } from 'pngjs';
 import YAML from 'yaml';
 import {
   exams as examNames,
@@ -33,10 +35,13 @@ const CONTENT_DIR = path.join(ROOT, 'content');
 const OUT_FILE = path.join(ROOT, 'src', 'generated', 'content.json');
 const CACHE_DIR = path.join(ROOT, 'node_modules', '.cache', 'lwarp');
 const DOWNLOADS_DIR = path.join(ROOT, 'public', 'downloads');
+const FIGURES_DIR = path.join(ROOT, 'public', 'figures');
+// The site's path prefix on GitHub Pages, for the figure URLs in the HTML.
+const BASE_PATH = process.env.PAGES_BASE_PATH ?? '';
 
 // Bump these whenever the conversion below changes, to invalidate the cache:
 // one version for the exercises, one for the topic materials.
-const PIPELINE_VERSION = { exercise: '9', material: '13' };
+const PIPELINE_VERSION = { exercise: '9', material: '14' };
 
 const EXERCISE_FILE = /^(\d{4})-([a-z]+)-(\d+)\.tex$/;
 // The solution of 2025-a-1.tex lives next to it in 2025-a-1-sol.tex.
@@ -45,6 +50,19 @@ const TOPIC_DIR = /^(\d+)-(.+)$/;
 
 let force = process.argv.includes('--force');
 const watchMode = process.argv.includes('--watch');
+const verbose = watchMode || process.argv.includes('--verbose');
+
+// Progress details, only with --verbose (and in pnpm dev), prefixed so they
+// stand out from next dev's output.
+function debug(message) {
+  if (!verbose) return;
+  const time = new Date().toLocaleTimeString('en-GB');
+  console.log(`[content ${time}] ${message}`);
+}
+
+function seconds(start) {
+  return `${((performance.now() - start) / 1000).toFixed(1)} s`;
+}
 
 // ---------------------------------------------------------------------------
 // Source discovery
@@ -207,7 +225,7 @@ function toLwarpSource(source, kind) {
   return withLwarp;
 }
 
-async function runLwarp(source, kind) {
+async function runLwarp(source, kind, label) {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'lwarp-'));
   try {
     await fs.writeFile(
@@ -216,11 +234,13 @@ async function runLwarp(source, kind) {
     );
     const options = { cwd: dir, maxBuffer: 64 * 1024 * 1024 };
     try {
+      debug(`${label}: lualatex`);
       await run(
         'lualatex',
         ['-interaction=nonstopmode', '-halt-on-error', 'exercise.tex'],
         options,
       );
+      debug(`${label}: lwarpmk html`);
       await run('lwarpmk', ['html'], options);
     } catch (error) {
       const log = await fs
@@ -231,7 +251,7 @@ async function runLwarp(source, kind) {
       throw error;
     }
     const html = await fs.readFile(path.join(dir, 'index.html'), 'utf8');
-    return await embedImages(html, dir, options);
+    return await embedImages(html, dir, options, label);
   } finally {
     await fs.rm(dir, { recursive: true, force: true });
   }
@@ -242,10 +262,11 @@ async function runLwarp(source, kind) {
 const LATEX_IMAGE =
   /<span\s+id="lateximage-[^"]*"\s+class="lateximagesource"\s*>(?:<!--[\s\S]*?-->)?<img\s+src="([^"]+\.svg)"[\s\S]*?><\/span>/g;
 
-async function embedImages(html, dir, options) {
+async function embedImages(html, dir, options, label) {
   const sources = [...html.matchAll(LATEX_IMAGE)].map(match => match[1]);
   if (sources.length === 0) return html;
 
+  debug(`${label}: lwarpmk limages (${new Set(sources).size} pictures)`);
   await run('lwarpmk', ['limages'], options);
   const images = new Map();
   for (const src of new Set(sources)) {
@@ -253,24 +274,26 @@ async function embedImages(html, dir, options) {
     images.set(
       src,
       svg.includes('<feImage')
-        ? `data:image/png;base64,${(await rasterizeImage(dir, src, options)).toString('base64')}`
-        : `data:image/svg+xml;base64,${Buffer.from(svg).toString('base64')}`,
+        ? (debug(`${label}: shaded picture ${path.basename(src)}`),
+          await shadedImage(dir, src, options))
+        : `<img src="data:image/svg+xml;base64,${Buffer.from(svg).toString('base64')}" alt="" class="lateximage">`,
     );
   }
-  return html.replace(
-    LATEX_IMAGE,
-    (_, src) => `<img src="${images.get(src)}" alt="" class="lateximage">`,
-  );
+  return html.replace(LATEX_IMAGE, (_, src) => images.get(src));
 }
 
-// pdftocairo writes smooth shadings (pgfplots' shader=interp: heat maps,
-// surfaces) as SVG filters whose feImage points at elements of the same file,
-// which most browsers do not draw inside an <img>. Such a picture is rendered
-// to a PNG instead, from its page of the lwarp PDF, cropped the same way as
-// lwarpmk crops it for the SVG.
-const RASTER_DPI = 220;
+// Smooth shadings (pgfplots' shader=interp: heat maps, surfaces) have no SVG
+// equivalent, so pdftocairo renders the rectangle around each one to a bitmap
+// and pastes it with SVG filters whose feImage points at elements of the same
+// file, which most browsers do not draw inside an <img>. Such a picture is
+// converted again, with its bitmaps at RASTER_DPI, and the filters are
+// replaced by plain drawing (flattenCompositing): everything outside those
+// rectangles stays vector. If that fails, the whole picture becomes a PNG.
+// The result is marked lateximage-shaded; it gets a dark twin and is served as
+// a file (see externalizeShaded).
+const RASTER_DPI = 250;
 
-async function rasterizeImage(dir, src, options) {
+async function shadedImage(dir, src, options) {
   const name = path.basename(src, '.svg');
   const list = await fs.readFile(path.join(dir, 'exercise-images.txt'), 'utf8');
   const page = list
@@ -278,7 +301,8 @@ async function rasterizeImage(dir, src, options) {
     .map(line => line.match(/^\|(.*)\|(.*)\|(.*)\|$/))
     .find(match => match?.[3] === name)?.[1];
   if (!page) throw new Error(`no page for ${name} in exercise-images.txt`);
-  const tmp = path.join(dir, `raster-${name}`);
+  // The page of the lwarp PDF, cropped the same way as lwarpmk crops it.
+  const tmp = path.join(dir, `shaded-${name}`);
   await run(
     'pdfseparate',
     ['-f', page, '-l', page, 'exercise_html.pdf', `${tmp}.pdf`],
@@ -289,12 +313,55 @@ async function rasterizeImage(dir, src, options) {
     ['--hires', '--margins', '0 1 0 0', `${tmp}.pdf`, `${tmp}-crop.pdf`],
     options,
   );
+  const resolution = ['-r', String(RASTER_DPI), `${tmp}-crop.pdf`];
   await run(
     'pdftocairo',
-    ['-png', '-singlefile', '-r', String(RASTER_DPI), `${tmp}-crop.pdf`, tmp],
+    ['-svg', '-noshrink', ...resolution, `${tmp}.svg`],
     options,
   );
-  return await fs.readFile(`${tmp}.png`);
+  const svg = flattenCompositing(await fs.readFile(`${tmp}.svg`, 'utf8'));
+  let data;
+  if (svg) {
+    data = `data:image/svg+xml;base64,${Buffer.from(svg).toString('base64')}`;
+  } else {
+    await run(
+      'pdftocairo',
+      ['-png', '-singlefile', ...resolution, tmp],
+      options,
+    );
+    data = `data:image/png;base64,${(await fs.readFile(`${tmp}.png`)).toString('base64')}`;
+  }
+  return `<img src="${data}" alt="" class="lateximage lateximage-shaded">`;
+}
+
+// cairo pastes each bitmap with a filter that composites "source" (the bitmap
+// under a mask) and "destination" (everything drawn before, under the inverse
+// mask) by addition. Drawing the destination and then the source over it
+// gives the same picture with plain SVG. Returns null if anything else is
+// left, e.g. if a newer poppler writes something different.
+const COMPOSITE_FILTER =
+  /<filter id="([^"]+)"[^>]*>\s*<feImage xlink:href="#([^"]+)" result="source"[^>]*\/>\s*<feImage xlink:href="#([^"]+)" result="destination"[^>]*\/>\s*<feComposite in="source" in2="destination" operator="arithmetic" k1="0" k2="1" k3="1" k4="0"[^>]*\/>\s*<\/filter>\s*/g;
+const FILTERED_CANVAS =
+  /<g filter="url\(#([^)]+)\)"( transform="[^"]*")?>\s*<rect[^>]*\/>\s*<\/g>/g;
+
+function flattenCompositing(svg) {
+  const filters = new Map();
+  let out = svg.replace(COMPOSITE_FILTER, (_, id, source, destination) => {
+    filters.set(id, { source, destination });
+    return '';
+  });
+  out = out.replace(FILTERED_CANVAS, (match, id, transform = '') => {
+    const filter = filters.get(id);
+    if (!filter) return match;
+    return `<g${transform}><use xlink:href="#${filter.destination}"/><use xlink:href="#${filter.source}"/></g>`;
+  });
+  for (const { destination } of filters.values()) {
+    out = out.replace(
+      new RegExp(`<g id="${destination}" mask="url\\(#[^)]+\\)">`),
+      `<g id="${destination}">`,
+    );
+  }
+  return filters.size > 0 && !out.includes('<feImage') ? out : null;
 }
 
 // lwarpmk limages runs pdftocairo in the background on Unix, so wait until
@@ -555,11 +622,12 @@ function testDocument({
 }
 
 // `runs` > 1 resolves cross-references (\ref) in the materials.
-async function compilePdf(tex, runs = 1) {
+async function compilePdf(tex, runs = 1, label = 'PDF') {
   const hash = createHash('sha256').update(`${runs}`).update(tex).digest('hex');
   const cached = path.join(CACHE_DIR, `${hash}.pdf`);
   const hit = await fs.readFile(cached).catch(() => null);
   if (hit) return { pdf: hit, fromCache: true };
+  debug(`compiling ${label} (${runs} lualatex run${runs > 1 ? 's' : ''})`);
 
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'test-pdf-'));
   try {
@@ -687,10 +755,11 @@ async function buildPdfs(jobs, limit) {
   await mapConcurrent(jobs, limit, async job => {
     const rel = path.relative(ROOT, job.file);
     try {
-      const { pdf, fromCache } = await compilePdf(job.tex, job.runs);
+      const start = performance.now();
+      const { pdf, fromCache } = await compilePdf(job.tex, job.runs, rel);
       if (!fromCache) {
         compiled++;
-        console.log(`compiled ${rel}`);
+        console.log(`compiled ${rel}${verbose ? ` in ${seconds(start)}` : ''}`);
       }
       await writeIfChanged(job.file, pdf);
     } catch (error) {
@@ -858,10 +927,143 @@ function glueMathPunctuation(html) {
 // The steps that run on the HTML after the cache, so changing them needs no
 // recompilation.
 function afterCache(html, source) {
-  return glueMathPunctuation(splitDisplays(html, documentMacros(source)));
+  return externalizeShaded(
+    glueMathPunctuation(splitDisplays(html, documentMacros(source))),
+  );
 }
 
-async function convert(source, kind) {
+// ---------------------------------------------------------------------------
+// Shaded figures
+//
+// The shaded figures (see shadedImage) are large, so they are served as files
+// under public/figures/ instead of data URIs, each with a dark-theme twin.
+// Both are lazy-loaded and the hidden one is display: none, so a reader
+// downloads only the one their theme shows (see lwarp-classes.ts). The file
+// names are content hashes; bump DARK_VERSION when the dark twins change.
+
+const DARK_VERSION = '3';
+const rasters = new Map();
+
+const SHADED_IMAGE =
+  /<img src="data:image\/(png|svg\+xml);base64,([^"]+)" alt="" class="lateximage lateximage-shaded">/g;
+
+function externalizeShaded(html) {
+  return html.replace(SHADED_IMAGE, (_, type, data) => {
+    const image = Buffer.from(data, 'base64');
+    const ext = type === 'png' ? 'png' : 'svg';
+    const hash = createHash('sha256').update(image).digest('hex').slice(0, 16);
+    const light = `${hash}.${ext}`;
+    const dark = `${hash}-dark${DARK_VERSION}.${ext}`;
+    rasters.set(light, () => image);
+    rasters.set(dark, () =>
+      ext === 'png'
+        ? darkPng(image)
+        : Buffer.from(darkSvg(image.toString('utf8'))),
+    );
+    const { width, height } =
+      ext === 'png' ? PNG.sync.read(image) : svgSize(image);
+    const img = (file, variant) =>
+      `<img src="${BASE_PATH}/figures/${file}" alt="" width="${width}" height="${height}" loading="lazy" class="lateximage lateximage-${variant}">`;
+    return img(light, 'light') + img(dark, 'dark');
+  });
+}
+
+// The size of an SVG in CSS pixels (cairo gives it in points).
+function svgSize(svg) {
+  const [, width, height] =
+    /<svg[^>]*width="([\d.]+)pt" height="([\d.]+)pt"/.exec(
+      svg.toString('utf8'),
+    );
+  return {
+    width: Math.round((width * 4) / 3),
+    height: Math.round((height * 4) / 3),
+  };
+}
+
+// The dark-theme version of a figure: grey (the white background, black lines
+// and labels) becomes the page's light text colour, with the darkness as
+// opacity, so the background turns transparent and the lines light; colours
+// (a colour map, a red curve) are kept, as they carry the meaning.
+const DARK_INK = 235;
+
+function darkPng(buffer) {
+  const png = PNG.sync.read(buffer);
+  const { data } = png;
+  for (let i = 0; i < data.length; i += 4) {
+    const [r, g, b] = [data[i], data[i + 1], data[i + 2]];
+    const saturation = (Math.max(r, g, b) - Math.min(r, g, b)) / 255;
+    const keep = Math.min(1, Math.max(0, (saturation - 0.08) / 0.12));
+    const ink = 1 - (r + g + b) / 765;
+    for (let c = 0; c < 3; c++) {
+      data[i + c] = Math.round(keep * data[i + c] + (1 - keep) * DARK_INK);
+    }
+    data[i + 3] = Math.round(data[i + 3] * (keep + (1 - keep) * ink));
+  }
+  return PNG.sync.write(png);
+}
+
+// The same for a mixed SVG: grey fills and strokes are inverted towards the
+// light text colour (cairo's SVG has no background), the bitmaps go through
+// darkPng. What a <mask> draws keeps its colours, as they are its alpha.
+function darkSvg(svg) {
+  const maskSources = new Set(
+    [...svg.matchAll(/<mask id="[^"]+">\s*<use xlink:href="#([^"]+)"/g)].map(
+      match => match[1],
+    ),
+  );
+  const open = [];
+  let inMask = 0;
+  return svg
+    .replace(
+      /<(\/?)([a-zA-Z]+)([^>]*?)(\/?)>/g,
+      (tag, close, name, attrs, selfClose) => {
+        if (close) {
+          if (open.pop()) inMask--;
+          return tag;
+        }
+        const id = /\bid="([^"]+)"/.exec(attrs)?.[1];
+        const startsMask = name === 'mask' || maskSources.has(id);
+        const result = inMask > 0 || startsMask ? tag : darkGreys(tag);
+        if (!selfClose) {
+          open.push(startsMask);
+          if (startsMask) inMask++;
+        }
+        return result;
+      },
+    )
+    .replace(
+      /(<image\b[^>]*xlink:href="data:image\/png;base64,)([^"]+)"/g,
+      (_, head, data) =>
+        `${head}${darkPng(Buffer.from(data, 'base64')).toString('base64')}"`,
+    );
+}
+
+function darkGreys(tag) {
+  return tag.replace(
+    /(fill|stroke)="rgb\(([\d.]+)%, ([\d.]+)%, ([\d.]+)%\)"/g,
+    (attr, key, ...rgb) => {
+      const [r, g, b] = rgb.slice(0, 3).map(Number);
+      if (Math.max(r, g, b) - Math.min(r, g, b) > 1.5) return attr;
+      const v = (((100 - (r + g + b) / 3) * DARK_INK) / 255).toFixed(1);
+      return `${key}="rgb(${v}%, ${v}%, ${v}%)"`;
+    },
+  );
+}
+
+async function writeRasters() {
+  await fs.mkdir(FIGURES_DIR, { recursive: true });
+  const existing = new Set(await fs.readdir(FIGURES_DIR));
+  for (const [file, render] of rasters) {
+    if (!existing.has(file)) {
+      await fs.writeFile(path.join(FIGURES_DIR, file), render());
+    }
+  }
+  for (const file of existing) {
+    if (!rasters.has(file)) await fs.rm(path.join(FIGURES_DIR, file));
+  }
+}
+
+async function convert(source, kind, label) {
   const hash = createHash('sha256')
     .update(PIPELINE_VERSION[kind])
     .update(kind)
@@ -875,8 +1077,9 @@ async function convert(source, kind) {
       return { html: afterCache(hit, source), fromCache: true };
     }
   }
+  debug(`converting ${label}`);
   const html = toFragment(
-    await runLwarp(source, kind),
+    await runLwarp(source, kind, label),
     kind,
     documentMacros(source),
   );
@@ -902,9 +1105,12 @@ async function mapConcurrent(items, limit, fn) {
 
 // Returns false when some file failed; the output is then left untouched.
 async function build() {
+  const buildStart = performance.now();
+  rasters.clear();
   const subjects = await discover();
   const jobs = subjects.flatMap(s => s.exams.flatMap(e => e.files));
   const limit = Math.max(1, Math.min(8, os.availableParallelism() - 1));
+  debug(`build started (${limit} in parallel)`);
 
   let total = 0;
   let compiled = 0;
@@ -915,10 +1121,13 @@ async function build() {
     total++;
     try {
       const source = await fs.readFile(file, 'utf8');
-      const { html, fromCache } = await convert(source, kind);
+      const start = performance.now();
+      const { html, fromCache } = await convert(source, kind, rel);
       if (!fromCache) {
         compiled++;
-        console.log(`converted ${rel}`);
+        console.log(
+          `converted ${rel}${verbose ? ` in ${seconds(start)}` : ''}`,
+        );
       }
       return { source, html };
     } catch (error) {
@@ -1022,12 +1231,17 @@ async function build() {
     })),
   };
 
+  await writeRasters();
+
   // Rewriting an unchanged file would still make next dev reload the page.
   const json = `${JSON.stringify(output, null, 2)}\n`;
   const previous = await fs.readFile(OUT_FILE, 'utf8').catch(() => null);
   if (json !== previous) {
     await fs.mkdir(path.dirname(OUT_FILE), { recursive: true });
     await fs.writeFile(OUT_FILE, json);
+    debug(`${path.relative(ROOT, OUT_FILE)} updated, the pages reload`);
+  } else {
+    debug(`${path.relative(ROOT, OUT_FILE)} unchanged`);
   }
   const pdfsOk = await buildPdfs(
     [
@@ -1041,28 +1255,38 @@ async function build() {
   console.log(
     `${jobs.length} exercises, ${solutions} solutions, ${materialJobs.length} materials (${compiled} compiled, ${total - compiled} cached) → ${path.relative(ROOT, OUT_FILE)}`,
   );
+  debug(`build finished in ${seconds(buildStart)}`);
   return pdfsOk;
 }
 
-// Rebuilds after each burst of .tex changes; a change that arrives during a
-// build schedules one more build afterwards.
+// Builds once, then again after each burst of .tex changes; a change that
+// arrives during a build (also the first one) schedules one more build
+// afterwards.
 function watchContent() {
   let timer = null;
   let running = false;
   let pending = false;
+  const changed = new Set();
 
   async function rebuild() {
     if (running) {
       pending = true;
+      debug(
+        `changed during the build: ${[...changed].join(', ')}; rebuilding afterwards`,
+      );
       return;
     }
     running = true;
+    if (changed.size > 0) debug(`changed: ${[...changed].join(', ')}`);
+    changed.clear();
     try {
       await build();
     } catch (error) {
       console.error(error);
     } finally {
       running = false;
+      // --force applies to the first build only.
+      force = false;
     }
     if (pending) {
       pending = false;
@@ -1072,15 +1296,15 @@ function watchContent() {
 
   watch(CONTENT_DIR, { recursive: true }, (_event, filename) => {
     if (!filename?.endsWith('.tex')) return;
+    changed.add(path.join(path.relative(ROOT, CONTENT_DIR), filename));
     clearTimeout(timer);
     timer = setTimeout(rebuild, 200);
   });
   console.log(`watching ${path.relative(ROOT, CONTENT_DIR)}/ for .tex changes`);
+  rebuild();
 }
 
 if (watchMode) {
-  await build();
-  force = false;
   watchContent();
 } else if (!(await build())) {
   process.exit(1);

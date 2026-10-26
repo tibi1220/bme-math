@@ -104,6 +104,10 @@ export const materialGroups: Record<string, { name: string; order: string[] }> =
       name: 'Trigonometrikus és hiperbolikus függvények',
       order: ['trig-functions', 'hyperbolic-functions', 'connection'],
     },
+    'limits-continuity': {
+      name: 'A gyakorlatok függvényeinek ábrái',
+      order: ['limits', 'discontinuities', 'limits-tangents'],
+    },
   };
 
 // Keyed by the exam folder name, which is also its URL slug.

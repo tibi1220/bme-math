@@ -14,7 +14,7 @@
 
 import { execFile } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { watch } from 'node:fs';
+import { existsSync, watch } from 'node:fs';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
@@ -61,7 +61,40 @@ function debug(message) {
 }
 
 function seconds(start) {
-  return `${((performance.now() - start) / 1000).toFixed(1)} s`;
+  const total = (performance.now() - start) / 1000;
+  if (total < 60) return `${total.toFixed(1)} s`;
+  return `${Math.floor(total / 60)} min ${Math.round(total % 60)} s`;
+}
+
+// The steps running right now (label → step and its start), for the
+// heartbeat that reports long conversions while the build runs.
+const active = new Map();
+
+// Runs one step of a file's conversion, logging its start and its duration.
+async function step(label, name, fn) {
+  const start = performance.now();
+  active.set(label, { name, start });
+  debug(`${label}: ${name}`);
+  try {
+    const result = await fn();
+    debug(`${label}: ${name} done in ${seconds(start)}`);
+    return result;
+  } finally {
+    active.delete(label);
+  }
+}
+
+// Every 30 s, the steps that are still running (with --verbose).
+function startHeartbeat() {
+  if (!verbose) return () => {};
+  const timer = setInterval(() => {
+    if (active.size === 0) return;
+    const running = [...active].map(
+      ([label, { name, start }]) => `${label} (${name}, ${seconds(start)})`,
+    );
+    debug(`still working on ${running.join('; ')}`);
+  }, 30_000);
+  return () => clearInterval(timer);
 }
 
 // ---------------------------------------------------------------------------
@@ -234,14 +267,16 @@ async function runLwarp(source, kind, label) {
     );
     const options = { cwd: dir, maxBuffer: 64 * 1024 * 1024 };
     try {
-      debug(`${label}: lualatex`);
-      await run(
-        'lualatex',
-        ['-interaction=nonstopmode', '-halt-on-error', 'exercise.tex'],
-        options,
+      await step(label, 'lualatex', () =>
+        run(
+          'lualatex',
+          ['-interaction=nonstopmode', '-halt-on-error', 'exercise.tex'],
+          options,
+        ),
       );
-      debug(`${label}: lwarpmk html`);
-      await run('lwarpmk', ['html'], options);
+      await step(label, 'lwarpmk html', () =>
+        run('lwarpmk', ['html'], options),
+      );
     } catch (error) {
       const log = await fs
         .readFile(path.join(dir, 'exercise_html.log'), 'utf8')
@@ -266,16 +301,18 @@ async function embedImages(html, dir, options, label) {
   const sources = [...html.matchAll(LATEX_IMAGE)].map(match => match[1]);
   if (sources.length === 0) return html;
 
-  debug(`${label}: lwarpmk limages (${new Set(sources).size} pictures)`);
-  await run('lwarpmk', ['limages'], options);
+  await step(label, `lwarpmk limages (${new Set(sources).size} pictures)`, () =>
+    run('lwarpmk', ['limages'], options),
+  );
   const images = new Map();
   for (const src of new Set(sources)) {
     const svg = await readFinishedSvg(path.join(dir, src));
     images.set(
       src,
       svg.includes('<feImage')
-        ? (debug(`${label}: shaded picture ${path.basename(src)}`),
-          await shadedImage(dir, src, options))
+        ? await step(label, `shaded picture ${path.basename(src)}`, () =>
+            shadedImage(dir, src, options, label),
+          )
         : `<img src="data:image/svg+xml;base64,${Buffer.from(svg).toString('base64')}" alt="" class="lateximage">`,
     );
   }
@@ -293,7 +330,7 @@ async function embedImages(html, dir, options, label) {
 // a file (see externalizeShaded).
 const RASTER_DPI = 250;
 
-async function shadedImage(dir, src, options) {
+async function shadedImage(dir, src, options, label) {
   const name = path.basename(src, '.svg');
   const list = await fs.readFile(path.join(dir, 'exercise-images.txt'), 'utf8');
   const page = list
@@ -322,8 +359,12 @@ async function shadedImage(dir, src, options) {
   const svg = flattenCompositing(await fs.readFile(`${tmp}.svg`, 'utf8'));
   let data;
   if (svg) {
+    debug(
+      `${label}: ${name} kept as vectors (${Math.round(svg.length / 1024)} KB)`,
+    );
     data = `data:image/svg+xml;base64,${Buffer.from(svg).toString('base64')}`;
   } else {
+    debug(`${label}: ${name} could not be flattened, rendering it as a PNG`);
     await run(
       'pdftocairo',
       ['-png', '-singlefile', ...resolution, tmp],
@@ -627,17 +668,18 @@ async function compilePdf(tex, runs = 1, label = 'PDF') {
   const cached = path.join(CACHE_DIR, `${hash}.pdf`);
   const hit = await fs.readFile(cached).catch(() => null);
   if (hit) return { pdf: hit, fromCache: true };
-  debug(`compiling ${label} (${runs} lualatex run${runs > 1 ? 's' : ''})`);
 
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'test-pdf-'));
   try {
     await fs.writeFile(path.join(dir, 'test.tex'), tex);
     try {
       for (let i = 0; i < runs; i++) {
-        await run(
-          'lualatex',
-          ['-interaction=nonstopmode', '-halt-on-error', 'test.tex'],
-          { cwd: dir, maxBuffer: 64 * 1024 * 1024 },
+        await step(label, `PDF: lualatex run ${i + 1}/${runs}`, () =>
+          run(
+            'lualatex',
+            ['-interaction=nonstopmode', '-halt-on-error', 'test.tex'],
+            { cwd: dir, maxBuffer: 64 * 1024 * 1024 },
+          ),
         );
       }
     } catch (error) {
@@ -888,6 +930,22 @@ const FIRST_BOX =
 
 const punctuation = text => `<span class="math-punct">${text}</span>`;
 
+// The word touching position i from the left / from the right: characters up
+// to whitespace or a tag. Scanned by hand, as a regex such as /[^\s<>]*$/
+// takes quadratic time on a long run of such characters (the base64 data of
+// an embedded picture).
+const isWordChar = char => !/[\s<>]/.test(char);
+function wordBefore(text) {
+  let i = text.length;
+  while (i > 0 && isWordChar(text[i - 1])) i--;
+  return text.slice(i);
+}
+const WORD_AFTER = /[^\s<>]*/y;
+function wordAfter(text, i) {
+  WORD_AFTER.lastIndex = i;
+  return WORD_AFTER.exec(text)[0];
+}
+
 function glueMathPunctuation(html) {
   let out = '';
   let rest = 0;
@@ -905,8 +963,8 @@ function glueMathPunctuation(html) {
       !before.endsWith('<span class="katex-display">') &&
       !before.endsWith('<span class="math-split-part">')
     ) {
-      const pre = /[^\s<>]*$/.exec(before)[0];
-      post = /^[^\s<>]*/.exec(html.slice(end))[0];
+      const pre = wordBefore(before);
+      post = wordAfter(html, end);
       if (pre && FIRST_BOX.test(math)) {
         before = before.slice(0, before.length - pre.length);
         math = math.replace(FIRST_BOX, box => box + punctuation(pre));
@@ -1053,31 +1111,43 @@ function darkGreys(tag) {
 async function writeRasters() {
   await fs.mkdir(FIGURES_DIR, { recursive: true });
   const existing = new Set(await fs.readdir(FIGURES_DIR));
+  let written = 0;
+  let removed = 0;
   for (const [file, render] of rasters) {
     if (!existing.has(file)) {
       await fs.writeFile(path.join(FIGURES_DIR, file), render());
+      written++;
     }
   }
   for (const file of existing) {
-    if (!rasters.has(file)) await fs.rm(path.join(FIGURES_DIR, file));
+    if (!rasters.has(file)) {
+      await fs.rm(path.join(FIGURES_DIR, file));
+      removed++;
+    }
   }
+  debug(
+    `figures: ${rasters.size} in ${path.relative(ROOT, FIGURES_DIR)} (${written} written, ${removed} removed)`,
+  );
 }
 
-async function convert(source, kind, label) {
+function cachedHtml(source, kind) {
   const hash = createHash('sha256')
     .update(PIPELINE_VERSION[kind])
     .update(kind)
     .update(katex.version)
     .update(source)
     .digest('hex');
-  const cached = path.join(CACHE_DIR, `${hash}.html`);
+  return path.join(CACHE_DIR, `${hash}.html`);
+}
+
+async function convert(source, kind, label) {
+  const cached = cachedHtml(source, kind);
   if (!force) {
     const hit = await fs.readFile(cached, 'utf8').catch(() => null);
     if (hit !== null) {
       return { html: afterCache(hit, source), fromCache: true };
     }
   }
-  debug(`converting ${label}`);
   const html = toFragment(
     await runLwarp(source, kind, label),
     kind,
@@ -1105,12 +1175,44 @@ async function mapConcurrent(items, limit, fn) {
 
 // Returns false when some file failed; the output is then left untouched.
 async function build() {
+  const stopHeartbeat = startHeartbeat();
+  try {
+    return await buildContent();
+  } finally {
+    stopHeartbeat();
+  }
+}
+
+async function buildContent() {
   const buildStart = performance.now();
   rasters.clear();
   const subjects = await discover();
   const jobs = subjects.flatMap(s => s.exams.flatMap(e => e.files));
   const limit = Math.max(1, Math.min(8, os.availableParallelism() - 1));
-  debug(`build started (${limit} in parallel)`);
+  const materialJobs = subjects.flatMap(subject =>
+    subject.topics.flatMap(topic => topic.materials),
+  );
+
+  // What is not in the cache yet, so that the log can say how far along the
+  // build is.
+  const sources = [
+    ...jobs.flatMap(job => [job.file, job.solutionFile].filter(Boolean)),
+  ].map(file => ({ file, kind: 'exercise' }));
+  sources.push(...materialJobs.map(m => ({ file: m.file, kind: 'material' })));
+  const missing = [];
+  for (const { file, kind } of sources) {
+    const source = await fs.readFile(file, 'utf8');
+    if (force || !existsSync(cachedHtml(source, kind))) {
+      missing.push(path.relative(ROOT, file));
+    }
+  }
+  debug(
+    `build started: ${jobs.length} exercises, ${materialJobs.length} materials; ` +
+      `${missing.length} of ${sources.length} files to convert (${limit} in parallel)` +
+      (missing.length > 0 && missing.length <= 10
+        ? `: ${missing.join(', ')}`
+        : ''),
+  );
 
   let total = 0;
   let compiled = 0;
@@ -1126,7 +1228,7 @@ async function build() {
       if (!fromCache) {
         compiled++;
         console.log(
-          `converted ${rel}${verbose ? ` in ${seconds(start)}` : ''}`,
+          `converted ${rel}${verbose ? ` in ${seconds(start)} (${compiled}/${missing.length})` : ''}`,
         );
       }
       return { source, html };
@@ -1171,9 +1273,6 @@ async function build() {
   // optional docstring may turn on the table of contents (toc: true).
   const materials = new Map();
   const materialSources = new Map();
-  const materialJobs = subjects.flatMap(subject =>
-    subject.topics.flatMap(topic => topic.materials),
-  );
   await mapConcurrent(materialJobs, limit, async material => {
     const result = await convertFile(material.file, 'material');
     if (!result) return;

@@ -1,0 +1,341 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[magyar]{babel}
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+\usepackage[margin=1in]{geometry}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{luacode}
+
+\usetikzlibrary{arrows.meta}
+\pgfplotsset{compat=1.18}
+
+% Feliratméretek. A weboldalon (lwarp-pal konvertálva) az ábrák kicsinyítve
+% jelennek meg, ott nagyobb feliratok kellenek, mint a PDF-ben.
+\makeatletter
+\@ifpackageloaded{lwarp}{%
+	\newcommand{\figfont}{\large}%
+	\newcommand{\figtickfont}{\large}%
+}{%
+	\newcommand{\figfont}{\normalsize}%
+	\newcommand{\figtickfont}{\small}%
+}
+\makeatother
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.66em}
+
+\definecolor{fcolor}{HTML}{1F77B4}
+\definecolor{gcolor}{HTML}{D62728}
+
+\pgfplotsset{
+	fn/.style={
+			axis lines=middle,
+			axis line style={-{Stealth[scale=1.1]}, gray!70!black, line width=1pt},
+			xlabel={$x$},
+			ylabel={$y$},
+			xlabel style={anchor=west},
+			ylabel style={anchor=south},
+			tick style={gray!70!black},
+			ticklabel style={font=\figtickfont, fill=white, inner sep=1pt},
+			label style={font=\figfont},
+			% A tengelyek és a feliratok (fehér háttéren) a görbék fölött.
+			axis on top,
+			width=\linewidth,
+			height=7.5cm,
+			xmin=\wxmin, xmax=\wxmax,
+			ymin=\wymin, ymax=\wymax,
+			clip=false,
+		},
+	% Nagyított ábra: a tengelyek a bal és az alsó szélen.
+	zoom/.style={
+			fn,
+			axis lines=left,
+			width=0.8\linewidth,
+		},
+}
+\tikzset{
+	% A TikZ alapértelmezésénél vastagabb vonalak: a weboldalon az ábrák
+	% kicsinyítve jelennek meg.
+	every picture/.append style={line width=0.9pt, font=\figfont},
+	% Ha egy görbe kifut az ábrából, ott nyílhegyben végződik; ha valóban
+	% véget ér, ott pontban (end dot); a kimaradó pontok üres karikák (hole).
+	tip/.tip={Stealth[length=8pt, width=7pt]},
+	end dot/.style={only marks, mark=*, mark size=2.8pt},
+	hole/.style={only marks, mark=*, mark size=2.8pt,
+			mark options={fill=white, line width=1.4pt}},
+	graph/.style={line width=2.2pt, line cap=round},
+	mirror/.style={densely dashed, line width=1pt, gray!75},
+}
+
+% A grafikonokat Lua rajzolja: a függvényt darabonként mintavételezi, ahol a
+% görbe kilép az ablakból, ott (felezéssel) pontosan a szélen vágja el, és
+% nyílheggyel zárja; a szakadási helyeken maga teszi ki a pontokat és a
+% karikákat.
+\begin{luacode*}
+plot = { fn = {} }
+
+-- EPS: ilyen közelről nézzük a töréspontokat és a végpontokat. Ha túl
+-- kicsi, a 0/0 alakú kifejezések (pl. cos(3x) - 1) számítása pontatlan.
+local EPS
+
+function plot.window(xmin, xmax, lo, hi)
+  plot.xmin, plot.xmax, plot.lo, plot.hi = xmin, xmax, lo, hi
+  EPS = 1e-6 * (xmax - xmin)
+end
+
+local function visible(y)
+  return y == y and y >= plot.lo and y <= plot.hi
+end
+
+-- x0-ban a görbe látszik, x1-ben nem: hol lép ki az ablakból?
+local function crossing(f, x0, x1)
+  local edge = f(x1) < plot.lo and plot.lo or plot.hi
+  for _ = 1, 60 do
+    local m = (x0 + x1) / 2
+    if visible(f(m)) then x0 = m else x1 = m end
+  end
+  return { x0, edge }
+end
+
+local function emit(style, points, startTip, endTip)
+  if #points < 2 then return end
+  local out = {}
+  for _, p in ipairs(points) do
+    out[#out + 1] = string.format('(%.5f,%.5f)', p[1], p[2])
+  end
+  tex.sprint(string.format('\\addplot[graph, %s, %s-%s] coordinates {%s};',
+    style, startTip and 'tip' or '', endTip and 'tip' or '',
+    table.concat(out, ' ')))
+end
+
+-- A görbe az (a, b) nyílt intervallumon, amelyen belül nincs pólus.
+local function curve(f, a, b, style, leftTip, rightTip)
+  local n = math.max(60, math.ceil(1500 * (b - a) / (plot.xmax - plot.xmin)))
+  local run, startTip, px
+  for i = 0, n do
+    local x = i == 0 and a + EPS or i == n and b - EPS or a + (b - a) * i / n
+    local y = f(x)
+    if visible(y) then
+      if not run then
+        if i > 0 then
+          run, startTip = { crossing(f, x, px) }, true
+        else
+          run, startTip = {}, leftTip
+        end
+      end
+      run[#run + 1] = { x, y }
+    elseif run then
+      run[#run + 1] = crossing(f, px, x)
+      emit(style, run, startTip, true)
+      run = nil
+    end
+    px = x
+  end
+  if run then emit(style, run, startTip, rightTip) end
+end
+
+local function close(u, v)
+  return math.abs(u - v) < 1e-4 * (plot.hi - plot.lo)
+end
+
+-- Lapos lista a töréspontokból (számok és táblázatok vegyesen).
+local function flatten(list, out)
+  out = out or {}
+  for _, v in ipairs(list) do
+    if type(v) == 'table' then flatten(v, out) else out[#out + 1] = v end
+  end
+  return out
+end
+
+-- a, a + h, ..., b
+function steps(a, b, h)
+  local out = {}
+  for k = 0, math.floor((b - a) / h + 0.5) do out[#out + 1] = a + k * h end
+  return out
+end
+
+-- Az f függvény grafikonja [a, b]-n. A breaks töréspontokban (szakadások,
+-- pólusok) a görbe megszakad; ott a függvényérték pont, a tőle eltérő
+-- féloldali határértékek karikák. Az ends két karaktere a két végpont:
+-- < és > a görbe továbbfut, [ ] végpont, ( ) kimaradó végpont, . semmi.
+function plot.graph(name, a, b, breaks, ends, style)
+  local f = plot.fn[name]
+  local xs = { a, b }
+  for _, x in ipairs(flatten(breaks)) do
+    if x > a + EPS and x < b - EPS then xs[#xs + 1] = x end
+  end
+  table.sort(xs)
+  for i = 1, #xs - 1 do
+    curve(f, xs[i], xs[i + 1], style,
+      i == 1 and ends:sub(1, 1) == '<', i == #xs - 1 and ends:sub(2, 2) == '>')
+  end
+  local marks = {}
+  local function mark(kind, x, y)
+    if visible(y) then marks[#marks + 1] = { kind, x, y } end
+  end
+  for i = 2, #xs - 1 do
+    local x = xs[i]
+    local l, r, v = f(x - EPS), f(x + EPS), f(x)
+    local defined = visible(v)
+    if not (defined and close(l, v)) then mark('hole', x, l) end
+    if not (defined and close(r, v)) and not close(l, r) then mark('hole', x, r) end
+    if defined and not (close(l, v) and close(r, v)) then mark('end dot', x, v) end
+  end
+  for _, e in ipairs({ { ends:sub(1, 1), a, 1 }, { ends:sub(2, 2), b, -1 } }) do
+    local c, x, side = e[1], e[2], e[3]
+    if c == '[' or c == ']' then mark('end dot', x, f(x)) end
+    if c == '(' or c == ')' then mark('hole', x, f(x + side * EPS)) end
+  end
+  for _, m in ipairs(marks) do
+    tex.sprint(string.format('\\addplot[%s, %s] coordinates {(%.5f,%.5f)};',
+      m[1], style, m[2], m[3]))
+  end
+end
+
+local floor, sin, cos, tan = math.floor, math.sin, math.cos, math.tan
+plot.fn.f1 = function(x)
+  return (x * x - 4) * (cos(2 * x) / sin(2 * x)) / (2 * x + 4) + floor(4 * x - 2)
+end
+plot.fn.f2 = function(x)
+  local t = 2 * x - 5
+  return (x * x - 9) * tan(2 * x) / (3 * x - 9) + (t - floor(t))
+end
+plot.fn.f3 = function(x)
+  if x <= 3 then return 1 / (x - 2) - 1 / math.abs(x - 2) end
+  return (x * x - 4 * x - 12) / (x ^ 3 - 10 * x * x + 24 * x)
+end
+plot.fn.f4 = function(x)
+  if x >= -4 then return math.abs(x + 3) / (x * x + 3 * x) end
+  return (x ^ 3 + x * x - 30 * x) / (x * x + 2 * x - 15)
+end
+\end{luacode*}
+
+% \setwindow{xmin}{xmax}{ymin}{ymax}: a következő ábra ablaka.
+\newcommand{\setwindow}[4]{%
+	\def\wxmin{#1}\def\wxmax{#2}\def\wymin{#3}\def\wymax{#4}%
+	\directlua{plot.window(#1, #2, #3, #4)}}
+% \fngraph[stílus]{függvény}{a}{b}{töréspontok}{végpontok}
+\newcommand{\fngraph}[6][]{\directlua{plot.graph("#2", #3, #4,
+		load("return {\luaescapestring{\detokenize{#5}}}")(), "#6",
+		"\luaescapestring{\detokenize{#1}}")}}
+% Függőleges és vízszintes aszimptoták; \hasymptote{y}{felirat}{hol}, ahol
+% a hol a felirat helye: a bal vagy a jobb szélen, a vonal alatt vagy fölött.
+\newcommand{\vasymptote}[1]{\draw[mirror] (#1, \wymin) -- (#1, \wymax);}
+\newcommand{\hasymptote}[3]{\draw[mirror] (\wxmin, #1) -- (\wxmax, #1)
+	node[asymptote label/#3, font=\figtickfont, inner sep=2pt,
+		text=gray!70!black] {#2};}
+\tikzset{
+	asymptote label/left above/.style={pos=0.02, above right},
+	asymptote label/left below/.style={pos=0.02, below right},
+	asymptote label/right above/.style={pos=0.98, above left},
+	asymptote label/right below/.style={pos=0.98, below left},
+}
+
+\title{A 6. gyakorlat függvényeinek ábrái}
+\subtitle{Analízis A1 -- segédanyag}
+\author{Sándor Tibor}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Egészrész és törtrész}
+
+\begin{figure}[ht]
+	\centering
+	\setwindow{-2.6}{2.6}{-18}{12}
+	\begin{tikzpicture}
+		\begin{axis}[fn, height=10cm, xtick={-2, -1, 1, 2},
+				ytick={-15, -10, -5, 5, 10},
+				extra x ticks={-1.5708, 1.5708},
+				extra x tick labels={$-\frac{\pi}{2}$, $\frac{\pi}{2}$},
+				extra x tick style={ticklabel pos=upper}]
+			\vasymptote{-1.5708}
+			\vasymptote{1.5708}
+			\fngraph[fcolor]{f1}{-2.6}{2.6}
+			{steps(-2.5, 2.5, 0.25), -math.pi / 2, math.pi / 2}{<>}
+		\end{axis}
+	\end{tikzpicture}
+	\caption{Az $f(x) = \dfrac{(x^2 - 4) \cot(2x)}{2x + 4}
+			+ [4x - 2]$ függvény grafikonja.}
+	\label{fig:floor}
+\end{figure}
+
+\begin{figure}[ht]
+	\centering
+	\setwindow{-1.2}{4.3}{-8}{8}
+	\begin{tikzpicture}
+		\begin{axis}[fn, height=9cm, xtick={-1, 1, 2},
+				ytick={-6, -4, -2, 2, 4, 6},
+				extra x ticks={-0.7854, 0.7854, 2.3562, 3.9270},
+				extra x tick labels={$-\frac{\pi}{4}$, $\frac{\pi}{4}$,
+						$\frac{3\pi}{4}$, $\frac{5\pi}{4}$},
+				]
+			\foreach \x in {-0.7854, 0.7854, 2.3562, 3.9270} {
+					\edef\temp{\noexpand\vasymptote{\x}}
+					\temp
+				}
+			\fngraph[gcolor]{f2}{-1.2}{4.3}
+			{steps(-1, 4, 0.5), -math.pi / 4, math.pi / 4, 3 * math.pi / 4,
+				5 * math.pi / 4}{<>}
+		\end{axis}
+	\end{tikzpicture}
+	\caption{A $g(x) = \dfrac{(x^2 - 9) \tan(2x)}{3x - 9}
+			+ \{2x - 5\}$ függvény grafikonja.}
+	\label{fig:fractional}
+\end{figure}
+
+\section{Szakaszonként megadott függvények}
+
+\begin{figure}[ht]
+	\centering
+	\setwindow{-3}{9}{-6}{6}
+	\begin{tikzpicture}
+		\begin{axis}[fn, xtick={-2, 2, 3, 4, 6, 8}, ytick={-4, -2, 2, 4}]
+			\vasymptote{2}
+			\vasymptote{4}
+			\fngraph[fcolor]{f3}{-3}{9}{2, 3, 4, 6}{<>}
+		\end{axis}
+	\end{tikzpicture}
+	\caption{Az $f(x) = \begin{cases}
+				\dfrac{1}{x - 2} - \dfrac{1}{|x - 2|}, & \text{ha } x \le 3 \\[2ex]
+				\dfrac{x^2 - 4x - 12}{x^3 - 10x^2 + 24x}, & \text{ha } x > 3
+			\end{cases}$ függvény grafikonja.}
+	\label{fig:piecewise-f}
+\end{figure}
+
+\begin{figure}[ht]
+	\centering
+	\setwindow{-10}{4}{-14}{8}
+	\begin{tikzpicture}
+		\begin{axis}[fn, xtick={-8, -6, -5, -4, -2, 2},
+				ytick={-10, -5, 5}]
+			\vasymptote{-5}
+			\fngraph[gcolor]{f4}{-10}{4}{-5, -4, -3, 0}{<>}
+		\end{axis}
+	\end{tikzpicture}
+	\caption{A $g(x) = \begin{cases}
+				\dfrac{|x + 3|}{x^2 + 3x}, & \text{ha } x \ge -4 \\[2ex]
+				\dfrac{x^3 + x^2 - 30x}{x^2 + 2x - 15}, & \text{ha } x < -4
+			\end{cases}$ függvény grafikonja.}
+	\label{fig:piecewise-g}
+\end{figure}
+
+\begin{figure}[ht]
+	\centering
+	\setwindow{-4.6}{-2.2}{-1.2}{1.2}
+	\begin{tikzpicture}
+		\begin{axis}[zoom, axis x line=middle, height=6.5cm,
+				xtick={-4.5, -4, -3.5, -3, -2.5},
+				ytick={-1, -0.3333, 0.3333, 1},
+				yticklabels={$-1$, $-\frac{1}{3}$, $\frac{1}{3}$, $1$}]
+			\fngraph[gcolor]{f4}{-4.6}{-2.2}{-4, -3}{<>}
+		\end{axis}
+	\end{tikzpicture}
+	\caption{A $g$ függvény grafikonja a $-4$ és a $-3$ körül.}
+	\label{fig:piecewise-g-zoom}
+\end{figure}
+
+\end{document}

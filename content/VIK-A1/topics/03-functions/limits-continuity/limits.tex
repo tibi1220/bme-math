@@ -1,0 +1,345 @@
+\documentclass[11pt]{scrartcl}
+
+\usepackage[magyar]{babel}
+\usepackage[stixtwo]{fontsetup}
+\usepackage{amsmath}
+\usepackage[margin=1in]{geometry}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{luacode}
+
+\usetikzlibrary{arrows.meta}
+\pgfplotsset{compat=1.18}
+
+% Feliratméretek. A weboldalon (lwarp-pal konvertálva) az ábrák kicsinyítve
+% jelennek meg, ott nagyobb feliratok kellenek, mint a PDF-ben.
+\makeatletter
+\@ifpackageloaded{lwarp}{%
+	\newcommand{\figfont}{\large}%
+	\newcommand{\figtickfont}{\large}%
+}{%
+	\newcommand{\figfont}{\normalsize}%
+	\newcommand{\figtickfont}{\small}%
+}
+\makeatother
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.66em}
+
+\definecolor{fcolor}{HTML}{1F77B4}
+\definecolor{gcolor}{HTML}{D62728}
+
+\pgfplotsset{
+	fn/.style={
+			axis lines=middle,
+			axis line style={-{Stealth[scale=1.1]}, gray!70!black, line width=1pt},
+			xlabel={$x$},
+			ylabel={$y$},
+			xlabel style={anchor=west},
+			ylabel style={anchor=south},
+			tick style={gray!70!black},
+			ticklabel style={font=\figtickfont, fill=white, inner sep=1pt},
+			label style={font=\figfont},
+			% A tengelyek és a feliratok (fehér háttéren) a görbék fölött.
+			axis on top,
+			width=\linewidth,
+			height=7.5cm,
+			xmin=\wxmin, xmax=\wxmax,
+			ymin=\wymin, ymax=\wymax,
+			clip=false,
+		},
+	% Nagyított ábra: a tengelyek a bal és az alsó szélen.
+	zoom/.style={
+			fn,
+			axis lines=left,
+			width=0.8\linewidth,
+		},
+}
+\tikzset{
+	% A TikZ alapértelmezésénél vastagabb vonalak: a weboldalon az ábrák
+	% kicsinyítve jelennek meg.
+	every picture/.append style={line width=0.9pt, font=\figfont},
+	% Ha egy görbe kifut az ábrából, ott nyílhegyben végződik; ha valóban
+	% véget ér, ott pontban (end dot); a kimaradó pontok üres karikák (hole).
+	tip/.tip={Stealth[length=8pt, width=7pt]},
+	end dot/.style={only marks, mark=*, mark size=2.8pt},
+	hole/.style={only marks, mark=*, mark size=2.8pt,
+			mark options={fill=white, line width=1.4pt}},
+	graph/.style={line width=2.2pt, line cap=round},
+	mirror/.style={densely dashed, line width=1pt, gray!75},
+}
+
+% A grafikonokat Lua rajzolja: a függvényt darabonként mintavételezi, ahol a
+% görbe kilép az ablakból, ott (felezéssel) pontosan a szélen vágja el, és
+% nyílheggyel zárja; a szakadási helyeken maga teszi ki a pontokat és a
+% karikákat.
+\begin{luacode*}
+plot = { fn = {} }
+
+-- EPS: ilyen közelről nézzük a töréspontokat és a végpontokat. Ha túl
+-- kicsi, a 0/0 alakú kifejezések (pl. cos(3x) - 1) számítása pontatlan.
+local EPS
+
+function plot.window(xmin, xmax, lo, hi)
+  plot.xmin, plot.xmax, plot.lo, plot.hi = xmin, xmax, lo, hi
+  EPS = 1e-6 * (xmax - xmin)
+end
+
+local function visible(y)
+  return y == y and y >= plot.lo and y <= plot.hi
+end
+
+-- x0-ban a görbe látszik, x1-ben nem: hol lép ki az ablakból?
+local function crossing(f, x0, x1)
+  local edge = f(x1) < plot.lo and plot.lo or plot.hi
+  for _ = 1, 60 do
+    local m = (x0 + x1) / 2
+    if visible(f(m)) then x0 = m else x1 = m end
+  end
+  return { x0, edge }
+end
+
+local function emit(style, points, startTip, endTip)
+  if #points < 2 then return end
+  local out = {}
+  for _, p in ipairs(points) do
+    out[#out + 1] = string.format('(%.5f,%.5f)', p[1], p[2])
+  end
+  tex.sprint(string.format('\\addplot[graph, %s, %s-%s] coordinates {%s};',
+    style, startTip and 'tip' or '', endTip and 'tip' or '',
+    table.concat(out, ' ')))
+end
+
+-- A görbe az (a, b) nyílt intervallumon, amelyen belül nincs pólus.
+local function curve(f, a, b, style, leftTip, rightTip)
+  local n = math.max(60, math.ceil(1500 * (b - a) / (plot.xmax - plot.xmin)))
+  local run, startTip, px
+  for i = 0, n do
+    local x = i == 0 and a + EPS or i == n and b - EPS or a + (b - a) * i / n
+    local y = f(x)
+    if visible(y) then
+      if not run then
+        if i > 0 then
+          run, startTip = { crossing(f, x, px) }, true
+        else
+          run, startTip = {}, leftTip
+        end
+      end
+      run[#run + 1] = { x, y }
+    elseif run then
+      run[#run + 1] = crossing(f, px, x)
+      emit(style, run, startTip, true)
+      run = nil
+    end
+    px = x
+  end
+  if run then emit(style, run, startTip, rightTip) end
+end
+
+local function close(u, v)
+  return math.abs(u - v) < 1e-4 * (plot.hi - plot.lo)
+end
+
+-- Lapos lista a töréspontokból (számok és táblázatok vegyesen).
+local function flatten(list, out)
+  out = out or {}
+  for _, v in ipairs(list) do
+    if type(v) == 'table' then flatten(v, out) else out[#out + 1] = v end
+  end
+  return out
+end
+
+-- a, a + h, ..., b
+function steps(a, b, h)
+  local out = {}
+  for k = 0, math.floor((b - a) / h + 0.5) do out[#out + 1] = a + k * h end
+  return out
+end
+
+-- Az f függvény grafikonja [a, b]-n. A breaks töréspontokban (szakadások,
+-- pólusok) a görbe megszakad; ott a függvényérték pont, a tőle eltérő
+-- féloldali határértékek karikák. Az ends két karaktere a két végpont:
+-- < és > a görbe továbbfut, [ ] végpont, ( ) kimaradó végpont, . semmi.
+function plot.graph(name, a, b, breaks, ends, style)
+  local f = plot.fn[name]
+  local xs = { a, b }
+  for _, x in ipairs(flatten(breaks)) do
+    if x > a + EPS and x < b - EPS then xs[#xs + 1] = x end
+  end
+  table.sort(xs)
+  for i = 1, #xs - 1 do
+    curve(f, xs[i], xs[i + 1], style,
+      i == 1 and ends:sub(1, 1) == '<', i == #xs - 1 and ends:sub(2, 2) == '>')
+  end
+  local marks = {}
+  local function mark(kind, x, y)
+    if visible(y) then marks[#marks + 1] = { kind, x, y } end
+  end
+  for i = 2, #xs - 1 do
+    local x = xs[i]
+    local l, r, v = f(x - EPS), f(x + EPS), f(x)
+    local defined = visible(v)
+    if not (defined and close(l, v)) then mark('hole', x, l) end
+    if not (defined and close(r, v)) and not close(l, r) then mark('hole', x, r) end
+    if defined and not (close(l, v) and close(r, v)) then mark('end dot', x, v) end
+  end
+  for _, e in ipairs({ { ends:sub(1, 1), a, 1 }, { ends:sub(2, 2), b, -1 } }) do
+    local c, x, side = e[1], e[2], e[3]
+    if c == '[' or c == ']' then mark('end dot', x, f(x)) end
+    if c == '(' or c == ')' then mark('hole', x, f(x + side * EPS)) end
+  end
+  for _, m in ipairs(marks) do
+    tex.sprint(string.format('\\addplot[%s, %s] coordinates {(%.5f,%.5f)};',
+      m[1], style, m[2], m[3]))
+  end
+end
+
+local sqrt = math.sqrt
+plot.fn.f1 = function(x) return (2 * x - 1) / (5 - x) end
+plot.fn.f2 = function(x) return (4 - 6 * x) / (7 + 2 * x) end
+plot.fn.f3 = function(x)
+  return x * (sqrt(x * x + 1) - sqrt(math.max(0, x * x - 3)))
+end
+plot.fn.f4 = function(x)
+  return sqrt(x * x + x + 1) - sqrt(math.max(0, x * x - x - 3))
+end
+\end{luacode*}
+
+% \setwindow{xmin}{xmax}{ymin}{ymax}: a következő ábra ablaka.
+\newcommand{\setwindow}[4]{%
+	\def\wxmin{#1}\def\wxmax{#2}\def\wymin{#3}\def\wymax{#4}%
+	\directlua{plot.window(#1, #2, #3, #4)}}
+% \fngraph[stílus]{függvény}{a}{b}{töréspontok}{végpontok}
+\newcommand{\fngraph}[6][]{\directlua{plot.graph("#2", #3, #4,
+		load("return {\luaescapestring{\detokenize{#5}}}")(), "#6",
+		"\luaescapestring{\detokenize{#1}}")}}
+% Függőleges és vízszintes aszimptoták; \hasymptote{y}{felirat}{hol}, ahol
+% a hol a felirat helye: a bal vagy a jobb szélen, a vonal alatt vagy fölött.
+\newcommand{\vasymptote}[1]{\draw[mirror] (#1, \wymin) -- (#1, \wymax);}
+\newcommand{\hasymptote}[3]{\draw[mirror] (\wxmin, #1) -- (\wxmax, #1)
+	node[asymptote label/#3, font=\figtickfont, inner sep=2pt,
+		text=gray!70!black] {#2};}
+\tikzset{
+	asymptote label/left above/.style={pos=0.02, above right},
+	asymptote label/left below/.style={pos=0.02, below right},
+	asymptote label/right above/.style={pos=0.98, above left},
+	asymptote label/right below/.style={pos=0.98, below left},
+}
+
+\title{Az 5. gyakorlat függvényeinek ábrái}
+\subtitle{Analízis A1 -- segédanyag}
+\author{Sándor Tibor}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Racionális törtfüggvények}
+
+\begin{figure}[ht]
+	\centering
+	\setwindow{-25}{35}{-12}{8}
+	\begin{tikzpicture}
+		\begin{axis}[fn, xtick={-20, -10, 5, 10, 20, 30},
+				ytick={-10, -5, 5}]
+			\hasymptote{-2}{$y = -2$}{left below}
+			\vasymptote{5}
+			\fngraph[fcolor]{f1}{-25}{35}{5}{<>}
+		\end{axis}
+	\end{tikzpicture}
+	\caption{Az $f(x) = \dfrac{2x - 1}{5 - x}$ függvény grafikonja;
+		$\lim\limits_{x \to \pm\infty} f(x) = -2$.}
+	\label{fig:f1-infinity}
+\end{figure}
+
+\begin{figure}[ht]
+	\centering
+	\setwindow{2}{4.8}{0}{12}
+	\begin{tikzpicture}
+		\begin{axis}[zoom, xtick={2, 3, 4}, ytick={4, 7, 10}]
+			\draw[mirror] (4, \wymin) -- (4, 7) -- (\wxmin, 7);
+			\fngraph[fcolor]{f1}{2}{4.8}{}{<>}
+			\addplot[end dot, fcolor] coordinates {(4, 7)};
+		\end{axis}
+	\end{tikzpicture}
+	\caption{Az $f(x) = \dfrac{2x - 1}{5 - x}$ függvény grafikonja a $4$ körül;
+		$\lim\limits_{x \to 4} f(x) = 7$.}
+	\label{fig:f1-point}
+\end{figure}
+
+\begin{figure}[ht]
+	\centering
+	\setwindow{-30}{25}{-13}{7}
+	\begin{tikzpicture}
+		\begin{axis}[fn, xtick={-20, -10, 10, 20}, ytick={-10, -5, 5},
+				extra x ticks={-3.5}, extra x tick labels={$-\frac{7}{2}$}]
+			\hasymptote{-3}{$y = -3$}{left above}
+			\vasymptote{-3.5}
+			\fngraph[gcolor]{f2}{-30}{25}{-3.5}{<>}
+		\end{axis}
+	\end{tikzpicture}
+	\caption{A $g(x) = \dfrac{4 - 6x}{7 + 2x}$ függvény grafikonja;
+		$\lim\limits_{x \to \pm\infty} g(x) = -3$.}
+	\label{fig:f2-infinity}
+\end{figure}
+
+\begin{figure}[ht]
+	\centering
+	\setwindow{-2.6}{1.4}{-1}{8}
+	\begin{tikzpicture}
+		\begin{axis}[zoom, axis lines=middle, xtick={-2, -1, 1}, ytick={2, 4, 6}]
+			\draw[mirror] (-1, 0) -- (-1, 2) -- (0, 2);
+			\fngraph[gcolor]{f2}{-2.6}{1.4}{}{<>}
+			\addplot[end dot, gcolor] coordinates {(-1, 2)};
+		\end{axis}
+	\end{tikzpicture}
+	\caption{A $g(x) = \dfrac{4 - 6x}{7 + 2x}$ függvény grafikonja a $-1$
+		körül; $\lim\limits_{x \to -1} g(x) = 2$.}
+	\label{fig:f2-point}
+\end{figure}
+
+\section{Gyökös kifejezések}
+
+\begin{figure}[ht]
+	\centering
+	\setwindow{-12}{12}{-4.5}{4.5}
+	\begin{tikzpicture}
+		\begin{axis}[fn, xtick={-10, -5, 5, 10}, ytick={-4, -2, 2, 4},
+				extra x ticks={-1.7321, 1.7321},
+				extra x tick labels={$-\sqrt{3}$, $\sqrt{3}$},
+				extra x tick style={ticklabel pos=upper}]
+			\hasymptote{2}{$y = 2$}{left above}
+			\hasymptote{-2}{$y = -2$}{right below}
+			\draw[mirror] (-1.7321, 0) -- (-1.7321, -3.4641);
+			\draw[mirror] (1.7321, 0) -- (1.7321, 3.4641);
+			\fngraph[fcolor]{f3}{-12}{-math.sqrt(3)}{}{<]}
+			\fngraph[fcolor]{f3}{math.sqrt(3)}{12}{}{[>}
+		\end{axis}
+	\end{tikzpicture}
+	\caption{Az $f(x) = x \left( \sqrt{x^2 + 1} - \sqrt{x^2 - 3} \right)$
+		függvény grafikonja ($|x| \ge \sqrt{3}$);
+		$\lim\limits_{x \to -\infty} f(x) = -2$ és
+		$\lim\limits_{x \to \infty} f(x) = 2$.}
+	\label{fig:f3}
+\end{figure}
+
+\begin{figure}[ht]
+	\centering
+	\setwindow{-12}{12}{-1.8}{3.6}
+	\begin{tikzpicture}
+		\begin{axis}[fn, xtick={-10, -5, 5, 10}, ytick={-1, 1, 2, 3}]
+			\hasymptote{1}{$y = 1$}{left above}
+			\hasymptote{-1}{$y = -1$}{right below}
+			\fngraph[gcolor]{f4}{-12}{(1 - math.sqrt(13)) / 2}{}{<]}
+			\fngraph[gcolor]{f4}{(1 + math.sqrt(13)) / 2}{12}{}{[>}
+		\end{axis}
+	\end{tikzpicture}
+	\caption{A $g(x) = \sqrt{x^2 + x + 1} - \sqrt{x^2 - x - 3}$ függvény
+		grafikonja ($x \le \frac{1 - \sqrt{13}}{2}$ vagy
+		$x \ge \frac{1 + \sqrt{13}}{2}$);
+		$\lim\limits_{x \to -\infty} g(x) = -1$ és
+		$\lim\limits_{x \to \infty} g(x) = 1$.}
+	\label{fig:f4}
+\end{figure}
+
+\end{document}

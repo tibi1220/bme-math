@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import { Geist, STIX_Two_Text } from 'next/font/google';
 import Link from 'next/link';
 import { Footer } from '@/components/footer';
-import { Logo } from '@/components/logo';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { absoluteUrl, siteDescription, siteName } from '@/lib/site';
 import { THEME_SCRIPT } from '@/lib/theme';
@@ -63,9 +62,8 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
           <nav className='mx-auto flex max-w-3xl items-center justify-between px-4 py-3'>
             <Link
               href='/'
-              className='flex items-center gap-2 font-semibold tracking-tight'
+              className='font-semibold tracking-tight'
             >
-              <Logo className='size-7' />
               BME Matek
             </Link>
             <ThemeToggle />
